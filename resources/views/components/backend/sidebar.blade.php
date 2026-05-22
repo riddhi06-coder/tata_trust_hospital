@@ -64,6 +64,24 @@
                 </li>
                 @endif
 
+
+                
+                <!-- Home slider banner Details -->
+                <li class="sidebar-list {{ request()->routeIs('banner-details.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-icons') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-icons') }}"></use>
+                    </svg>
+                    <span>Home</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('banner-details.index') }}">Banner Details</a></li>
+                  </ul>
+                </li>
                 
                 
               </ul>

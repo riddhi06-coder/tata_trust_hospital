@@ -1,10 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\PreventBackHistoryMiddleware;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\PermissionController;
+
+use App\Http\Controllers\Backend\HomeBannerController;
+
+
 
 // ----------------------
 // Guest-only auth routes (login / register / forgot password)
@@ -70,3 +75,19 @@ Route::middleware('auth')->group(function () {
     Route::put('permissions-catalog/{permission}',             [PermissionController::class, 'updatePermission'])->middleware('permission:permissions.assign')->name('admin.permissions.manage.update');
     Route::delete('permissions-catalog/{permission}',          [PermissionController::class, 'destroyPermission'])->middleware('permission:permissions.assign')->name('admin.permissions.manage.destroy');
 });
+
+
+
+// ----------------------
+// 🔹 Backend (Admin Panel) Routes
+// ----------------------
+Route::prefix('')
+    ->middleware(['auth:web', PreventBackHistoryMiddleware::class])
+    ->group(function () {
+
+    
+            // Home slider
+            Route::resource('banner-details', HomeBannerController::class);
+
+    
+    });
