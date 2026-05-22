@@ -9,6 +9,8 @@ use App\Http\Controllers\Backend\PermissionController;
 
 use App\Http\Controllers\Backend\HomeBannerController;
 use App\Http\Controllers\Backend\ShortIntroductionController;
+use App\Http\Controllers\Backend\HomeSpecialitiesController;
+
 
 
 // ----------------------
@@ -89,6 +91,7 @@ Route::prefix('')
             // Home slider
             Route::resource('banner-details', HomeBannerController::class);
             Route::resource('short-introduction', ShortIntroductionController::class);
+            Route::resource('home-specialities', HomeSpecialitiesController::class);
 
     
     });
