@@ -45,7 +45,7 @@
               </li>
            
               <li class="profile-nav onhover-dropdown"> 
-                <div class="media profile-media"><img class="b-r-10" src="{{ asset('admin/assets/images/user/user.png') }}" alt="">
+                <div class="media profile-media"><img class="b-r-10" src="{{ asset('admin/assets/images/logo/favicon.png') }}" alt="">
                   <div class="media-body d-xxl-block d-none box-col-none">
                     <div class="d-flex align-items-center gap-2"> <span>{{ Auth::user()->name }} </span><i class="middle fa fa-angle-down"> </i></div>
                     <!-- <p class="mb-0 font-roboto">{{ Auth::user()->name }}</p> -->
