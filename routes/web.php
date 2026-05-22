@@ -8,7 +8,7 @@ use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\PermissionController;
 
 use App\Http\Controllers\Backend\HomeBannerController;
-
+use App\Http\Controllers\Backend\ShortIntroductionController;
 
 
 // ----------------------
@@ -85,9 +85,10 @@ Route::prefix('')
     ->middleware(['auth:web', PreventBackHistoryMiddleware::class])
     ->group(function () {
 
-    
+
             // Home slider
             Route::resource('banner-details', HomeBannerController::class);
+            Route::resource('short-introduction', ShortIntroductionController::class);
 
     
     });
