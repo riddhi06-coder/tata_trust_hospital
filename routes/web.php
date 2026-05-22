@@ -10,6 +10,8 @@ use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\HomeBannerController;
 use App\Http\Controllers\Backend\ShortIntroductionController;
 use App\Http\Controllers\Backend\HomeSpecialitiesController;
+use App\Http\Controllers\Backend\HomeFacilitiesController;
+
 
 
 
@@ -92,6 +94,7 @@ Route::prefix('')
             Route::resource('banner-details', HomeBannerController::class);
             Route::resource('short-introduction', ShortIntroductionController::class);
             Route::resource('home-specialities', HomeSpecialitiesController::class);
+            Route::resource('manage-facilities', HomeFacilitiesController::class);
 
     
     });
