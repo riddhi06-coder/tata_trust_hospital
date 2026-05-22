@@ -67,7 +67,7 @@
 
                 
                 <!-- Home slider banner Details -->
-                <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-specialities.index','manage-facilities.index') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-specialities.index','manage-facilities.index','home-team.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -83,6 +83,7 @@
                     <li><a href="{{ route('short-introduction.index') }}"> Short Introduction </a></li>
                     <li><a href="{{ route('home-specialities.index') }}"> Specialities </a></li>
                     <li><a href="{{ route('manage-facilities.index') }}"> Facilities </a></li>
+                    <li><a href="{{ route('home-team.index') }}"> Our Team </a></li>
                   </ul>
                 </li>
                 

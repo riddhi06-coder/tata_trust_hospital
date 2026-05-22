@@ -16,7 +16,7 @@ class HomeFacilitiesController extends Controller
 
     public function index()
     {
-        $facilities = HomeFacilities::latest()->get();
+        $facilities = HomeFacilities::wherenull('deleted_by')->get();
 
         return view('backend.home.facilities.index', compact('facilities'));
     }

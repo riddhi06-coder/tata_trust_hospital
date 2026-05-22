@@ -16,7 +16,7 @@ class HomeSpecialitiesController extends Controller
 
     public function index()
     {
-        $specialities = HomeSpecialities::latest()->get();
+        $specialities = HomeSpecialities::wherenull('deleted_by')->get();
 
         return view('backend.home.specialities.index',compact('specialities'));
     }
@@ -270,5 +270,5 @@ class HomeSpecialitiesController extends Controller
             return redirect()->back()->with('error', 'Something Went Wrong - ' . $ex->getMessage());
         }
     }
-    
+
 }
