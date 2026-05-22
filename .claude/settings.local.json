@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(cd \"/c/xampp/htdocs/tata_animal_trust\" && ls database/migrations/ | tail -6)",
+      "Read(//c/c/xampp/htdocs/tata_animal_trust/database/**)",
+      "Bash(cd \"/c/xampp/htdocs/tata_animal_trust\" && mv database/migrations/2026_05_22_122756_create_permission_role_table.php database/migrations/2026_05_22_122758_create_permission_role_table.php && ls database/migrations/ | tail -5)",
+      "Bash(mkdir -p resources/views/backend/roles resources/views/backend/users resources/views/backend/permissions)",
+      "Read(//c/c/xampp/htdocs/tata_animal_trust/resources/views/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\c\\xampp\\htdocs\\tata_animal_trust\\database\\migrations"
     ]
   }
 }

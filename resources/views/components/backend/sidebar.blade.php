@@ -31,6 +31,39 @@
                   </a>
                 </li>
 
+
+                @php
+                    $canRoles       = auth()->user()?->hasPermission('roles.view');
+                    $canUsers       = auth()->user()?->hasPermission('users.view');
+                    $canPermissions = auth()->user()?->hasPermission('permissions.view');
+                @endphp
+
+                @if($canRoles || $canUsers || $canPermissions)
+                <li class="sidebar-list {{ request()->routeIs('admin.roles.*', 'admin.users.*', 'admin.permissions.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-user') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-user') }}"></use>
+                    </svg>
+                    <span>User</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                      @if($canRoles)
+                          <li><a href="{{ route('admin.roles.index') }}" class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Roles</a></li>
+                      @endif
+                      @if($canUsers)
+                          <li><a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Users</a></li>
+                      @endif
+                      @if($canPermissions)
+                          <li><a href="{{ route('admin.permissions.index') }}" class="{{ request()->routeIs('admin.permissions.*') ? 'active' : '' }}">Permissions</a></li>
+                      @endif
+                  </ul>
+                </li>
+                @endif
+
                 
                 
               </ul>

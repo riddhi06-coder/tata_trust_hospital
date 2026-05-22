@@ -45,6 +45,17 @@ class LoginController extends Controller
         $remember    = $request->boolean('remember_token');
 
         if (Auth::attempt($credentials, $remember)) {
+            if (! Auth::user()->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()
+                    ->withInput($request->only('email'))
+                    ->with('message', 'Your account has been deactivated. Please contact an administrator.')
+                    ->withErrors(['email' => 'Your account has been deactivated.']);
+            }
+
             $request->session()->regenerate();
             return redirect()
                 ->intended(route('admin.dashboard'))
