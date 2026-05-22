@@ -91,7 +91,7 @@ class LoginController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255|unique:users,email',
+            'email'    => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->whereNull('deleted_at')],
             'password' => ['required', 'string', 'confirmed', PasswordRule::min(8)],
         ], [
             'name.required'     => 'The name field is required.',

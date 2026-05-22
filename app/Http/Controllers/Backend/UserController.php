@@ -27,7 +27,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255|unique:users,email',
+            'email'    => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->whereNull('deleted_at')],
             'password' => ['required', 'string', 'confirmed', PasswordRule::min(8)],
             'role_id'  => 'required|exists:roles,id',
         ]);
@@ -62,7 +62,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255|unique:users,email,'.$user->id,
+            'email'    => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($user->id)->whereNull('deleted_at')],
             'password' => ['nullable', 'string', 'confirmed', PasswordRule::min(8)],
             'role_id'  => 'required|exists:roles,id',
         ]);

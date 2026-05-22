@@ -83,7 +83,7 @@ class RoleController extends Controller
         $base = Str::slug($name);
         $slug = $base;
         $i    = 1;
-        while (Role::where('slug', $slug)->exists()) {
+        while (Role::withTrashed()->where('slug', $slug)->exists()) {
             $slug = $base.'-'.(++$i);
         }
         return $slug;

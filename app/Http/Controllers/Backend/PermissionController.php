@@ -116,7 +116,7 @@ class PermissionController extends Controller
         $base = Str::slug($module).'.'.Str::slug($name);
         $slug = $base;
         $i    = 1;
-        while (Permission::where('slug', $slug)->exists()) {
+        while (Permission::withTrashed()->where('slug', $slug)->exists()) {
             $slug = $base.'-'.(++$i);
         }
         return $slug;

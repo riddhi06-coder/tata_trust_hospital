@@ -2,15 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksDeletedBy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Role extends Model
 {
+    use SoftDeletes, TracksDeletedBy;
+
     public const SUPERADMIN_SLUG = 'superadmin';
 
-    protected $fillable = ['name', 'slug', 'description', 'is_protected', 'is_active'];
+    protected $fillable = ['name', 'slug', 'description', 'is_protected', 'is_active', 'deleted_by'];
 
     protected $casts = [
         'is_protected' => 'boolean',
@@ -25,6 +30,11 @@ class Role extends Model
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class, 'permission_role');
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     public function hasPermission(string $slug): bool

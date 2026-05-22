@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TracksDeletedBy;
 use App\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes, TracksDeletedBy;
 
     protected $fillable = [
         'name',
@@ -20,6 +22,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_active',
+        'deleted_by',
     ];
 
     protected $hidden = [
@@ -44,6 +47,11 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'deleted_by');
     }
 
     public function hasRole(string $slug): bool
