@@ -32,9 +32,18 @@ class HomeController extends Controller
     {
         $banner = HomeBanner::wherenull('deleted_by')->orderBy('created_at', 'asc')->get();
         $short_intro = ShortIntroduction::wherenull('deleted_by')->first();
+        $specialities = HomeSpecialities::wherenull('deleted_by')->first();
+        $facilities = HomeFacilities::wherenull('deleted_by')->first();
+        $our_team = HomeTeam::wherenull('deleted_by')->first();
+        $team_members = OurTeam::wherenull('deleted_by')->orderBy('created_at', 'asc')->where('show_on_home', '1')->get();
 
-        
-        return view('frontend.index', compact('banner','short_intro'));
+        $testimonial_details = HomeTestimonials::wherenull('deleted_by')->first();
+        $testimonials = Testimonials::wherenull('deleted_by')->orderBy('created_at', 'asc')->get();
+
+        $our_board = HomeBoard::wherenull('deleted_by')->first();
+        $follow_us = HomeFollowUs::wherenull('deleted_by')->first();
+
+        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us'));
     }
 
 }
