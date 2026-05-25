@@ -66,6 +66,20 @@
 
 
                 
+                <li class="sidebar-list {{ request()->routeIs('manage-our-team.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-our-team.index') }}">
+                    <svg class="stroke-icon"> 
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-task') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-task') }}"></use>
+                    </svg>
+                    <span>Our Team</span>
+                  </a>
+                </li>
+                
+                
                 <!-- Home slider banner Details -->
                 <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-specialities.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
@@ -88,7 +102,9 @@
                     <li><a href="{{ route('manage-follow-us.index') }}"> Follow Us </a></li>
                   </ul>
                 </li>
-                
+
+
+
                 
               </ul>
               <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
