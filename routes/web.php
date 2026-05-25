@@ -14,6 +14,9 @@ use App\Http\Controllers\Backend\HomeFacilitiesController;
 use App\Http\Controllers\Backend\HomeTeamController;
 use App\Http\Controllers\Backend\HomeTestimonialsController;
 use App\Http\Controllers\Backend\HomeBoardController;
+use App\Http\Controllers\Backend\HomeFollowUsController;
+
+
 
 
 // ----------------------
@@ -99,6 +102,7 @@ Route::prefix('')
             Route::resource('home-team', HomeTeamController::class);
             Route::resource('manage-testimonials', HomeTestimonialsController::class);
             Route::resource('manage-board', HomeBoardController::class);
+            Route::resource('manage-follow-us', HomeFollowUsController::class);
 
     
     });
