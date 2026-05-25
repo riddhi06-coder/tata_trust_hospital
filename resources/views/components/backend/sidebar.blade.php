@@ -79,6 +79,20 @@
                   </a>
                 </li>
                 
+
+                <li class="sidebar-list {{ request()->routeIs('manage-master-testimonials.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-master-testimonials.index') }}">
+                    <svg class="stroke-icon"> 
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-calendar') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-calendar') }}"></use>
+                    </svg>
+                    <span>Testimonials</span>
+                  </a>
+                </li>
+                
                 
                 <!-- Home slider banner Details -->
                 <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-specialities.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">

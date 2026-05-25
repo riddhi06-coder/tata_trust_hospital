@@ -16,7 +16,7 @@ use App\Http\Controllers\Backend\HomeTestimonialsController;
 use App\Http\Controllers\Backend\HomeBoardController;
 use App\Http\Controllers\Backend\HomeFollowUsController;
 use App\Http\Controllers\Backend\MasterOurTeamController;
-
+use App\Http\Controllers\Backend\MasterTestimonialsController;
 
 
 // ----------------------
@@ -106,10 +106,11 @@ Route::prefix('')
 
 
             //Our Team Master
-
-            Route::post('manage-our-team/{id}/toggle-home', [MasterOurTeamController::class, 'toggleHome'])
-                ->name('manage-our-team.toggle-home');
+            Route::post('manage-our-team/{id}/toggle-home', [MasterOurTeamController::class, 'toggleHome'])->name('manage-our-team.toggle-home');
             Route::resource('manage-our-team', MasterOurTeamController::class);
 
+
+            //Testimonials Master
+            Route::resource('manage-master-testimonials', MasterTestimonialsController::class);
 
     });
