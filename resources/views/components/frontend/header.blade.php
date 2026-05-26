@@ -1,4 +1,4 @@
-        <!-- PRELOADER -->
+    <!-- PRELOADER -->
     <div id="preloader">
         <div class="preloader-icon-wrap">
             <div class="preloader-icon-stack">
@@ -19,6 +19,7 @@
         <i class="fas fa-angle-up"></i>
     </button>
     <!-- Scroll-top-end-->
+     
     
     <div class="floating-social-menu">
         <button class="social-toggle-btn">
@@ -41,6 +42,8 @@
     <!-- header-area -->
     <header>
         <div id="header-fixed-height"></div>
+
+
         <div class="sah-header-top-new-ask">
             <div class="marquee-text">
                 <span>
@@ -166,6 +169,8 @@
                 </div>
             </div>
         </div>
+
+
         <div class="search-popup-overlay"></div>
         <!-- header-search-end -->
 
@@ -206,6 +211,8 @@
                 </div>
             </div>
         </div>
+
+
         <div class="offCanvas__overly"></div>
         <!-- offCanvas-menu-end -->
 
