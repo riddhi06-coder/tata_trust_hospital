@@ -1,4 +1,44 @@
-  <!-- header-area -->
+        <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="preloader-icon-wrap">
+            <div class="preloader-icon-stack">
+                <lottie-player class="lottie-preloader-player-sec" src="{{ asset('frontend/assets/preloader-logo.json' ) }}"
+                    background="transparent" speed="1" loop autoplay>
+                </lottie-player>
+            </div>
+        </div>
+        <div class="preloader-counter">
+            <span id="counter-current">0</span>
+            <span class="separator">/</span>
+            <span>100</span>
+        </div>
+    </div>
+
+    <!-- Scroll-top -->
+    <button class="scroll__top scroll-to-target" data-target="html">
+        <i class="fas fa-angle-up"></i>
+    </button>
+    <!-- Scroll-top-end-->
+    
+    <div class="floating-social-menu">
+        <button class="social-toggle-btn">
+            <i class="fas fa-headset"></i>
+        </button>
+        <div class="social-icons">
+            <a target="_blank" href="https://www.instagram.com/sahmumbai/" class="social-icon instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a target="_blank" href="#" class="social-icon whatsapp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            <a target="_blank" href="#" class="social-icon linkedin">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </div>
+    </div>
+    
+    
+    <!-- header-area -->
     <header>
         <div id="header-fixed-height"></div>
         <div class="sah-header-top-new-ask">
