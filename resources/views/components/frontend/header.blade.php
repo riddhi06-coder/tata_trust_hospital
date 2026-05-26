@@ -76,7 +76,12 @@
                                         <li><a href="contact-us.html">Contact</a></li>
                                     </ul>
                                 </div>
-                                <div class="tgmenu__action d-none d-md-block">
+                                <div class="tgmenu__action d-none d-md-flex">
+                                    <div class="emergency-menu-button-custom-sec">
+                                        <a href="#">
+                                            <img src="{{ asset('frontend/assets/img/icon/call-icon-one.webp' ) }}" alt="">
+                                        </a>
+                                    </div>
                                     <ul class="list-wrap">
                                         <li class="offCanvas-menu">
                                             <a href="javascript:void(0)" class="menu-tigger">
