@@ -1,8 +1,8 @@
-    <!-- PRELOADER -->
+     <!-- PRELOADER -->
     <div id="preloader">
         <div class="preloader-icon-wrap">
             <div class="preloader-icon-stack">
-                <lottie-player class="lottie-preloader-player-sec" src="{{ asset('frontend/assets/preloader-logo.json' ) }}"
+                <lottie-player class="lottie-preloader-player-sec" src="https://mbihosting.in/sahmumbai-demo/assets/preloader-logo.json"
                     background="transparent" speed="1" loop autoplay>
                 </lottie-player>
             </div>
@@ -18,8 +18,6 @@
     <button class="scroll__top scroll-to-target" data-target="html">
         <i class="fas fa-angle-up"></i>
     </button>
-    <!-- Scroll-top-end-->
-     
     
     <div class="floating-social-menu">
         <button class="social-toggle-btn">
@@ -29,7 +27,7 @@
             <a target="_blank" href="https://www.instagram.com/sahmumbai/" class="social-icon instagram">
                 <i class="fab fa-instagram"></i>
             </a>
-            <a target="_blank" href="#" class="social-icon whatsapp">
+            <a target="_blank" href="https://wa.me/917021850400" class="social-icon whatsapp">
                 <i class="fab fa-whatsapp"></i>
             </a>
             <a target="_blank" href="#" class="social-icon linkedin">
@@ -37,66 +35,73 @@
             </a>
         </div>
     </div>
-    
-    
-    <!-- header-area -->
+ 
+ 
+ 
+ <!-- header-area -->
     <header>
         <div id="header-fixed-height"></div>
-
-
-        <div class="sah-header-top-new-ask">
-            <div class="marquee-text">
-                <span>
-                    <img src="{{ asset('frontend/assets/img/icon/appointment.png') }}" alt="Book An Appointment Icon">Book An Appointment: <a
-                        href="tel:02265383538">022-6538-3538</a> &nbsp;&nbsp;&nbsp; |
-                    &nbsp;&nbsp;&nbsp; <img src="{{ asset('frontend/assets/img/icon/timing-icon.webp') }}" alt="Timing Icon">
-                    Timing 24 x 7
-                </span>
+        
+        <!--<div class="sah-header-top-new-ask">-->
+        <!--    <div class="marquee-text">-->
+        <!--        <span>-->
+        <!--            <img src="{{ asset('frontend/assets/img/icon/appointment.png') }}" alt="Book An Appointment Icon">Book An Appointment: <a-->
+        <!--                href="tel:02265383538">022-6538-3538</a> &nbsp;&nbsp;&nbsp; |-->
+        <!--            &nbsp;&nbsp;&nbsp; <img src="{{ asset('frontend/assets/img/icon/timing-icon.webp') }}" alt="Timing Icon">-->
+        <!--            Timing 24 x 7-->
+        <!--        </span>-->
+        <!--    </div>-->
+        <!--</div>-->
+        
+         <div class="tg-header__top">
+            <div class="container custom-container">
+                <div class="row">
+                    <div class="col-xl-6 col-lg-8 col-md-6">
+                        <ul class="tg-header__top-info left-side list-wrap">
+                            <li><img src="{{ asset('frontend/assets/img/icon/appointment.png') }}" alt="Book An Appointment Icon"><a
+                                    href="tel:02265383538">Book An Appointment : 022-6538-3538</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-xl-6 col-lg-4 col-md-6">
+                        <ul class="tg-header__top-right list-wrap">
+                            <li><img src="{{ asset('frontend/assets/img/icon/timing-icon.webp') }}" alt="Timing Icon"> Timing 24 x 7</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-        </div>
-
+        </div> 
+        
         <div id="sticky-header" class="tg-header__area">
-            <!--<div class="container custom-container">-->
-            <div class="container">
+            <div class="container custom-container">
+            <!--<div class="container">-->
                 <div class="row">
                     <div class="col-12">
                         <div class="tgmenu__wrap">
                             <nav class="tgmenu__nav">
                                 <div class="logo">
-                                    <a href="{{ route('frontend.index') }}"><img
+                                    <a href="https://mbihosting.in/sahmumbai-demo/"><img
                                             src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}" alt="Tata Trusts Small Animal Hospital Logo"></a>
                                 </div>
                                 <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-lg-flex">
                                     <ul class="navigation">
-                                        <!--<li class="active"><a href="#">Home</a></li>-->
-                                        <li><a href="about-us.html">About Us</a></li>
-                                        <li><a href="our-specialities.html">Specialities</a></li>
+                                        <li><a href="specialities.html">Specialities</a></li>
                                         <li><a href="our-facilities.html">Facilities</a></li>
-                                        <!-- <li><a href="#">Faqs</a></li> -->
-                                         <li><a href="our-team.html">Team</a></li> 
-                                        <!-- <li><a href="#">Join Us</a></li> -->
-                                         <li><a href="#">Blogs</a></li> 
+                                        <li><a href="about-us.html">About</a></li>
+                                         <li><a href="our-team.html">Team</a></li>
+                                         <li><a href="blog.html">Blog</a></li> 
                                         <li><a href="contact-us.html">Contact</a></li>
                                     </ul>
                                 </div>
                                 <div class="tgmenu__action d-none d-md-flex">
                                     <div class="emergency-menu-button-custom-sec">
                                         <a href="#">
-                                            <img src="{{ asset('frontend/assets/img/icon/call-icon-one.webp' ) }}" alt="">
+                                            <img src="{{ asset('frontend/assets/img/icon/call-icon-one.webp') }}" alt="">
                                         </a>
                                     </div>
                                     <ul class="list-wrap">
                                         <li class="offCanvas-menu">
                                             <a href="javascript:void(0)" class="menu-tigger">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="16"
-                                                    viewBox="0 0 26 16" fill="none">
-                                                    <rect width="9" height="2" rx="1" fill="currentcolor" />
-                                                    <rect x="11" width="15" height="2" rx="1" fill="currentcolor" />
-                                                    <rect y="14" width="26" height="2" rx="1" fill="currentcolor" />
-                                                    <rect y="7" width="16" height="2" rx="1" fill="currentcolor" />
-                                                    <rect x="17" y="7" width="9" height="2" rx="1"
-                                                        fill="currentcolor" />
-                                                </svg>
+                                                <svg id="Layer_1" enable-background="new 0 0 24 24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="m20 17.8h-16c-.4 0-.8-.3-.8-.8s.3-.8.8-.8h16c.4 0 .8.3.8.8s-.4.8-.8.8zm0-5h-16c-.4 0-.8-.3-.8-.8s.3-.8.8-.8h16c.4 0 .8.3.8.8s-.4.8-.8.8zm0-5h-16c-.4 0-.7-.4-.7-.8s.3-.7.7-.7h16c.4 0 .8.3.8.8s-.4.7-.8.7z"/></g></svg>
                                             </a>
                                         </li>
                                     </ul>
@@ -112,16 +117,63 @@
                             <nav class="tgmobile__menu-box">
                                 <div class="close-btn"><i class="fas fa-times"></i></div>
                                 <div class="nav-logo">
-                                    <a href="{{ route('frontend.index') }}"><img
-                                            src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}" alt="Tata Trusts Small Animal Hospital Logo"></a>
+                                    <a href="https://mbihosting.in/sahmumbai-demo/"><img
+                                            src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}"
+                                            alt="Tata Trusts Small Animal Hospital Logo"></a>
                                 </div>
                                 <div class="tgmobile__menu-outer">
+                                </div>
+
+                                <div class="tg-mobile-custom-book-appoint-sec">
+                                    <div class="address-item">
+                                        <div class="icon">
+                                            <img src="{{ asset('frontend/assets/img/icon/appointment.webp') }}" alt="">
+                                        </div>
+                                        <div class="address-content-sec">
+                                            <h4>Book An Appointment</h4>
+                                            <p><a href="tel:02265383538">022-6538-3538</a></p>
+                                        </div>
+                                    </div>
+                                    <div class="address-item">
+                                        <div class="icon">
+                                            <img src="{{ asset('frontend/assets/img/icon/time.webp') }}" alt="">
+                                        </div>
+                                        <div class="address-content-sec">
+                                            <h4>Timing</h4>
+                                            <p>24 x 7</p>
+                                        </div>
+                                    </div>
+                                    <div class="address-item">
+                                        <div class="icon">
+                                            <img src="{{ asset('frontend/assets/img/icon/map-icon-one.webp') }}" alt="">
+                                        </div>
+                                        <div class="address-content-sec">
+                                            <h4>Address</h4>
+                                            <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">Tata Trusts Small Animal Hospital, G.B. Sakpal Marg, Saat Rasta, Mahalaxmi, Mumbai 400011</a></p>
+                                        </div>
+                                    </div>
+                                    <div class="address-item">
+                                        <div class="icon">
+                                            <img src="{{ asset('frontend/assets/img/icon/email-4.webp') }}" alt="">
+                                        </div>
+                                        <div class="address-content-sec">
+                                            <h4>Mail Us</h4>
+                                            <p><a href="mailto:contactus@sahmumbai.com">contactus@sahmumbai.com</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="social-links">
+                                    <ul class="list-wrap">
+                                        <li><a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a></li>
+                                        <li><a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+                                        <li><a href="#" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                                    </ul>
                                 </div>
                             </nav>
                         </div>
                         <div class="tgmobile__menu-backdrop"></div>
                         <!-- End Mobile Menu -->
-
                     </div>
                 </div>
             </div>
@@ -169,8 +221,6 @@
                 </div>
             </div>
         </div>
-
-
         <div class="search-popup-overlay"></div>
         <!-- header-search-end -->
 
@@ -180,7 +230,7 @@
                 <button><i class="far fa-window-close"></i></button>
             </div>
             <div class="offCanvas__logo mb-20">
-                <a href="{{ route('frontend.index') }}"><img src="{{ asset('frontend/assets/assets/img/logo/tata-trust-logo.webp' ) }}"
+                <a href="https://mbihosting.in/sahmumbai-demo/"><img src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}"
                         alt="Tata Trusts Small Animal Hospital Logo"></a>
             </div>
             <div class="offCanvas__side-info mb-30">
@@ -188,14 +238,12 @@
                     <img src="{{ asset('frontend/assets/img/icon/side-menu-address.webp') }}" alt="Address icon" class="contact-icon">
                     <div>
                         <h4>Address</h4>
-                        <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">Tata Trusts Small Animal
-                                Hospital, G.Babu Sakpal Marg, Saat Rasta, Mahalaxmi, Mumbai 400011,
-                                Landmark: Opposite Omkar Realty, Behind Dhobi Ghat.</a></p>
+                        <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">Tata Trusts Small Animal Hospital, G.B. Sakpal Marg, Saat Rasta, Mahalaxmi, Mumbai 400011</a></p>
                     </div>
                 </div>
 
                 <div class="contact-list d-flex align-items-start mb-30">
-                    <img src="{{ asset('frontend/assets/img/icon/side-menu-phone.webp' ) }}" alt=" Phone Number icon" class="contact-icon">
+                    <img src="{{ asset('frontend/assets/img/icon/side-menu-phone.webp') }}" alt=" Phone Number icon" class="contact-icon">
                     <div>
                         <h4>Phone Number</h4>
                         <p><a href="tel:02265383538">022-6538-3538</a></p>
@@ -211,8 +259,6 @@
                 </div>
             </div>
         </div>
-
-
         <div class="offCanvas__overly"></div>
         <!-- offCanvas-menu-end -->
 

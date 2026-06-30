@@ -24,11 +24,9 @@
             element[i].style.transform = "rotate(" + i * 14.5 + "deg)"
         }
     </script>
-
     <script>
         SVGInject(document.querySelectorAll("img.injectable"));
     </script>
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let items = document.querySelectorAll(".service-item");
@@ -61,5 +59,13 @@
         toggleBtn.addEventListener("click", () => {
             socialIcons.classList.toggle("show");
             toggleBtn.classList.toggle("active");
+        });
+    </script>
+    
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: false,
+            mirror: true
         });
     </script>

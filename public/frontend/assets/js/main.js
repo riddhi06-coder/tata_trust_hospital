@@ -281,8 +281,8 @@ var productSlider = new Swiper('.product-active', {
     breakpoints: {
         1500: { slidesPerView: 2 },
         1200: { slidesPerView: 2 },
-        992: { slidesPerView: 3 },
-        768: { slidesPerView: 3 },
+        992: { slidesPerView: 2 },
+        768: { slidesPerView: 2 },
         576: { slidesPerView: 2 },
         0: { slidesPerView: 1 },
     },
@@ -307,6 +307,42 @@ var productSlider = new Swiper('.product-active', {
     },
 });
 
+
+var productSlider = new Swiper('.gallery-image-active', {
+    slidesPerView: 1,
+    spaceBetween: 20,
+    observer: true,
+    observeParents: true,
+    loop: true,
+
+    breakpoints: {
+        1500: { slidesPerView: 4 },
+        1200: { slidesPerView: 4 },
+        992: { slidesPerView: 4 },
+        768: { slidesPerView: 2 },
+        576: { slidesPerView: 2 },
+        0: { slidesPerView: 1 },
+    },
+
+    // ✅ AUTOPLAY ADDED
+    autoplay: {
+        delay: 3000, // 3 seconds
+        disableOnInteraction: false, // keeps autoplay after user swipe
+        pauseOnMouseEnter: true, // pause on hover (optional but good UX)
+    },
+
+    // NAVIGATION
+    navigation: {
+        nextEl: ".product-button-next",
+        prevEl: ".product-button-prev",
+    },
+
+    // DOTS
+    pagination: {
+        el: ".product-pagination",
+        clickable: true,
+    },
+});
 
 /*=============================================
 	=          Instagram active              =

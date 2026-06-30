@@ -1,4 +1,5 @@
-<!-- footer-area -->
+
+    <!-- footer-area -->
     <footer>
         <div class="footer__area">
             <div class="footer__top fix">
@@ -7,16 +8,14 @@
                         <div class="col-xl-4 col-lg-4 col-md-6">
                             <div class="footer__widget">
                                 <div class="footer__logo">
-                                    <a href="{{ route('frontend.index') }}"><img
-                                            src="{{ asset('frontend/assets/img/logo/sahmumbai-logo.svg') }}" alt=""></a>
+                                    <a href="https://mbihosting.in/sahmumbai-demo/"><img
+                                            src="{{ asset('frontend/assets/img/logo/sahmumbai-logo.svg') }}" width="325" height="65" alt="Tata Trusts Small Animal Hospital Logo" loading="lazy"></a>
                                     <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">
                                         Tata Trusts Small Animal Hospital,<br>
-                                        G.Babu Sakpal Marg, Saat Rasta,<br>
-                                        Mahalaxmi, Mumbai 400011,<br>
-                                        Landmark: Opposite Omkar Realty,<br>
-                                        Behind Dhobi Ghat.</a></p>
+                                        G.B. Sakpal Marg, Saat Rasta,<br>
+                                        Mahalaxmi, Mumbai 400011</a></p>
                                     <div class="footer-btn-sah-custom-sec">
-                                        <a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank" class="read-more-btn"><img src="assets/img/icon/map-icon-one.webp" alt="" class="view-map-img-one"> View Map</a>
+                                        <a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank" class="read-more-btn"><img src="{{ asset('frontend/assets/img/icon/map-icon-one.webp') }}" width="18" height="18" alt="View Map Icon" loading="lazy" class="view-map-img-one"> View Map</a>
                                     </div>
                                 </div>
                             </div>
@@ -29,7 +28,7 @@
                                     <ul class="address">
                                         <li>
                                             <div class="icon">
-                                                <img src="{{ asset('frontend/assets/img/icon/telephone-icon.webp') }}" alt="">
+                                                <img src="{{ asset('frontend/assets/img/icon/telephone-icon.webp') }}" width="40" height="40" alt="Book An Appointment Icon" loading="lazy">
                                             </div>
                                             <div class="address-content-sec">
                                                 <h4>Book An Appointment</h4>
@@ -38,7 +37,7 @@
                                         </li>
                                         <li>
                                             <div class="icon">
-                                                <img src="{{ asset('frontend/assets/img/icon/email-icon.webp') }}" alt="">
+                                                <img src="{{ asset('frontend/assets/img/icon/email-icon.webp') }}" width="40" height="40" alt="Mail Us Icon" loading="lazy">
                                             </div>
                                             <div class="address-content-sec">
                                                 <h4>Mail Us</h4>
@@ -49,7 +48,7 @@
                                         
                                         <li>
                                             <div class="icon">
-                                                <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" alt="">
+                                                <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" width="40" height="40" alt="Donate Icon" loading="lazy">
                                             </div>
                                             <div class="address-content-sec">
                                                 <h4><a href="mailto:frontoffice@sahmumbai.com?subject=Interest%20in%20Donation%20/%20Enquiry"
@@ -70,10 +69,10 @@
                                     <div class="col-md-6">
                                         <div class="footer__link">
                                             <ul class="list-wrap">
-                                                <li><a href="{{ route('frontend.index') }}">Home</a></li>
-                                                <li><a href="about-us.html">About Us</a></li>
-                                                <li><a href="our-specialities.html">Our Specialities</a></li>
-                                                <li><a href="our-facilities.html">Our Facilities</a></li>
+                                                <li><a href="https://mbihosting.in/sahmumbai-demo/">Home</a></li>
+                                                <li><a href="about-us.html">About</a></li>
+                                                <li><a href="specialities.html">Specialities</a></li>
+                                                <li><a href="our-facilities.html">Facilities</a></li>
                                                 <li><a href="faqs.html">FAQs</a></li>
                                             </ul>
                                         </div>
@@ -81,27 +80,18 @@
                                     <div class="col-md-6">
                                         <div class="footer__link">
                                             <ul class="list-wrap">
-                                                <li><a href="our-team.html">Our Team</a></li>
+                                                <li><a href="our-team.html">Team</a></li>
                                                 <li><a href="join-us.html">Join Us</a></li>
                                                 <li><a href="gallery.html">Gallery</a></li>
-                                                <li><a href="#">Blogs</a></li>
+                                                <li><a href="blog.html">Blog</a></li>
                                                 <li><a href="contact-us.html">Contact Us</a></li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-
-                        
                     </div>
-                </div>
-                <div class="footer__shape-wrap">
-                    <img src="{{ asset('frontend/assets/img/images/footer_shape02.png') }}" alt="img" data-aos="fade-up-right"
-                        data-aos-delay="400">
-                    <img src="{{ asset('frontend/assets/img/images/footer_shape02.png') }}" alt="img" data-aos="fade-up-left"
-                        data-aos-delay="400">
                 </div>
             </div>
             <div class="footer__bottom">
@@ -115,7 +105,7 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="footer__bottom-menu text-end">
-                                <p><a href="#">Privacy Policy</a></p>
+                                <p><a href="{{ asset('frontend/assets/pdf/privacy-policy.pdf' )}}" target="_blank">Privacy Policy</a></p>
                             </div>
                         </div>
                     </div>
@@ -123,8 +113,6 @@
             </div>
         </div>
     </footer>
-
-
 
     <div class="modal fade book-an-appointment-custom-popup-form-sec" id="appointmentModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-md">
@@ -160,8 +148,8 @@
 
     <!--Start Sticky Icon-->
     <div class="sticky-icon">
-        <a href="tel:02265383538"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp' ) }}" alt="Book An Appointment Icon"></a>
-        <a href="mailto:frontoffice@sahmumbai.com?subject=Interest%20in%20Donation%20/%20Enquiry"> Donate <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp' ) }}" alt="Donate Icon"></a>
-        <a href="mailto:contactus@sahmumbai.com"> Contact Us <img src="{{ asset('frontend/assets/img/icon/contact-us-floating-icon.webp') }}" alt="Contact Us Icon"></a>
+        <a href="login.html"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp') }}" alt="Book An Appointment Icon"></a>
+        <a href="mailto:frontoffice@sahmumbai.com?subject=Interest%20in%20Donation%20/%20Enquiry"> Donate <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" alt="Donate Icon"></a>
+        <a href="contact-us.html"> Contact Us <img src="{{ asset('frontend/assets/img/icon/contact-us-floating-icon.webp') }}" alt="Contact Us Icon"></a>
     </div>
     <!--End Sticky Icon-->
