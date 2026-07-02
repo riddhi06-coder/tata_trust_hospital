@@ -113,6 +113,7 @@
                     <li><a href="{{ route('manage-facilities.index') }}"> Facilities </a></li>
                     <li><a href="{{ route('home-team.index') }}"> Our Team </a></li>
                     <li><a href="{{ route('manage-testimonials.index') }}"> Testimonials </a></li>
+                    <li><a href="{{ route('manage-board.index') }}"> Our Board </a></li>
                     <li><a href="{{ route('manage-follow-us.index') }}"> Follow Us </a></li>
                   </ul>
                 </li>
