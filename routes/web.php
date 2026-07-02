@@ -9,7 +9,7 @@ use App\Http\Controllers\Backend\PermissionController;
 
 use App\Http\Controllers\Backend\HomeBannerController;
 use App\Http\Controllers\Backend\ShortIntroductionController;
-use App\Http\Controllers\Backend\HomeSpecialitiesController;
+use App\Http\Controllers\Backend\HomeServicesController;
 use App\Http\Controllers\Backend\HomeFacilitiesController;
 use App\Http\Controllers\Backend\HomeTeamController;
 use App\Http\Controllers\Backend\HomeTestimonialsController;
@@ -106,7 +106,7 @@ use App\Http\Controllers\Frontend\HomeController;
             // Home slider
             Route::resource('banner-details', HomeBannerController::class);
             Route::resource('short-introduction', ShortIntroductionController::class);
-            Route::resource('home-specialities', HomeSpecialitiesController::class);
+            Route::resource('home-services', HomeServicesController::class);
             Route::resource('manage-facilities', HomeFacilitiesController::class);
             Route::resource('home-team', HomeTeamController::class);
             Route::resource('manage-testimonials', HomeTestimonialsController::class);

@@ -14,7 +14,7 @@ use App\Models\HomeBanner;
 use App\Models\HomeBoard;
 use App\Models\HomeFacilities;
 use App\Models\HomeFollowUs;
-use App\Models\HomeSpecialities;
+use App\Models\HomeServices;
 use App\Models\HomeTeam;
 use App\Models\HomeTestimonials;
 use App\Models\OurTeam;
@@ -32,7 +32,7 @@ class HomeController extends Controller
     {
         $banner = HomeBanner::wherenull('deleted_by')->orderBy('created_at', 'asc')->get();
         $short_intro = ShortIntroduction::wherenull('deleted_by')->first();
-        $specialities = HomeSpecialities::wherenull('deleted_by')->first();
+        $specialities = HomeServices::wherenull('deleted_by')->first();
         $facilities = HomeFacilities::wherenull('deleted_by')->first();
         $our_team = HomeTeam::wherenull('deleted_by')->first();
         $team_members = OurTeam::wherenull('deleted_by')->orderBy('created_at', 'asc')->where('show_on_home', '1')->get();

@@ -8,22 +8,22 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Models\HomeSpecialities;
+use App\Models\HomeServices;
 
 
-class HomeSpecialitiesController extends Controller
+class HomeServicesController extends Controller
 {
 
     public function index()
     {
-        $specialities = HomeSpecialities::wherenull('deleted_by')->get();
+        $specialities = HomeServices::wherenull('deleted_by')->get();
 
-        return view('backend.home.specialities.index',compact('specialities'));
+        return view('backend.home.services.index',compact('specialities'));
     }
 
     public function create()
     {
-        return view('backend.home.specialities.create');
+        return view('backend.home.services.create');
     }
 
     public function store(Request $request)
@@ -105,7 +105,7 @@ class HomeSpecialitiesController extends Controller
         | Store
         |--------------------------------------------------------------------------
         */
-        HomeSpecialities::create([
+        HomeServices::create([
             'our_motto'    => $request->our_motto,
             'title'        => $request->title,
             'description'  => $request->description,
@@ -115,19 +115,19 @@ class HomeSpecialitiesController extends Controller
         ]);
 
         return redirect()
-            ->route('home-specialities.index')
-            ->with('message', 'Specialities added successfully.');
+            ->route('home-services.index')
+            ->with('message', 'Services added successfully.');
     }
 
     public function edit($id)
     {
-        $speciality = HomeSpecialities::findOrFail($id);
-        return view('backend.home.specialities.edit', compact('speciality'));
+        $speciality = HomeServices::findOrFail($id);
+        return view('backend.home.services.edit', compact('speciality'));
     }
 
     public function update(Request $request, $id)
     {
-        $speciality = HomeSpecialities::findOrFail($id);
+        $speciality = HomeServices::findOrFail($id);
 
         $validator = Validator::make(
             $request->all(),
@@ -253,8 +253,8 @@ class HomeSpecialitiesController extends Controller
         ]);
 
         return redirect()
-            ->route('home-specialities.index')
-            ->with('message', 'Specialities updated successfully.');
+            ->route('home-services.index')
+            ->with('message', 'Services updated successfully.');
     }
 
     public function destroy(string $id)
@@ -262,10 +262,10 @@ class HomeSpecialitiesController extends Controller
         $data['deleted_by'] =  Auth::user()->id;
         $data['deleted_at'] =  Carbon::now();
         try {
-            $industries = HomeSpecialities::findOrFail($id);
+            $industries = HomeServices::findOrFail($id);
             $industries->update($data);
 
-            return redirect()->route('home-specialities.index')->with('message', 'Details deleted successfully!');
+            return redirect()->route('home-services.index')->with('message', 'Details deleted successfully!');
         } catch (Exception $ex) {
             return redirect()->back()->with('error', 'Something Went Wrong - ' . $ex->getMessage());
         }

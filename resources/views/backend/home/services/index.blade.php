@@ -36,11 +36,11 @@
                                 <nav aria-label="breadcrumb">
                                     <ol class="breadcrumb mb-0">
                                         <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
-                                        <li class="breadcrumb-item active"> Specialities Details</li>
+                                        <li class="breadcrumb-item active"> Services Details</li>
                                     </ol>
                                 </nav>
-                                <a href="{{ route('home-specialities.create') }}" class="btn btn-primary px-5 radius-30">
-                                    + Add Specialities
+                                <a href="{{ route('home-services.create') }}" class="btn btn-primary px-5 radius-30">
+                                    + Add Services
                                 </a>
                             </div>
 
@@ -73,14 +73,14 @@
                                                 <td>
 
                                                     <a
-                                                        href="{{ route('home-specialities.edit', $speciality->id) }}"
+                                                        href="{{ route('home-services.edit', $speciality->id) }}"
                                                         class="btn btn-sm btn-primary"
                                                     >
                                                         Edit
                                                     </a>
 
                                                     <form
-                                                        action="{{ route('home-specialities.destroy', $speciality->id) }}"
+                                                        action="{{ route('home-services.destroy', $speciality->id) }}"
                                                         method="POST"
                                                         style="display:inline-block;"
                                                     >

@@ -16,11 +16,11 @@
         <div class="container-fluid">
             <div class="page-title">
                 <div class="row">
-                    <div class="col-6"><h4>Add Specialities</h4></div>
+                    <div class="col-6"><h4>Add Services</h4></div>
                     <div class="col-6">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('home-specialities.index') }}">Home</a></li>
-                            <li class="breadcrumb-item active">Add Specialities</li>
+                            <li class="breadcrumb-item"><a href="{{ route('home-services.index') }}">Home</a></li>
+                            <li class="breadcrumb-item active">Add Services</li>
                         </ol>
                     </div>
                 </div>
@@ -32,8 +32,8 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Specialities Form</h4>
-                            <p class="f-m-light mt-1">Fill in the details and add one or more specialities.</p>
+                            <h4>Services Form</h4>
+                            <p class="f-m-light mt-1">Fill in the details and add one or more services.</p>
                         </div>
                         <div class="card-body">
 
@@ -48,7 +48,7 @@
                                 </div>
                             @endif
 
-                            <form class="row g-3 custom-input" action="{{ route('home-specialities.store') }}" method="POST" enctype="multipart/form-data" id="specialities-form">
+                            <form class="row g-3 custom-input" action="{{ route('home-services.store') }}" method="POST" enctype="multipart/form-data" id="specialities-form">
                                 @csrf
 
                                 <!-- Our Motto -->
@@ -71,7 +71,7 @@
 
                                 <!-- Specialities Table -->
                                 <div class="col-12 mt-4">
-                                    <h5 class="mb-2">Specialities</h5>
+                                    <h5 class="mb-2">Services</h5>
                                     <div class="table-responsive">
                                         <table class="table table-bordered align-middle" id="specialities-table">
                                             <thead class="table-light">
@@ -102,7 +102,7 @@
 
                                 <!-- Form Actions -->
                                 <div class="col-12 text-end">
-                                    <a href="{{ route('home-specialities.index') }}" class="btn btn-danger px-4">Cancel</a>
+                                    <a href="{{ route('home-services.index') }}" class="btn btn-danger px-4">Cancel</a>
                                     <button class="btn btn-primary" type="submit">Submit</button>
                                 </div>
                             </form>

@@ -95,7 +95,7 @@
                 
                 
                 <!-- Home slider banner Details -->
-                <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-specialities.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-services.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -109,7 +109,7 @@
                   <ul class="sidebar-submenu">
                     <li><a href="{{ route('banner-details.index') }}">Banner Details </a></li>
                     <li><a href="{{ route('short-introduction.index') }}"> Short Introduction </a></li>
-                    <li><a href="{{ route('home-specialities.index') }}"> Specialities </a></li>
+                    <li><a href="{{ route('home-services.index') }}"> Services </a></li>
                     <li><a href="{{ route('manage-facilities.index') }}"> Facilities </a></li>
                     <li><a href="{{ route('home-team.index') }}"> Our Team </a></li>
                     <li><a href="{{ route('manage-testimonials.index') }}"> Testimonials </a></li>

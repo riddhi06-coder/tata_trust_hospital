@@ -6,11 +6,11 @@ use App\Models\Concerns\TracksDeletedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class HomeSpecialities extends Model
+class HomeServices extends Model
 {
     use SoftDeletes, TracksDeletedBy;
 
-    protected $table = 'home_specialities';
+    protected $table = 'home_services';
 
     protected $fillable = [
         'our_motto',

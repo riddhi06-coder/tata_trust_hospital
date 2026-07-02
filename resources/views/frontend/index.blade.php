@@ -185,18 +185,16 @@
                 <div class="row align-items-center">
                     <div class="col-xl-12 col-lg-12">
 
-                        <div class="section__title section_title-two text-center">
-
+                        <div class="section__title">
                             @if($specialities && !empty($specialities->title))
-                                <h2 class="title">
-                                    {{ $specialities->title }}
+                                <h2 class="title" data-aos="fade-right">
+                                    {!! $specialities->title !!}
                                 </h2>
                             @endif
-
                         </div>
 
                         @if($specialities && !empty($specialities->description))
-                            <div class="text-center">
+                            <div data-aos="fade-right" data-aos-delay="150">
                                 {!! $specialities->description !!}
                             </div>
                         @endif
@@ -205,60 +203,44 @@
                 </div>
 
                 <!-- SPECIALITIES -->
-                <div class="row justify-content-center">
+                <div class="our-spec-listing-home-custom-new-sec">
+                    <div class="row justify-content-center">
 
-                    @if($specialities && !empty($specialities->specialities))
+                        @if($specialities && !empty($specialities->specialities))
 
-                        @foreach($specialities->specialities as $item)
+                            @foreach($specialities->specialities as $index => $item)
 
-                            <div class="col-lg-3 col-md-4 col-sm-6 service-item">
+                                @php
+                                    $aosDelay = ($index % 3) * 150;
+                                @endphp
 
-                                <div class="our-specialities-services-card">
+                                <div class="col-lg-4 col-md-4 col-sm-6 service-item"
+                                    data-aos="fade-up"
+                                    @if($aosDelay > 0) data-aos-delay="{{ $aosDelay }}" @endif>
 
-                                    <!-- ICON -->
-                                    <div class="our-spec-ser-img">
+                                    <div class="serviceBox">
 
-                                        <img src="{{ asset('home/specialities/'.$item['icon']) }}"
-                                            alt="{{ $item['name'] }}">
+                                        <div class="service-icon">
+                                            <span>
+                                                <img src="{{ asset('home/specialities/'.$item['icon']) }}"
+                                                    width="65" height="65"
+                                                    alt="{{ $item['name'] }}">
+                                            </span>
+                                        </div>
 
-                                    </div>
-
-                                    <!-- NAME -->
-                                    <div class="our-spec-ser-content-sec">
-
-                                        <h4>{{ $item['name'] }}</h4>
+                                        <h3 class="title">{{ $item['name'] }}</h3>
 
                                     </div>
 
                                 </div>
 
-                            </div>
+                            @endforeach
 
-                        @endforeach
-
-                    @endif
-
-                    <!-- LOAD MORE BUTTON -->
-                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-
-                        <div class="home-our-specialities-btn">
-
-                            <a href="javascript:void(0)"
-                                id="loadMoreBtn"
-                                class="btn">
-
-                                Load More
-
-                                <img src="{{ asset('assets/img/icon/right_arrow.svg') }}"
-                                    alt=""
-                                    class="injectable">
-
-                            </a>
+                        @endif
 
                         </div>
 
                     </div>
-
                 </div>
 
             </div>
