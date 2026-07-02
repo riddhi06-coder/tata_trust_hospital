@@ -20278,8 +20278,9 @@ FLOATING SOCIAL MENU
 
 .upcoming-events-thumb-four img {
   width: 100%;
-  height: 250px;
+  height: 260px;
   object-fit: cover;
+  object-position: top;
   filter: grayscale(100%);
   transition: 0.4s ease;
 }
@@ -20290,7 +20291,7 @@ FLOATING SOCIAL MENU
 
 .upcoming-events-content-four .title {
   margin-bottom: 0;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 600;
   text-align: center;
   display: -webkit-box;
@@ -20712,4 +20713,19 @@ FLOATING SOCIAL MENU
 .doctor-highlights{
     grid-template-columns:1fr;
 }
+}
+
+.mfp-title{
+    text-align:center;
+    font-size:16px !important;
+    font-weight:600 !important;
+    color:#fff !important;
+    padding-top: 0 !important;
+    padding-right: 0 !important;
+    font-family: var(--tg-heading-font-family);
+    margin: 10px 0 20px !important;
+}
+
+.img.mfp-img {
+    padding-bottom: 10px !important;
 }

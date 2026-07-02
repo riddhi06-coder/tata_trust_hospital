@@ -2,7 +2,7 @@
     <div id="preloader">
         <div class="preloader-icon-wrap">
             <div class="preloader-icon-stack">
-                <lottie-player class="lottie-preloader-player-sec" src="https://mbihosting.in/sahmumbai-demo/assets/preloader-logo.json"
+                <lottie-player class="lottie-preloader-player-sec" src="{{ asset('frontend/assets/preloader-logo.json') }}"
                     background="transparent" speed="1" loop autoplay>
                 </lottie-player>
             </div>

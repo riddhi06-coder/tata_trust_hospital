@@ -24,54 +24,52 @@
                         <div class="swiper-slide">
                             <div class="pet-hero-slide">
 
-                                <!-- LEFT CONTENT -->
-                                <div class="container">
-                                    <div class="row align-items-center">
+                                <!-- MEDIA -->
+                                <div class="pet-hero-image">
 
-                                        <div class="col-lg-5">
-                                            <div class="pet-hero-content">
+                                    {{-- IMAGE --}}
+                                    @if($item->media_type == 'image')
 
-                                                @if(!empty($item->banner_heading))
-                                                    <h1>{{ $item->banner_heading }}</h1>
-                                                @endif
+                                        <img src="{{ asset('home/bannerimagevideo/'.$item->banner_media) }}"
+                                            alt="{{ $item->banner_heading ?? 'Pet Care Image' }}"
+                                            class="d-none d-lg-block">
+                                        <img src="{{ asset('home/bannerimagevideo/'.$item->banner_media) }}"
+                                            alt="{{ $item->banner_heading ?? 'Pet Care Image' }}"
+                                            class="d-block d-lg-none">
 
-                                                @if(!empty($item->banner_title))
-                                                    <p>{{ $item->banner_title }}</p>
-                                                @endif
+                                    {{-- VIDEO --}}
+                                    @elseif($item->media_type == 'video')
 
-                                                <div class="pet-btn-group">
-                                                    <a href="#"
-                                                        class="pet-btn-outline"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#appointmentModal">
-                                                        Book An Appointment
-                                                    </a>
-                                                </div>
+                                        <video autoplay muted loop playsinline width="100%">
+                                            <source src="{{ asset('home/bannerimagevideo/'.$item->banner_media) }}"
+                                                type="video/mp4">
+                                        </video>
 
-                                            </div>
-                                        </div>
+                                    @endif
 
-                                        <!-- RIGHT MEDIA -->
-                                        <div class="col-lg-7">
-                                            <div class="pet-hero-image">
+                                </div>
 
-                                                {{-- IMAGE --}}
-                                                @if($item->media_type == 'image')
+                                <!-- CONTENT -->
+                                <div class="pet-hero-content-wrapper">
+                                    <div class="pet-hero-content">
 
-                                                    <img src="{{ asset('home/bannerimagevideo/'.$item->banner_media) }}"
-                                                        alt="Banner Image">
+                                        @if(!empty($item->banner_heading))
+                                            <h1>{!! $item->banner_heading !!}</h1>
+                                        @endif
 
-                                                {{-- VIDEO --}}
-                                                @elseif($item->media_type == 'video')
+                                        @if(!empty($item->banner_title))
+                                            <p>{{ $item->banner_title }}</p>
+                                        @endif
 
-                                                    <video autoplay muted loop playsinline width="100%">
-                                                        <source src="{{ asset('home/bannerimagevideo/'.$item->banner_media) }}"
-                                                            type="video/mp4">
-                                                    </video>
-
-                                                @endif
-
-                                            </div>
+                                        <div class="pet-btn-group">
+                                            <a href="#"
+                                                class="btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#appointmentModal">
+                                                Book An Appointment
+                                                <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
+                                                    alt="Read More" class="injectable">
+                                            </a>
                                         </div>
 
                                     </div>
@@ -97,83 +95,83 @@
 
         <!-- why-we-are-area -->
         <section class="why__we-are-area">
-            <div class="row align-items-center justify-content-center">
+            <div class="container">
+                <div class="row align-items-center justify-content-center">
 
-                <!-- LEFT IMAGE / VIDEO -->
-                <div class="col-lg-6 col-md-8 col-sm-10">
+                    <!-- LEFT IMAGE / VIDEO -->
+                    <div class="col-lg-6 col-md-12 col-sm-10">
 
-                    <div class="world-class-care-unwaving-img-sec-wrapper">
+                        <div class="world-class-care-unwaving-img-sec-wrapper">
 
-                        <div class="world-class-care-unwaving-img-sec">
+                            <div class="world-class-care-unwaving-img-sec">
 
-                            @if($short_intro && $short_intro->media_type == 'image')
+                                @if($short_intro && $short_intro->media_type == 'image')
 
-                                <img src="{{ asset('home/shortintroduction/'.$short_intro->banner_media) }}"
-                                    alt="About Us Image">
+                                    <img src="{{ asset('home/shortintroduction/'.$short_intro->banner_media) }}"
+                                        alt="{{ $short_intro->banner_heading ?? 'About Us Image' }}">
 
-                            @elseif($short_intro && $short_intro->media_type == 'video')
+                                @elseif($short_intro && $short_intro->media_type == 'video')
 
-                                <video autoplay muted loop playsinline width="100%">
-                                    <source src="{{ asset('home/shortintroduction/'.$short_intro->banner_media) }}"
-                                        type="video/mp4">
-                                </video>
+                                    <video autoplay muted loop playsinline width="100%">
+                                        <source src="{{ asset('home/shortintroduction/'.$short_intro->banner_media) }}"
+                                            type="video/mp4">
+                                    </video>
 
-                            @endif
+                                @endif
 
-                        </div>
-
-                        <!-- Overlay Badge -->
-                        <div class="img-overlay-badge">
-                            <span>
-                                {{ $short_intro->banner_title ?? 'Care. Cure. Comfort.' }}
-                            </span>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- RIGHT CONTENT -->
-                <div class="col-lg-6">
-                    <div class="why__we-are-content">
-
-                        <div class="section__title">
-
-                            @if($short_intro && !empty($short_intro->banner_heading))
-                                <h2 class="title">
-                                    {{ $short_intro->banner_heading }}<br>
-                                     {{ $short_intro->banner_title }}
-                                </h2>
-                            @endif
-
-                        </div>
-
-                        @if($short_intro && !empty($short_intro->introduction))
-                            <div class="cke-editor">
-                                {!! $short_intro->introduction !!}
                             </div>
-                        @endif
 
-                        <div class="home-about-world-class-care-sec">
-                            <a href="{{ url('about-us') }}" class="btn">
-                                Read More
-                                <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
-                                    alt="Read More"
-                                    class="injectable">
-                            </a>
+                            <!-- Overlay Badge -->
+                            <div class="img-overlay-badge">
+                                <span>
+                                    {!! $short_intro->banner_title ?? 'Care.<br>Cure..<br>Comfort...' !!}
+                                </span>
+                            </div>
+
                         </div>
 
                     </div>
+
+                    <!-- RIGHT CONTENT -->
+                    <div class="col-lg-6">
+                        <div class="why__we-are-content">
+
+                            <div class="section__title">
+
+                                @if($short_intro && !empty($short_intro->banner_heading))
+                                    <h2 class="title" data-aos="fade-left">
+                                        {!! $short_intro->banner_heading !!}<br>
+                                        {!! $short_intro->banner_title !!}
+                                    </h2>
+                                @endif
+
+                            </div>
+
+                            @if($short_intro && !empty($short_intro->introduction))
+                                <div class="cke-editor" data-aos="fade-left" data-aos-delay="150">
+                                    {!! $short_intro->introduction !!}
+                                </div>
+                            @endif
+
+                            <div class="home-about-world-class-care-sec" data-aos="fade-left" data-aos-delay="250">
+                                <a href="{{ url('about-us') }}" class="btn">
+                                    Read More
+                                    <span class="visually-hidden">About Us</span>
+                                    <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
+                                        alt="Read More"
+                                        class="injectable">
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
-
             </div>
-
-
 
             <div class="why-we-area-big-text">
-                <h6 class="big-text">{{ $specialities->our_motto }}</h6>
+                <h6 class="big-text">{{ $specialities->our_motto ?? 'Care. Cure. Comfort.' }}</h6>
             </div>
-
 
         </section>
         <!-- why-we-are-area-end -->
