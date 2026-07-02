@@ -257,36 +257,34 @@
                 <div class="row align-items-center">
 
                     <!-- LEFT CONTENT -->
-                    <div class="col-md-4">
+                    <div class="col-lg-4 col-md-12">
 
                         <div class="why__we-are-content">
 
                             <div class="section__title">
 
                                 @if($facilities && !empty($facilities->title))
-                                    <h2 class="title">
-                                        {{ $facilities->title }}
+                                    <h2 class="title" data-aos="fade-right">
+                                        {!! $facilities->title !!}
                                     </h2>
                                 @endif
 
                             </div>
 
                             @if($facilities && !empty($facilities->description))
-                                <div class="cke-editor">
+                                <div class="cke-editor mar-new-spcus" data-aos="fade-right" data-aos-delay="150">
                                     {!! $facilities->description !!}
                                 </div>
                             @endif
 
-                            <div class="home-about-world-class-care-sec">
+                            <div class="home-about-world-class-care-sec" data-aos="fade-right" data-aos-delay="200">
 
                                 <a href="{{ url('our-facilities') }}" class="btn">
-
                                     Read More
-
-                                    <img src="{{ asset('assets/img/icon/right_arrow.svg') }}"
+                                    <span class="visually-hidden">Our Facilities</span>
+                                    <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
                                         alt=""
                                         class="injectable">
-
                                 </a>
 
                             </div>
@@ -296,7 +294,7 @@
                     </div>
 
                     <!-- RIGHT SLIDER -->
-                    <div class="col-md-8">
+                    <div class="col-lg-8 col-md-12">
 
                         <div class="swiper product-active">
 
@@ -312,22 +310,15 @@
 
                                                 <div class="product__thumb">
 
-                                                    <a href="javascript:void(0)">
-
+                                                    <a href="{{ url('our-facilities') }}">
                                                         <img src="{{ asset('home/facilities/'.$item['icon']) }}"
                                                             alt="{{ $item['name'] }}">
-
                                                     </a>
 
                                                     <div class="product__add-cart">
-
-                                                        <a href="{{ url('our-facilities') }}"
-                                                            class="btn">
-
+                                                        <a href="{{ url('our-facilities') }}" class="btn">
                                                             {{ $item['name'] }}
-
                                                         </a>
-
                                                     </div>
 
                                                 </div>
@@ -346,11 +337,8 @@
 
                         <!-- NAVIGATION -->
                         <div class="product-nav">
-
                             <div class="swiper-button-next product-button-next"></div>
-
                             <div class="swiper-button-prev product-button-prev"></div>
-
                         </div>
 
                     </div>
@@ -358,11 +346,6 @@
                 </div>
 
             </div>
-
-            <!-- Bottom Left Image -->
-            <img src="{{ asset('assets/img/bg/our-fac-bg-img-one.png') }}"
-                class="facility-bottom-img"
-                alt="">
 
         </section>
         <!-- product-area-end -->
@@ -374,9 +357,14 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
                         <div class="section__title section_title-two text-center mb-40">
-                            <h2 class="title">{{ $our_team->title }}</h2>
+                            <h2 class="title" data-aos="fade-up">{!! $our_team->title !!}</h2>
                         </div>
-                        {!! $our_team->description !!}
+
+                        @if(!empty($our_team->description))
+                            <div class="text-center" data-aos="fade-up" data-aos-delay="150">
+                                {!! $our_team->description !!}
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -385,44 +373,30 @@
 
                     @if($team_members->count() > 0)
 
-                        @foreach($team_members as $member)
+                        @foreach($team_members as $index => $member)
 
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
+                            @php
+                                $aosDelay = ($index % 4) * 150;
+                            @endphp
+
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8"
+                                data-aos="fade-up"
+                                @if($aosDelay > 0) data-aos-delay="{{ $aosDelay }}" @endif>
 
                                 <div class="team__item">
 
                                     <div class="team__item-img">
 
                                         <div class="mask-img-wrap">
-
                                             <img src="{{ asset('our-team/'.$member->image) }}"
                                                 alt="{{ $member->name }}">
-
                                         </div>
 
-                                        <div class="team__item-img-shape">
-
-                                            <div class="shape-one">
-
-                                                <img src="{{ asset('frontend/assets/img/team/team_img_shape01.svg') }}"
-                                                    alt=""
-                                                    class="injectable">
-
-                                            </div>
-
-                                            <div class="shape-two">
-
-                                                <img src="{{ asset('frontend/assets/img/team/team_img_shape02.svg') }}"
-                                                    alt=""
-                                                    class="injectable">
-
-                                            </div>
-
-                                        </div>
+                                        <div class="team__item-img-shape"></div>
 
                                     </div>
 
-                                   <div class="team__item-content">
+                                    <div class="team__item-content">
 
                                         <h4 class="title">
                                             {{ $member->name }}
@@ -455,13 +429,11 @@
                 <div class="team__bottom-content">
 
                     <a href="{{ url('our-team') }}" class="btn">
-
                         View More
-
-                        <img src="{{ asset('assets/img/icon/right_arrow.svg') }}"
+                        <span class="visually-hidden">Our team</span>
+                        <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
                             alt=""
                             class="injectable">
-
                     </a>
 
                 </div>
@@ -477,33 +449,22 @@
                 <div class="row align-items-center justify-content-center">
                     <div class="col-lg-12">
                         <div class="section__title section_title-two text-center">
-                            <h2 class="title">{{ $testimonial_details->title }}</h2>
+                            <h2 class="title" data-aos="fade-up">
+                                {!! $testimonial_details->title ?? 'Testimonials' !!}
+                            </h2>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-8 order-0 order-lg-2">
-                        <div class="testimonial__img">
-                            <div class="mask-img testimonial__img-mask">
-                                @if($testimonial_details && !empty($testimonial_details->image))
-
-                                    <img src="{{ asset('home/testimonials/'.$testimonial_details->image) }}"
-                                        alt="{{ $testimonial_details->title }}">
-
-                                @endif
-                            </div>
-
-                            <div class="testimonial__img-shape">
-                                <div class="shape-one">
-                                    <img src="{{ asset('frontend/assets/img/images/testimonial_img_shape.svg') }}" alt="" class="injectable">
-                                </div>
-                                <div class="shape-two">
-                                    <img src="{{ asset('frontend/assets/img/images/testimonial_shape03.png ') }}" alt="img"
-                                        class="alltuchtopdown">
-                                </div>
-                            </div>
+                        <div class="testi-img-custom-sp-sec">
+                            @if($testimonial_details && !empty($testimonial_details->image))
+                                <img src="{{ asset('home/testimonials/'.$testimonial_details->image) }}"
+                                    alt="{{ $testimonial_details->title ?? 'Testimonial' }}"
+                                    data-aos="fade-left"
+                                    data-aos-delay="150">
+                            @endif
                         </div>
                     </div>
-
 
                     <div class="col-lg-6">
                         <div class="testimonial__item-wrap">
@@ -521,11 +482,9 @@
                                                 <div class="testimonial__item">
 
                                                     <div class="testimonial__icon">
-
                                                         <img src="{{ asset('frontend/assets/img/icon/quote.svg') }}"
                                                             alt=""
                                                             class="injectable">
-
                                                     </div>
 
                                                     <div class="testimonial__content">
@@ -552,90 +511,85 @@
 
                             <!-- Navigation buttons -->
                             <div class="testimonial-nav">
-
                                 <div class="swiper-button-prev custom-prev"></div>
-
                                 <div class="swiper-button-next custom-next"></div>
-
                             </div>
 
                         </div>
                     </div>
-
 
                 </div>
             </div>
         </section>
         <!-- testimonial-area-end -->
 
+        
 
         <section class="board-creative-section position-relative overflow-hidden">
-
             <div class="container">
-
                 <div class="row align-items-center">
 
                     <!-- IMAGE SIDE -->
-                    <div class="col-lg-6 text-center position-relative">
-
+                    <div class="col-lg-6 col-md-6 text-center position-relative">
                         <div class="image-stack">
 
                             @if($our_board && !empty($our_board->image))
-
-                                <img src="{{ asset('home/board/'.$our_board->image) }}"
+                                <img src="{{ asset('home/board/' . $our_board->image) }}"
                                     class="img-fluid main-img"
-                                    alt="{{ $our_board->title }}">
-
+                                    alt="{{ $our_board->image_caption ?? $our_board->title }}"
+                                    data-aos="fade-right"
+                                    data-aos-delay="150">
                             @endif
 
-                        </div>
+                            <div class="image-stack-content-sec">
+                                <h4>
+                                    {{ $our_board->image_caption ?? 'Late Mr Ratan N. Tata' }}
+                                </h4>
+                                <p>
+                                    {{ $our_board->image_subtitle ?? 'Founder and Chairman Emeritus' }}
+                                </p>
+                            </div>
 
+                        </div>
                     </div>
 
                     <!-- CONTENT SIDE -->
-                    <div class="col-lg-6">
-
+                    <div class="col-lg-6 col-md-6">
                         <div class="glass-card p-4 p-md-5">
 
-                            <h2 class="main-title">
-
+                            <h2 class="main-title" data-aos="fade-left">
                                 {{ $our_board->title ?? 'Our Board' }}
-
                             </h2>
 
                             @if($our_board && !empty($our_board->description))
-
-                                <div class="desc mb-4 cke-editor">
-
-                                    {!! $our_board->description !!}
-
-                                </div>
-
+                                <p class="desc" data-aos="fade-left" data-aos-delay="150">
+                                    {!! strip_tags($our_board->description, '<br><strong><b><em><i>') !!}
+                                </p>
+                            @else
+                                <p class="desc" data-aos="fade-left" data-aos-delay="150">
+                                    The Advanced Veterinary Care Foundation (AVCF) oversees the management
+                                    of the Small Animal Hospital Mumbai, with support from Tata Trusts.
+                                </p>
                             @endif
 
-                            <div class="home-about-world-class-care-sec">
+                            <div class="home-about-world-class-care-sec"
+                                data-aos="fade-left"
+                                data-aos-delay="200">
 
-                                <a href="{{ url('our-team#our-team-our-board-sec') }}"
-                                    class="btn">
-
+                                <a href="{{ url('our-team#our-team-our-board-sec') }}" class="btn">
                                     Read More
-
                                     <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
                                         alt=""
                                         class="injectable">
-
                                 </a>
 
                             </div>
 
                         </div>
-
                     </div>
 
                 </div>
-
             </div>
-
         </section>
         
 
