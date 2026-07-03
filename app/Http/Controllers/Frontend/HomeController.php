@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+use App\Models\EventSetting;
+use App\Models\Events;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
 use App\Models\HomeBanner;
@@ -52,7 +54,13 @@ class HomeController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us','gallery_settings','gallery_images'));
+        $event_settings = EventSetting::whereNull('deleted_by')->first();
+        $events         = Events::whereNull('deleted_by')
+            ->where('show_on_home', true)
+            ->orderBy('id')
+            ->get();
+
+        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us','gallery_settings','gallery_images','event_settings','events'));
     }
 
 

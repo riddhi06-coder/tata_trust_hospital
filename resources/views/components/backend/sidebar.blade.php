@@ -106,6 +106,21 @@
                     <span>Gallery</span>
                   </a>
                 </li>
+
+
+
+                <li class="sidebar-list {{ request()->routeIs('manage-events.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-events.index') }}">
+                    <svg class="stroke-icon"> 
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-starter-kit') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-starter-kit') }}"></use>
+                    </svg>
+                    <span>Events</span>
+                  </a>
+                </li>
                 
                 
                 <!-- Home slider banner Details -->

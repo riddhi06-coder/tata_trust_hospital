@@ -4,7 +4,7 @@
                 <div class="col-md-8">
                     <div class="why__we-are-content">
                         <div class="section__title section_title_none mb-0">
-                            <h2 class="title">Appointment & Emergency help is available</h2>
+                            <h2 class="title">Appointment & Emergency help is available 24x7</h2>
                         </div>
                     </div>
                 </div>

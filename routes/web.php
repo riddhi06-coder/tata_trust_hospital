@@ -18,7 +18,7 @@ use App\Http\Controllers\Backend\HomeFollowUsController;
 use App\Http\Controllers\Backend\MasterOurTeamController;
 use App\Http\Controllers\Backend\MasterTestimonialsController;
 use App\Http\Controllers\Backend\GalleryController;
-
+use App\Http\Controllers\Backend\EventsController;
 
 
 //frontend controller
@@ -118,9 +118,13 @@ use App\Http\Controllers\Frontend\HomeController;
             Route::post('manage-our-team/{id}/toggle-home', [MasterOurTeamController::class, 'toggleHome'])->name('manage-our-team.toggle-home');
             Route::resource('manage-our-team', MasterOurTeamController::class);
 
-
+            // Gallleryyyyy
             Route::post('manage-gallery/{id}/toggle-home', [GalleryController::class, 'toggleHome'])->name('manage-gallery.toggle-home');
             Route::resource('manage-gallery', GalleryController::class);
+
+            // Eventssss
+            Route::post('manage-events/{id}/toggle-home', [EventsController::class, 'toggleHome'])->name('manage-events.toggle-home');
+            Route::resource('manage-events', EventsController::class);
 
             //Testimonials Master
             Route::resource('manage-master-testimonials', MasterTestimonialsController::class);

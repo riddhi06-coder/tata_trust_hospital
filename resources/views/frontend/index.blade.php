@@ -639,6 +639,59 @@
         <!-- Gallery-area-end -->
         
 
+
+        @if($events->count() > 0)
+        <section class="upcoming-events-custom-sec">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-12">
+                        <div class="section__title section_title-two text-center">
+                            <h2 class="title" data-aos="fade-up">
+                                {{ $event_settings->section_heading ?? 'Upcoming Events' }}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+
+                    @foreach($events as $index => $event)
+                        @php
+                            $delays  = [0, 150, 300, 450];
+                            $aosDelay = $delays[$index % 4];
+                        @endphp
+
+                        <div class="col-xl-3 col-lg-4 col-md-6"
+                            data-aos="fade-up"
+                            @if($aosDelay > 0) data-aos-delay="{{ $aosDelay }}" @endif>
+                            <div class="upcoming-events-item-four shine-animate-item">
+                                <div class="upcoming-events-thumb-four shine-animate">
+                                    <a href="{{ asset('home/events/'.$event->image) }}"
+                                        class="image-popup"
+                                        title="{{ $event->title }}">
+                                        <img src="{{ asset('home/events/'.$event->thumbnail) }}" alt="{{ $event->title }}">
+                                    </a>
+                                    @if(!empty($event->month_name))
+                                        <ul class="list-wrap upcoming-events-post-tag upcoming-events-post-tag-three">
+                                            <li>{{ $event->month_name }}</li>
+                                        </ul>
+                                    @endif
+                                </div>
+                                <div class="upcoming-events-content-four">
+                                    <h2 class="title">
+                                        {{ $event->title }}
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
+                </div>
+            </div>
+        </section>
+        @endif
+        
+
+
         <section class="pet-instagram-section">
 
             <div class="container">
@@ -728,6 +781,24 @@
     @include('components.frontend.footer')
      
     @include('components.frontend.main-js')
+
+
+    <script>
+        $(document).ready(function () {
+            $('.image-popup').magnificPopup({
+                type: 'image',
+                gallery: {
+                    enabled: true
+                },
+                closeOnContentClick: true,
+                removalDelay: 300,
+                mainClass: 'mfp-fade',
+                image: {
+                    titleSrc: 'title'
+                }
+            });
+        });
+    </script>
 
   </body>
 </html>
