@@ -1,4 +1,26 @@
+    <section class="home-page-contact-us-footer-top">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="why__we-are-content">
+                        <div class="section__title section_title_none mb-0">
+                            <h2 class="title">Appointment & Emergency help is available</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="home-appointment-emergency-footer-btn-sec">
+                        <a href="tel:02265383538" class="btn">Contact Us<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
+                                alt="" class="injectable"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+
+    
+    
     <!-- footer-area -->
     <footer>
         <div class="footer__area">
@@ -82,7 +104,7 @@
                                             <ul class="list-wrap">
                                                 <li><a href="our-team.html">Team</a></li>
                                                 <li><a href="join-us.html">Join Us</a></li>
-                                                <li><a href="gallery.html">Gallery</a></li>
+                                                <li><a href="{{ route('frontend.gallery') }}">Gallery</a></li>
                                                 <li><a href="blog.html">Blog</a></li>
                                                 <li><a href="contact-us.html">Contact Us</a></li>
                                             </ul>

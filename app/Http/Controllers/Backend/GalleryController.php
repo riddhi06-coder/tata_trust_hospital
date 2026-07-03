@@ -41,8 +41,10 @@ class GalleryController extends Controller
         ];
 
         if ($showBanner) {
-            $rules['banner_heading'] = 'nullable|string|max:255';
-            $rules['banner_media']   = 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:10240';
+            $rules['banner_heading']      = 'nullable|string|max:255';
+            $rules['banner_media']        = 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:10240';
+            $rules['section_heading']     = 'nullable|string|max:255';
+            $rules['section_description'] = 'nullable|string';
         }
 
         $validator = Validator::make($request->all(), $rules, [
@@ -107,8 +109,10 @@ class GalleryController extends Controller
         ];
 
         if ($showBanner) {
-            $rules['banner_heading'] = 'nullable|string|max:255';
-            $rules['banner_media']   = 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:10240';
+            $rules['banner_heading']      = 'nullable|string|max:255';
+            $rules['banner_media']        = 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:10240';
+            $rules['section_heading']     = 'nullable|string|max:255';
+            $rules['section_description'] = 'nullable|string';
         }
 
         $validator = Validator::make($request->all(), $rules, [
@@ -215,9 +219,11 @@ class GalleryController extends Controller
         }
 
         $data = [
-            'banner_heading' => $request->banner_heading,
-            'banner_media'   => $fileName,
-            'media_type'     => $mediaType,
+            'banner_heading'      => $request->banner_heading,
+            'banner_media'        => $fileName,
+            'media_type'          => $mediaType,
+            'section_heading'     => $request->section_heading,
+            'section_description' => $request->section_description,
         ];
 
         if ($gallery) {

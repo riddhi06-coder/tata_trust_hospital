@@ -591,6 +591,52 @@
                 </div>
             </div>
         </section>
+
+
+        <!-- Gallery Area -->
+        @if($gallery_images->count() > 0)
+        <section class="homepage-gallery-custom-sec">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="section__title section_title-two text-center">
+                            <h2 class="title" data-aos="fade-up">
+                                GALLERY
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="tab-content homepage-gallery-item-wrap" id="productTabContent">
+                            <div class="tab-pane fade show active" id="all-tab-pane" role="tabpanel"
+                                aria-labelledby="all-tab" tabindex="0">
+                                <div class="swiper gallery-image-active">
+                                    <div class="swiper-wrapper">
+
+                                        @foreach($gallery_images as $img)
+                                            <div class="swiper-slide">
+                                                <div class="homepage-gallery-item">
+                                                    <div class="homepage-gallery-thumb">
+                                                        <img src="{{ asset('home/gallery/'.$img->image) }}"
+                                                            alt="{{ $gallery_settings->banner_heading ?? 'Gallery image' }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+
+                                    </div>
+                                </div>
+                                <div class="homepage-gallery-nav-wrap">
+                                    <button class="product-button-prev"><i class="flaticon-left-chevron"></i></button>
+                                    <button class="product-button-next"><i class="flaticon-right-arrow-angle"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        @endif
+        <!-- Gallery-area-end -->
         
 
         <section class="pet-instagram-section">
@@ -672,29 +718,6 @@
             </div>
 
         </section>
-
-
-        <section class="home-page-contact-us-footer-top">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <div class="why__we-are-content">
-                            <div class="section__title section_title_none mb-0">
-                                <h2 class="title">Appointment & Emergency help is available</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="home-appointment-emergency-footer-btn-sec">
-                            <a href="tel:02265383538" class="btn">Contact Us<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
-                                    alt="" class="injectable"></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
 
 
     </main>

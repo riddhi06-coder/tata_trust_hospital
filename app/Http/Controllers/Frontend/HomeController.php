@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+use App\Models\Gallery;
+use App\Models\GalleryImage;
 use App\Models\HomeBanner;
 use App\Models\HomeBoard;
 use App\Models\HomeFacilities;
@@ -43,7 +45,26 @@ class HomeController extends Controller
         $our_board = HomeBoard::wherenull('deleted_by')->first();
         $follow_us = HomeFollowUs::wherenull('deleted_by')->first();
 
-        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us'));
+        $gallery_settings = Gallery::whereNull('deleted_by')->first();
+        $gallery_images   = GalleryImage::whereNull('deleted_by')
+            ->where('show_on_home', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us','gallery_settings','gallery_images'));
+    }
+
+
+
+    public function gallery()
+    {
+        $gallery_settings = Gallery::whereNull('deleted_by')->first();
+        $gallery_images   = GalleryImage::whereNull('deleted_by')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('frontend.gallery', compact('gallery_settings', 'gallery_images'));
     }
 
 }

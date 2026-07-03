@@ -76,6 +76,19 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-md-12">
+                                        <label class="form-label" for="section_heading">Section Heading</label>
+                                        <input class="form-control" id="section_heading" type="text" name="section_heading"
+                                            value="{{ old('section_heading', $gallery->section_heading ?? '') }}"
+                                            placeholder="Enter Section Heading">
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label class="form-label" for="editor">Section Description</label>
+                                        <textarea class="form-control" id="editor" name="section_description" rows="6"
+                                            placeholder="Enter Section Description">{{ old('section_description', $gallery->section_description ?? '') }}</textarea>
+                                    </div>
+
                                     <div class="col-12"><hr></div>
                                 @endif
 

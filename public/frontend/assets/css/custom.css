@@ -1,0 +1,11 @@
+/* =========================================================
+   Custom frontend styles
+   Add project-specific frontend styles here.
+   ========================================================= */
+
+
+/* ---------- Gallery: CKEditor description centering ---------- */
+.gallery-section-description,
+.gallery-section-description p {
+    text-align: center;
+}

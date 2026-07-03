@@ -17,6 +17,8 @@ class Gallery extends Model
         'banner_title',
         'banner_media',
         'media_type',
+        'section_heading',
+        'section_description',
         'created_by',
         'updated_by',
         'deleted_by',

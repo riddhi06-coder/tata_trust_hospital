@@ -133,4 +133,5 @@ use App\Http\Controllers\Frontend\HomeController;
     // ----------------------
 
     Route::get('/', [HomeController::class, 'index'])->name('frontend.index');
+    Route::get('/gallery', [HomeController::class, 'gallery'])->name('frontend.gallery');
 
