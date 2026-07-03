@@ -249,6 +249,43 @@
 
 
 
+        @if($speciality_items->count() > 0)
+            <section class="our-speci-custom-nine-sec">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-12">
+                            <div class="section__title section_title-two text-center mb-40">
+                                <h2 class="title" data-aos="fade-up">
+                                    Specialities
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    @foreach($speciality_items->chunk(5) as $chunkIndex => $chunk)
+                        @if($chunkIndex > 0)<br>@endif
+
+                        <div class="row justify-content-center g-4">
+                            @foreach($chunk->values() as $index => $item)
+                                @php $aosDelay = $index * 150; @endphp
+                                <div class="col-lg-2"
+                                    data-aos="fade-up"
+                                    @if($aosDelay > 0) data-aos-delay="{{ $aosDelay }}" @endif>
+                                    <a href="{{ url('specialities/'.$item->slug) }}" class="spec-custom-nine-card-sec">
+                                        <div class="spec-custom-nine-card-content-sec">
+                                            <img src="{{ asset('home/specialities/'.$item->image) }}" alt="{{ $item->speciality }}">
+                                            <h4>{{ $item->speciality }}</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endforeach
+
+                </div>
+            </section>
+        @endif
+
         <!-- product-area -->
         <section class="product__area our-facilities-one-bg-custom-sp">
 

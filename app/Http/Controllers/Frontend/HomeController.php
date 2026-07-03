@@ -14,6 +14,8 @@ use App\Models\EventSetting;
 use App\Models\Events;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
+use App\Models\Specialities;
+use App\Models\SpecialitySetting;
 use App\Models\HomeBanner;
 use App\Models\HomeBoard;
 use App\Models\HomeFacilities;
@@ -60,7 +62,12 @@ class HomeController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us','gallery_settings','gallery_images','event_settings','events'));
+        $speciality_settings = SpecialitySetting::whereNull('deleted_by')->first();
+        $speciality_items    = Specialities::whereNull('deleted_by')
+            ->orderBy('id')
+            ->get();
+
+        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us','gallery_settings','gallery_images','event_settings','events','speciality_settings','speciality_items'));
     }
 
 

@@ -108,6 +108,25 @@
                 </li>
 
 
+                <!-- Home slider banner Details -->
+                <li class="sidebar-list {{ request()->routeIs('manage-specialities.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-faq') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-faq') }}"></use>
+                    </svg>
+                    <span>Specialities</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('manage-specialities.index') }}"> Listing </a></li>
+                    <li><a href="{{ route('short-introduction.index') }}"> Details </a></li>
+                  </ul>
+                </li>
+
+
 
                 <li class="sidebar-list {{ request()->routeIs('manage-events.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>

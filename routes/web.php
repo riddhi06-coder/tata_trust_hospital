@@ -6,7 +6,6 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\PermissionController;
-
 use App\Http\Controllers\Backend\HomeBannerController;
 use App\Http\Controllers\Backend\ShortIntroductionController;
 use App\Http\Controllers\Backend\HomeServicesController;
@@ -19,6 +18,7 @@ use App\Http\Controllers\Backend\MasterOurTeamController;
 use App\Http\Controllers\Backend\MasterTestimonialsController;
 use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\EventsController;
+use App\Http\Controllers\Backend\SpecialitiesController;
 
 
 //frontend controller
@@ -125,6 +125,9 @@ use App\Http\Controllers\Frontend\HomeController;
             // Eventssss
             Route::post('manage-events/{id}/toggle-home', [EventsController::class, 'toggleHome'])->name('manage-events.toggle-home');
             Route::resource('manage-events', EventsController::class);
+
+            // Specialities
+            Route::resource('manage-specialities', SpecialitiesController::class);
 
             //Testimonials Master
             Route::resource('manage-master-testimonials', MasterTestimonialsController::class);
