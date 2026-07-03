@@ -15,6 +15,7 @@ use App\Models\Events;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
 use App\Models\Specialities;
+use App\Models\SpecialitiesDetails;
 use App\Models\SpecialitySetting;
 use App\Models\HomeBanner;
 use App\Models\HomeBoard;
@@ -93,6 +94,23 @@ class HomeController extends Controller
         $home_services = HomeServices::whereNull('deleted_by')->first();
 
         return view('frontend.specialities', compact('speciality_settings', 'speciality_items', 'home_services'));
+    }
+
+    public function specialities_details(string $slug)
+    {
+        $speciality = Specialities::whereNull('deleted_by')->where('slug', $slug)->firstOrFail();
+
+        $detail = SpecialitiesDetails::whereNull('deleted_by')
+            ->with('doctors')
+            ->where('speciality_id', $speciality->id)
+            ->orderBy('id')
+            ->first();
+
+        if (!$detail) {
+            abort(404);
+        }
+
+        return view('frontend.specialities_details', compact('speciality', 'detail'));
     }
 
 }
