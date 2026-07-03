@@ -109,7 +109,7 @@
 
 
                 <!-- Home slider banner Details -->
-                <li class="sidebar-list {{ request()->routeIs('manage-specialities.index') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('manage-specialities.index','speciality-details.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -122,7 +122,7 @@
                   </a>
                   <ul class="sidebar-submenu">
                     <li><a href="{{ route('manage-specialities.index') }}"> Listing </a></li>
-                    <li><a href="{{ route('short-introduction.index') }}"> Details </a></li>
+                    <li><a href="{{ route('speciality-details.index') }}"> Details </a></li>
                   </ul>
                 </li>
 

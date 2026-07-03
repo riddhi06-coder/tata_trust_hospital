@@ -19,6 +19,10 @@ use App\Http\Controllers\Backend\MasterTestimonialsController;
 use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\EventsController;
 use App\Http\Controllers\Backend\SpecialitiesController;
+use App\Http\Controllers\Backend\SpecialitiesDetailsController;
+
+
+
 
 
 //frontend controller
@@ -128,6 +132,7 @@ use App\Http\Controllers\Frontend\HomeController;
 
             // Specialities
             Route::resource('manage-specialities', SpecialitiesController::class);
+            Route::resource('speciality-details', SpecialitiesDetailsController::class);
 
             //Testimonials Master
             Route::resource('manage-master-testimonials', MasterTestimonialsController::class);
