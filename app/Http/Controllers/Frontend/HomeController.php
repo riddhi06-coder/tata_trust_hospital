@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\EventSetting;
 use App\Models\Events;
+use App\Models\Faq;
+use App\Models\FaqSetting;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
 use App\Models\Specialities;
@@ -94,6 +96,14 @@ class HomeController extends Controller
         $home_services = HomeServices::whereNull('deleted_by')->first();
 
         return view('frontend.specialities', compact('speciality_settings', 'speciality_items', 'home_services'));
+    }
+
+    public function faqs()
+    {
+        $faq_settings = FaqSetting::whereNull('deleted_by')->first();
+        $faqs         = Faq::whereNull('deleted_by')->orderBy('id')->get();
+
+        return view('frontend.faqs', compact('faq_settings', 'faqs'));
     }
 
     public function specialities_details(string $slug)

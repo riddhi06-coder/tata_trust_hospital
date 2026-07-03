@@ -113,10 +113,10 @@
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-faq') }}"></use>
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-learning') }}"></use>
                     </svg>
                     <svg class="fill-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-faq') }}"></use>
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-learning') }}"></use>
                     </svg>
                     <span>Specialities</span>
                   </a>
@@ -168,6 +168,18 @@
 
 
 
+                <li class="sidebar-list {{ request()->routeIs('manage-faqs.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-faqs.index') }}">
+                    <svg class="stroke-icon"> 
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-faq') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-faq') }}"></use>
+                    </svg>
+                    <span>FAQ's</span>
+                  </a>
+                </li>
                 
               </ul>
               <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>

@@ -30,7 +30,7 @@
                         <div class="col-xl-4 col-lg-4 col-md-6">
                             <div class="footer__widget">
                                 <div class="footer__logo">
-                                    <a href="https://mbihosting.in/sahmumbai-demo/"><img
+                                    <a href="{{ route('frontend.index') }}"><img
                                             src="{{ asset('frontend/assets/img/logo/sahmumbai-logo.svg') }}" width="325" height="65" alt="Tata Trusts Small Animal Hospital Logo" loading="lazy"></a>
                                     <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">
                                         Tata Trusts Small Animal Hospital,<br>
@@ -91,11 +91,11 @@
                                     <div class="col-md-6">
                                         <div class="footer__link">
                                             <ul class="list-wrap">
-                                                <li><a href="https://mbihosting.in/sahmumbai-demo/">Home</a></li>
+                                                <li><a href="{{ route('frontend.index') }}">Home</a></li>
                                                 <li><a href="about-us.html">About</a></li>
                                                 <li><a href="specialities.html">Specialities</a></li>
                                                 <li><a href="our-facilities.html">Facilities</a></li>
-                                                <li><a href="faqs.html">FAQs</a></li>
+                                                <li><a href="{{ route('frontend.faqs') }}">FAQs</a></li>
                                             </ul>
                                         </div>
                                     </div>

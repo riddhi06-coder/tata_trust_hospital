@@ -79,7 +79,7 @@
                         <div class="tgmenu__wrap">
                             <nav class="tgmenu__nav">
                                 <div class="logo">
-                                    <a href="https://mbihosting.in/sahmumbai-demo/"><img
+                                    <a href="{{ route('frontend.index') }}"><img
                                             src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}" alt="Tata Trusts Small Animal Hospital Logo"></a>
                                 </div>
                                 <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-lg-flex">
@@ -117,7 +117,7 @@
                             <nav class="tgmobile__menu-box">
                                 <div class="close-btn"><i class="fas fa-times"></i></div>
                                 <div class="nav-logo">
-                                    <a href="https://mbihosting.in/sahmumbai-demo/"><img
+                                    <a href="{{ route('frontend.index') }}"><img
                                             src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}"
                                             alt="Tata Trusts Small Animal Hospital Logo"></a>
                                 </div>
@@ -230,7 +230,7 @@
                 <button><i class="far fa-window-close"></i></button>
             </div>
             <div class="offCanvas__logo mb-20">
-                <a href="https://mbihosting.in/sahmumbai-demo/"><img src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}"
+                <a href="{{ route('frontend.index') }}"><img src="{{ asset('frontend/assets/img/logo/tata-trust-logo.webp') }}"
                         alt="Tata Trusts Small Animal Hospital Logo"></a>
             </div>
             <div class="offCanvas__side-info mb-30">

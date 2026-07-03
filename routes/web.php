@@ -20,7 +20,7 @@ use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\EventsController;
 use App\Http\Controllers\Backend\SpecialitiesController;
 use App\Http\Controllers\Backend\SpecialitiesDetailsController;
-
+use App\Http\Controllers\Backend\FAQController;
 
 
 
@@ -134,8 +134,12 @@ use App\Http\Controllers\Frontend\HomeController;
             Route::resource('manage-specialities', SpecialitiesController::class);
             Route::resource('speciality-details', SpecialitiesDetailsController::class);
 
+
             //Testimonials Master
             Route::resource('manage-master-testimonials', MasterTestimonialsController::class);
+
+            // FAQ's
+            Route::resource('manage-faqs', FAQController::class);
 
     });
 
@@ -148,4 +152,5 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/gallery', [HomeController::class, 'gallery'])->name('frontend.gallery');
     Route::get('/specialities', [HomeController::class, 'specialities'])->name('frontend.specialities');
     Route::get('/specialities/{slug}', [HomeController::class, 'specialities_details'])->name('frontend.specialities_details');
+    Route::get('/faqs', [HomeController::class, 'faqs'])->name('frontend.faqs');
 
