@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\TracksDeletedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SpecialitiesDetails extends Model
@@ -34,5 +35,17 @@ class SpecialitiesDetails extends Model
     public function speciality(): BelongsTo
     {
         return $this->belongsTo(Specialities::class, 'speciality_id');
+    }
+
+    public function doctors(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            OurTeam::class,
+            'speciality_detail_team',
+            'speciality_detail_id',
+            'our_team_id'
+        )->withPivot(['bio_override', 'sort_order'])
+         ->orderBy('speciality_detail_team.sort_order')
+         ->withTimestamps();
     }
 }

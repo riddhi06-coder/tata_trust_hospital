@@ -81,8 +81,29 @@
 
                                 <!-- Social Media Link -->
                                 <div class="col-md-12">
-                                    <label class="form-label" for="social_media_link">Social Media Link <span class="txt-danger">*</span></label>
+                                    <label class="form-label" for="social_media_link">Social Media Link</label>
                                     <input class="form-control" id="social_media_link" type="url" name="social_media_link" value="{{ old('social_media_link') }}" placeholder="https://www.linkedin.com/in/yourprofile">
+                                </div>
+
+                                <!-- Bio (used on speciality pages) -->
+                                <div class="col-md-12">
+                                    <label class="form-label" for="bio">Bio</label>
+                                    <textarea class="form-control" id="bio" name="bio" rows="6"
+                                        placeholder="Full doctor bio — used on speciality pages when this doctor is attached.">{{ old('bio') }}</textarea>
+                                    <small class="text-muted">Optional. Shown on Speciality Detail pages when this doctor is attached. Can be overridden per speciality.</small>
+                                </div>
+
+                                <!-- Show on Team Page -->
+                                <div class="col-md-12 d-flex align-items-center">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="show_on_team_page"
+                                            name="show_on_team_page" value="1"
+                                            {{ old('show_on_team_page', true) ? 'checked' : '' }}>
+                                        <label class="form-check-label ms-2" for="show_on_team_page">
+                                            Show on public Team page
+                                        </label>
+                                    </div>
+                                    <small class="text-muted ms-3">Uncheck for guest specialists you only want to feature on speciality pages.</small>
                                 </div>
 
                                 <!-- Form Actions -->

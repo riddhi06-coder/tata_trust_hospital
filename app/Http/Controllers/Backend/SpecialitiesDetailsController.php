@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\OurTeam;
 use App\Models\Specialities;
 use App\Models\SpecialitiesDetails;
 
@@ -25,8 +26,9 @@ class SpecialitiesDetailsController extends Controller
     public function create()
     {
         $specialities = Specialities::whereNull('deleted_by')->orderBy('speciality')->get();
+        $doctors      = OurTeam::whereNull('deleted_by')->orderBy('name')->get();
 
-        return view('backend.specialities.details.create', compact('specialities'));
+        return view('backend.specialities.details.create', compact('specialities', 'doctors'));
     }
 
     public function store(Request $request)
@@ -43,6 +45,10 @@ class SpecialitiesDetailsController extends Controller
                 'services'            => 'required|array|min:1',
                 'services.*'          => 'required|string|max:2000',
                 'short_info'          => 'nullable|string|max:2000',
+                'doctor_ids'          => 'nullable|array',
+                'doctor_ids.*'        => 'nullable|integer|exists:our_teams,id',
+                'doctor_bio_override' => 'nullable|array',
+                'doctor_bio_override.*' => 'nullable|string',
             ],
             [
                 'speciality_id.required'       => 'Please select a Speciality.',
@@ -85,7 +91,7 @@ class SpecialitiesDetailsController extends Controller
             fn ($s) => is_string($s) && trim($s) !== ''
         ));
 
-        SpecialitiesDetails::create([
+        $detail = SpecialitiesDetails::create([
             'speciality_id'       => $request->speciality_id,
             'banner_image'        => $bannerName,
             'section_image'       => $sectionName,
@@ -98,6 +104,8 @@ class SpecialitiesDetailsController extends Controller
             'created_at'          => Carbon::now(),
         ]);
 
+        $this->syncDoctors($detail, $request);
+
         return redirect()
             ->route('speciality-details.index')
             ->with('message', 'Speciality Details added successfully.');
@@ -105,10 +113,11 @@ class SpecialitiesDetailsController extends Controller
 
     public function edit($id)
     {
-        $detail       = SpecialitiesDetails::findOrFail($id);
+        $detail       = SpecialitiesDetails::with('doctors')->findOrFail($id);
         $specialities = Specialities::whereNull('deleted_by')->orderBy('speciality')->get();
+        $doctors      = OurTeam::whereNull('deleted_by')->orderBy('name')->get();
 
-        return view('backend.specialities.details.edit', compact('detail', 'specialities'));
+        return view('backend.specialities.details.edit', compact('detail', 'specialities', 'doctors'));
     }
 
     public function update(Request $request, $id)
@@ -127,6 +136,10 @@ class SpecialitiesDetailsController extends Controller
                 'services'            => 'required|array|min:1',
                 'services.*'          => 'required|string|max:2000',
                 'short_info'          => 'nullable|string|max:2000',
+                'doctor_ids'          => 'nullable|array',
+                'doctor_ids.*'        => 'nullable|integer|exists:our_teams,id',
+                'doctor_bio_override' => 'nullable|array',
+                'doctor_bio_override.*' => 'nullable|string',
             ],
             [
                 'speciality_id.required'       => 'Please select a Speciality.',
@@ -195,9 +208,35 @@ class SpecialitiesDetailsController extends Controller
             'updated_at'          => Carbon::now(),
         ]);
 
+        $this->syncDoctors($detail, $request);
+
         return redirect()
             ->route('speciality-details.index')
             ->with('message', 'Speciality Details updated successfully.');
+    }
+
+    private function syncDoctors(SpecialitiesDetails $detail, Request $request): void
+    {
+        $doctorIds     = (array) $request->input('doctor_ids', []);
+        $bioOverrides  = (array) $request->input('doctor_bio_override', []);
+
+        $sync = [];
+        $order = 0;
+        foreach ($doctorIds as $index => $ourTeamId) {
+            $ourTeamId = (int) $ourTeamId;
+            if ($ourTeamId <= 0) {
+                continue;
+            }
+            // De-dupe: last wins for same team member id
+            $sync[$ourTeamId] = [
+                'bio_override' => isset($bioOverrides[$index]) && trim($bioOverrides[$index]) !== ''
+                    ? $bioOverrides[$index]
+                    : null,
+                'sort_order'   => $order++,
+            ];
+        }
+
+        $detail->doctors()->sync($sync);
     }
 
     public function destroy(string $id)

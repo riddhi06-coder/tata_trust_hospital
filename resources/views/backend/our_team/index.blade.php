@@ -45,13 +45,6 @@
                             </div>
 
 
-                            @if(session('message'))
-                                <div class="alert alert-success">{{ session('message') }}</div>
-                            @endif
-                            @if(session('error'))
-                                <div class="alert alert-danger">{{ session('error') }}</div>
-                            @endif
-
                             <div class="table-responsive custom-scrollbar">
                                 <table class="display" id="basic-1">
                                     <thead>
@@ -61,6 +54,7 @@
                                             <th>Designation</th>
                                             <th>Image</th>
                                             <th>Show on Home</th>
+                                            <th>On Team Page</th>
                                             <th class="text-end" style="min-width:170px;">Actions</th>
                                         </tr>
                                     </thead>
@@ -86,6 +80,13 @@
                                                             {{ $member->show_on_home ? 'checked' : '' }}>
                                                     </div>
                                                 </td>
+                                                <td>
+                                                    @if($member->show_on_team_page)
+                                                        <span class="badge bg-success">Yes</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">No</span>
+                                                    @endif
+                                                </td>
                                                 <td class="text-end">
                                                     <div class="d-flex gap-1 justify-content-end">
                                                         <a href="{{ route('manage-our-team.edit', $member->id) }}" class="btn btn-sm btn-primary">Edit</a>
@@ -97,7 +98,7 @@
                                                 </td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="6" class="text-center text-muted py-4">No team members added yet.</td></tr>
+                                            <tr><td colspan="7" class="text-center text-muted py-4">No team members added yet.</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>

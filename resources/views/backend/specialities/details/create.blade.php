@@ -142,6 +142,56 @@
                                         placeholder="Enter Short Info (optional)">{{ old('short_info') }}</textarea>
                                 </div>
 
+                                <div class="col-md-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label mb-0">Attached Doctors</label>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="add-doctor">+ Add Doctor</button>
+                                    </div>
+                                    <small class="text-muted d-block mb-2">Pick doctors from Our Team to feature on this speciality page. Optionally override their bio for this context.</small>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle mb-0" id="doctors-table">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width:60px;">#</th>
+                                                    <th style="width:32%;">Doctor</th>
+                                                    <th>Bio Override <small class="text-muted">(optional — falls back to master bio)</small></th>
+                                                    <th style="width:110px;" class="text-end">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="doctors-body">
+                                                @php
+                                                    $oldDoctorIds = old('doctor_ids', []);
+                                                    $oldDoctorBios = old('doctor_bio_override', []);
+                                                    if (!is_array($oldDoctorIds)) { $oldDoctorIds = []; }
+                                                @endphp
+                                                @foreach($oldDoctorIds as $rIdx => $rDocId)
+                                                    <tr class="doctor-row">
+                                                        <td class="row-index">{{ $rIdx + 1 }}</td>
+                                                        <td>
+                                                            <select class="form-control doctor-select" name="doctor_ids[]">
+                                                                <option value="">— Select Doctor —</option>
+                                                                @foreach($doctors as $doc)
+                                                                    <option value="{{ $doc->id }}" {{ (string) $rDocId === (string) $doc->id ? 'selected' : '' }}>
+                                                                        {{ $doc->name }}{{ $doc->designation ? ' — '.$doc->designation : '' }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <textarea class="form-control" name="doctor_bio_override[]" rows="2"
+                                                                placeholder="Leave blank to use the doctor's master bio">{{ $oldDoctorBios[$rIdx] ?? '' }}</textarea>
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <button type="button" class="btn btn-sm btn-danger remove-doctor">Remove</button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
                                 <div class="col-12 text-end">
                                     <a href="{{ route('speciality-details.index') }}" class="btn btn-danger px-4">Cancel</a>
                                     <button class="btn btn-primary" type="submit">Submit</button>
@@ -213,6 +263,46 @@
                 }
                 e.target.closest('.service-row').remove();
                 renumberRows();
+            });
+
+            // Doctors table
+            var doctorsBody = document.getElementById('doctors-body');
+            var doctorsList = @json($doctors->map(fn ($d) => [
+                'id'          => $d->id,
+                'label'       => $d->name . ($d->designation ? ' — ' . $d->designation : ''),
+            ])->values());
+
+            function renumberDoctors() {
+                doctorsBody.querySelectorAll('.doctor-row').forEach(function (row, i) {
+                    row.querySelector('.row-index').textContent = i + 1;
+                });
+            }
+
+            function buildDoctorOptions() {
+                var html = '<option value="">— Select Doctor —</option>';
+                doctorsList.forEach(function (d) {
+                    var label = String(d.label).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    html += '<option value="' + d.id + '">' + label + '</option>';
+                });
+                return html;
+            }
+
+            document.getElementById('add-doctor').addEventListener('click', function () {
+                var count = doctorsBody.querySelectorAll('.doctor-row').length + 1;
+                var row = document.createElement('tr');
+                row.className = 'doctor-row';
+                row.innerHTML =
+                    '<td class="row-index">' + count + '</td>' +
+                    '<td><select class="form-control doctor-select" name="doctor_ids[]">' + buildDoctorOptions() + '</select></td>' +
+                    '<td><textarea class="form-control" name="doctor_bio_override[]" rows="2" placeholder="Leave blank to use the doctor\'s master bio"></textarea></td>' +
+                    '<td class="text-end"><button type="button" class="btn btn-sm btn-danger remove-doctor">Remove</button></td>';
+                doctorsBody.appendChild(row);
+            });
+
+            doctorsBody.addEventListener('click', function (e) {
+                if (!e.target.classList.contains('remove-doctor')) return;
+                e.target.closest('.doctor-row').remove();
+                renumberDoctors();
             });
         });
     </script>

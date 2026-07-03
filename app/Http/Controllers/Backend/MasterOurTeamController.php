@@ -34,8 +34,10 @@ class MasterOurTeamController extends Controller
                 'name'              => 'required|string|max:255',
                 'designation'       => 'required|string|max:255',
                 'education'         => 'nullable|string|max:500',
-                'social_media_link' => 'required|url|max:1000',
+                'bio'               => 'nullable|string',
+                'social_media_link' => 'nullable|url|max:1000',
                 'image'             => 'required|file|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'show_on_team_page' => 'nullable|boolean',
             ],
             [
                 'name.required'        => 'Please enter Member Name.',
@@ -46,7 +48,6 @@ class MasterOurTeamController extends Controller
 
                 'education.max'        => 'Education must be 500 characters or less.',
 
-                'social_media_link.required' => 'Please enter Social Media Link.',
                 'social_media_link.url'      => 'Social Media Link must be a valid URL.',
                 'social_media_link.max'      => 'Social Media Link must be 1000 characters or less.',
 
@@ -73,8 +74,10 @@ class MasterOurTeamController extends Controller
             'slug'              => $this->generateUniqueSlug($request->name),
             'designation'       => $request->designation,
             'education'         => $request->education,
+            'bio'               => $request->bio,
             'social_media_link' => $request->social_media_link,
             'image'             => $fileName,
+            'show_on_team_page' => (bool) $request->boolean('show_on_team_page'),
             'created_by'        => Auth::id(),
             'created_at'        => Carbon::now(),
         ]);
@@ -100,8 +103,10 @@ class MasterOurTeamController extends Controller
                 'name'              => 'required|string|max:255',
                 'designation'       => 'required|string|max:255',
                 'education'         => 'nullable|string|max:500',
-                'social_media_link' => 'required|url|max:1000',
+                'bio'               => 'nullable|string',
+                'social_media_link' => 'nullable|url|max:1000',
                 'image'             => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'show_on_team_page' => 'nullable|boolean',
             ],
             [
                 'name.required'        => 'Please enter Member Name.',
@@ -112,7 +117,6 @@ class MasterOurTeamController extends Controller
 
                 'education.max'        => 'Education must be 500 characters or less.',
 
-                'social_media_link.required' => 'Please enter Social Media Link.',
                 'social_media_link.url'      => 'Social Media Link must be a valid URL.',
                 'social_media_link.max'      => 'Social Media Link must be 1000 characters or less.',
 
@@ -152,8 +156,10 @@ class MasterOurTeamController extends Controller
             'slug'              => $slug,
             'designation'       => $request->designation,
             'education'         => $request->education,
+            'bio'               => $request->bio,
             'social_media_link' => $request->social_media_link,
             'image'             => $fileName,
+            'show_on_team_page' => (bool) $request->boolean('show_on_team_page'),
             'updated_by'        => Auth::id(),
             'updated_at'        => Carbon::now(),
         ]);
