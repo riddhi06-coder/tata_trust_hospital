@@ -82,4 +82,17 @@ class HomeController extends Controller
         return view('frontend.gallery', compact('gallery_settings', 'gallery_images'));
     }
 
+    public function specialities()
+    {
+        $speciality_settings = SpecialitySetting::whereNull('deleted_by')->first();
+        $speciality_items    = Specialities::whereNull('deleted_by')
+            ->orderBy('id')
+            ->get();
+
+        // "Our Services" tabbed section comes from the HomeServices CRUD
+        $home_services = HomeServices::whereNull('deleted_by')->first();
+
+        return view('frontend.specialities', compact('speciality_settings', 'speciality_items', 'home_services'));
+    }
+
 }
