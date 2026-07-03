@@ -92,6 +92,20 @@
                     <span>Testimonials</span>
                   </a>
                 </li>
+
+
+                <li class="sidebar-list {{ request()->routeIs('manage-gallery.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-gallery.index') }}">
+                    <svg class="stroke-icon"> 
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-gallery') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-gallery') }}"></use>
+                    </svg>
+                    <span>Gallery</span>
+                  </a>
+                </li>
                 
                 
                 <!-- Home slider banner Details -->
