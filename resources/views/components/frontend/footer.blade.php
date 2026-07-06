@@ -102,7 +102,7 @@
                                     <div class="col-md-6">
                                         <div class="footer__link">
                                             <ul class="list-wrap">
-                                                <li><a href="our-team.html">Team</a></li>
+                                                <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
                                                 <li><a href="join-us.html">Join Us</a></li>
                                                 <li><a href="{{ route('frontend.gallery') }}">Gallery</a></li>
                                                 <li><a href="blog.html">Blog</a></li>

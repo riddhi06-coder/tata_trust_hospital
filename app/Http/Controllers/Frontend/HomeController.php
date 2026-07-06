@@ -29,6 +29,7 @@ use App\Models\HomeServices;
 use App\Models\HomeTeam;
 use App\Models\HomeTestimonials;
 use App\Models\OurTeam;
+use App\Models\OurTeamSetting;
 use App\Models\ShortIntroduction;
 use App\Models\Testimonials;
 
@@ -108,6 +109,18 @@ class HomeController extends Controller
             ->get();
 
         return view('frontend.our_facilities', compact('facility_settings', 'facilities'));
+    }
+
+    public function our_team()
+    {
+        $team_settings = OurTeamSetting::whereNull('deleted_by')->first();
+
+        $team_members  = OurTeam::whereNull('deleted_by')
+            ->where('show_on_team_page', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('frontend.our_team', compact('team_settings', 'team_members'));
     }
 
     public function faqs()

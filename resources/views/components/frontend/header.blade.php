@@ -87,7 +87,7 @@
                                         <li><a href="{{ route('frontend.specialities') }}">Specialities</a></li>
                                         <li><a href="{{ route('frontend.our_facilities') }}">Facilities</a></li>
                                         <li><a href="about-us.html">About</a></li>
-                                         <li><a href="our-team.html">Team</a></li>
+                                         <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
                                          <li><a href="blog.html">Blog</a></li> 
                                         <li><a href="contact-us.html">Contact</a></li>
                                     </ul>
