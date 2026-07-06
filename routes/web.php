@@ -22,6 +22,7 @@ use App\Http\Controllers\Backend\SpecialitiesController;
 use App\Http\Controllers\Backend\SpecialitiesDetailsController;
 use App\Http\Controllers\Backend\FAQController;
 use App\Http\Controllers\Backend\MasterFacilitiesController;
+use App\Http\Controllers\Backend\AboutUsController;
 
 
 
@@ -140,6 +141,9 @@ use App\Http\Controllers\Frontend\HomeController;
 
             //Our Facilities
             Route::resource('manage-master-facilities', MasterFacilitiesController::class);
+
+            // About Us
+            Route::resource('manage-about-us', AboutUsController::class);
 
             // FAQ's
             Route::resource('manage-faqs', FAQController::class);

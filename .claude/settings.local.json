@@ -14,7 +14,8 @@
       "Bash(php -l app/Http/Controllers/Frontend/HomeController.php)",
       "Bash(grep -roE \"[^,{}]*\\\\.fix[^,{}]*\\\\{[^}]{0,120}\" main.css)",
       "Bash(grep -roE \"our-facilities-left-sidebar[^}]{0,200}\" main.css)",
-      "Bash(php -l app/Http/Controllers/Backend/MasterOurTeamController.php)"
+      "Bash(php -l app/Http/Controllers/Backend/MasterOurTeamController.php)",
+      "Bash(php -l app/Http/Controllers/Backend/AboutUsController.php)"
     ],
     "additionalDirectories": [
       "c:\\c\\xampp\\htdocs\\tata_animal_trust\\database\\migrations"

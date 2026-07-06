@@ -82,7 +82,7 @@
 
                                 <label for="images" class="dropzone-area" id="dropzone">
                                     <div class="dz-icon">📤</div>
-                                    <div><strong>Click to select</strong> or drop images here</div>
+                                    <div><strong>Click to select</strong> or drop images here <span class="txt-danger">*</span></div>
                                     <small class="text-muted d-block mt-1">jpg, jpeg, png, webp — max 5MB each</small>
                                     <input class="d-none" id="images" type="file" name="images[]" accept=".jpg,.jpeg,.png,.webp" multiple required>
                                 </label>

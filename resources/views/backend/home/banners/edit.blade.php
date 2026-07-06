@@ -60,7 +60,7 @@
                                         <!-- Banner Heading -->
                                         <div class="col-md-6">
                                             <label class="form-label">
-                                                Banner Heading 
+                                                Banner Heading <span class="txt-danger">*</span>
                                             </label>
                                             <input type="text"
                                                 name="banner_heading"

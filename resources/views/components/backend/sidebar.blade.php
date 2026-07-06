@@ -65,6 +65,32 @@
                 @endif
 
 
+                  
+                <!-- Home slider banner Details -->
+                <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-services.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-icons') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-icons') }}"></use>
+                    </svg>
+                    <span>Home</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('banner-details.index') }}">Banner Details </a></li>
+                    <li><a href="{{ route('short-introduction.index') }}"> Short Introduction </a></li>
+                    <li><a href="{{ route('home-services.index') }}"> Services </a></li>
+                    <li><a href="{{ route('manage-facilities.index') }}"> Facilities </a></li>
+                    <li><a href="{{ route('home-team.index') }}"> Our Team </a></li>
+                    <li><a href="{{ route('manage-testimonials.index') }}"> Testimonials </a></li>
+                    <li><a href="{{ route('manage-board.index') }}"> Our Board </a></li>
+                    <li><a href="{{ route('manage-follow-us.index') }}"> Follow Us </a></li>
+                  </ul>
+                </li>
+
+
                 
                 <li class="sidebar-list {{ request()->routeIs('manage-our-team.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
@@ -80,6 +106,26 @@
                 </li>
 
 
+                
+                <!-- Home slider banner Details -->
+                <li class="sidebar-list {{ request()->routeIs('manage-specialities.index','speciality-details.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-learning') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-learning') }}"></use>
+                    </svg>
+                    <span>Specialities</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('manage-specialities.index') }}"> Listing </a></li>
+                    <li><a href="{{ route('speciality-details.index') }}"> Details </a></li>
+                  </ul>
+                </li>
+
+
                 <li class="sidebar-list {{ request()->routeIs('manage-master-facilities.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link" href="{{ route('manage-master-facilities.index') }}">
@@ -90,6 +136,21 @@
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-widget') }}"></use>
                     </svg>
                     <span>Our Facilities</span>
+                  </a>
+                </li>
+
+
+
+                <li class="sidebar-list {{ request()->routeIs('manage-about-us.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-about-us.index') }}">
+                    <svg class="stroke-icon"> 
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-layout') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-layout') }}"></use>
+                    </svg>
+                    <span>About Us</span>
                   </a>
                 </li>
                 
@@ -122,26 +183,6 @@
                 </li>
 
 
-                <!-- Home slider banner Details -->
-                <li class="sidebar-list {{ request()->routeIs('manage-specialities.index','speciality-details.index') ? 'active' : '' }}">
-                  <i class="fa fa-thumb-tack"></i>
-                  <a class="sidebar-link sidebar-title" href="#">
-                    <svg class="stroke-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-learning') }}"></use>
-                    </svg>
-                    <svg class="fill-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-learning') }}"></use>
-                    </svg>
-                    <span>Specialities</span>
-                  </a>
-                  <ul class="sidebar-submenu">
-                    <li><a href="{{ route('manage-specialities.index') }}"> Listing </a></li>
-                    <li><a href="{{ route('speciality-details.index') }}"> Details </a></li>
-                  </ul>
-                </li>
-
-
-
                 <li class="sidebar-list {{ request()->routeIs('manage-events.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link" href="{{ route('manage-events.index') }}">
@@ -155,30 +196,7 @@
                   </a>
                 </li>
                 
-                
-                <!-- Home slider banner Details -->
-                <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-services.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">
-                  <i class="fa fa-thumb-tack"></i>
-                  <a class="sidebar-link sidebar-title" href="#">
-                    <svg class="stroke-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-icons') }}"></use>
-                    </svg>
-                    <svg class="fill-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-icons') }}"></use>
-                    </svg>
-                    <span>Home</span>
-                  </a>
-                  <ul class="sidebar-submenu">
-                    <li><a href="{{ route('banner-details.index') }}">Banner Details </a></li>
-                    <li><a href="{{ route('short-introduction.index') }}"> Short Introduction </a></li>
-                    <li><a href="{{ route('home-services.index') }}"> Services </a></li>
-                    <li><a href="{{ route('manage-facilities.index') }}"> Facilities </a></li>
-                    <li><a href="{{ route('home-team.index') }}"> Our Team </a></li>
-                    <li><a href="{{ route('manage-testimonials.index') }}"> Testimonials </a></li>
-                    <li><a href="{{ route('manage-board.index') }}"> Our Board </a></li>
-                    <li><a href="{{ route('manage-follow-us.index') }}"> Follow Us </a></li>
-                  </ul>
-                </li>
+              
 
 
 

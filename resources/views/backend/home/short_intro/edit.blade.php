@@ -85,7 +85,7 @@
                                         <div class="col-md-6 mt-5">
 
                                             <label class="form-label">
-                                                Banner Image / Video <span class="txt-danger">*</span>
+                                                Banner Image / Video
                                             </label>
 
                                             <input type="file"
