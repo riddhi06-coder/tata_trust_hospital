@@ -92,8 +92,8 @@
                                         <div class="footer__link">
                                             <ul class="list-wrap">
                                                 <li><a href="{{ route('frontend.index') }}">Home</a></li>
-                                                <li><a href="about-us.html">About</a></li>
-                                                <li><a href="specialities.html">Specialities</a></li>
+                                                <li><a href="{{ route('frontend.about_us') }}">About</a></li>
+                                                <li><a href="{{ route('frontend.specialities') }}">Specialities</a></li>
                                                 <li><a href="{{ route('frontend.our_facilities') }}">Facilities</a></li>
                                                 <li><a href="{{ route('frontend.faqs') }}">FAQs</a></li>
                                             </ul>

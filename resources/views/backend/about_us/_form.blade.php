@@ -69,7 +69,7 @@
         <input class="form-control" id="banner_image" type="file" name="banner_image" accept=".jpg,.jpeg,.png,.webp">
         <small class="text-muted">jpg, jpeg, png, webp — max 2MB</small>
         <div class="mt-2">
-            @php $bImg = $isEdit && !empty($about->banner_image) ? asset('about-us/'.$about->banner_image) : ''; @endphp
+            @php $bImg = $isEdit && !empty($about->banner_image) ? asset('about_us/'.$about->banner_image) : ''; @endphp
             <img id="banner_image-preview" src="{{ $bImg }}" data-existing="{{ $bImg }}" alt=""
                 style="max-height:140px;max-width:220px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;{{ $bImg ? '' : 'display:none;' }}">
         </div>
@@ -91,7 +91,7 @@
         <input class="form-control" id="about_image" type="file" name="about_image" accept=".jpg,.jpeg,.png,.webp">
         <small class="text-muted">jpg, jpeg, png, webp — max 2MB</small>
         <div class="mt-2">
-            @php $aImg = $isEdit && !empty($about->about_image) ? asset('about-us/'.$about->about_image) : ''; @endphp
+            @php $aImg = $isEdit && !empty($about->about_image) ? asset('about_us/'.$about->about_image) : ''; @endphp
             <img id="about_image-preview" src="{{ $aImg }}" data-existing="{{ $aImg }}" alt=""
                 style="max-height:140px;max-width:220px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;{{ $aImg ? '' : 'display:none;' }}">
         </div>
@@ -119,7 +119,7 @@
                             <input type="hidden" name="about_info_existing[{{ $i }}]" value="{{ $it['image'] ?? '' }}">
                             <small class="text-muted">jpg, jpeg, png, webp — max 2MB</small>
                             <div class="mt-2">
-                                @php $iImg = !empty($it['image']) ? asset('about-us/'.$it['image']) : ''; @endphp
+                                @php $iImg = !empty($it['image']) ? asset('about_us/'.$it['image']) : ''; @endphp
                                 <img class="repeater-preview" src="{{ $iImg }}" alt=""
                                     style="max-height:110px;max-width:160px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;{{ $iImg ? '' : 'display:none;' }}">
                             </div>
@@ -155,7 +155,7 @@
         <input class="form-control" id="values_image" type="file" name="values_image" accept=".jpg,.jpeg,.png,.webp">
         <small class="text-muted">jpg, jpeg, png, webp — max 2MB</small>
         <div class="mt-2">
-            @php $vImg = $isEdit && !empty($about->values_image) ? asset('about-us/'.$about->values_image) : ''; @endphp
+            @php $vImg = $isEdit && !empty($about->values_image) ? asset('about_us/'.$about->values_image) : ''; @endphp
             <img id="values_image-preview" src="{{ $vImg }}" data-existing="{{ $vImg }}" alt=""
                 style="max-height:140px;max-width:220px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;{{ $vImg ? '' : 'display:none;' }}">
         </div>
@@ -193,7 +193,7 @@
                             <input type="hidden" name="commitment_existing[{{ $i }}]" value="{{ $it['image'] ?? '' }}">
                             <small class="text-muted">jpg, jpeg, png, webp — max 2MB</small>
                             <div class="mt-2">
-                                @php $cImg = !empty($it['image']) ? asset('about-us/'.$it['image']) : ''; @endphp
+                                @php $cImg = !empty($it['image']) ? asset('about_us/'.$it['image']) : ''; @endphp
                                 <img class="repeater-preview" src="{{ $cImg }}" alt=""
                                     style="max-height:110px;max-width:160px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;{{ $cImg ? '' : 'display:none;' }}">
                             </div>
@@ -225,7 +225,7 @@
         <input class="form-control" id="contact_image" type="file" name="contact_image" accept=".jpg,.jpeg,.png,.webp">
         <small class="text-muted">jpg, jpeg, png, webp — max 2MB</small>
         <div class="mt-2">
-            @php $ctImg = $isEdit && !empty($about->contact_image) ? asset('about-us/'.$about->contact_image) : ''; @endphp
+            @php $ctImg = $isEdit && !empty($about->contact_image) ? asset('about_us/'.$about->contact_image) : ''; @endphp
             <img id="contact_image-preview" src="{{ $ctImg }}" data-existing="{{ $ctImg }}" alt=""
                 style="max-height:140px;max-width:220px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;{{ $ctImg ? '' : 'display:none;' }}">
         </div>

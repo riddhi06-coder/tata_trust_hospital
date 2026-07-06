@@ -11,8 +11,10 @@ use App\Models\AboutUs;
 
 class AboutUsController extends Controller
 {
-    /** Directory (under /public) for all About Us images. */
-    private string $folder = 'about-us';
+    /** Directory (under /public) for all About Us images. Underscored so it does
+     *  NOT collide with the public-facing "/about-us" route (Apache would otherwise
+     *  serve the folder instead of routing to Laravel). */
+    private string $folder = 'about_us';
 
     public function index()
     {

@@ -63,7 +63,7 @@
                                                 <td>{{ $about->banner_heading ?: '—' }}</td>
                                                 <td>
                                                     @if(!empty($about->banner_image))
-                                                        <img src="{{ asset('about-us/'.$about->banner_image) }}" alt=""
+                                                        <img src="{{ asset('about_us/'.$about->banner_image) }}" alt=""
                                                             style="height:64px; width:96px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;">
                                                     @else
                                                         <span class="text-muted">—</span>

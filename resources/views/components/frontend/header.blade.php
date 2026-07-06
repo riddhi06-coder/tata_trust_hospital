@@ -86,7 +86,7 @@
                                     <ul class="navigation">
                                         <li><a href="{{ route('frontend.specialities') }}">Specialities</a></li>
                                         <li><a href="{{ route('frontend.our_facilities') }}">Facilities</a></li>
-                                        <li><a href="about-us.html">About</a></li>
+                                        <li><a href="{{ route('frontend.about_us') }}">About</a></li>
                                          <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
                                          <li><a href="blog.html">Blog</a></li> 
                                         <li><a href="contact-us.html">Contact</a></li>

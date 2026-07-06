@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\EventSetting;
 use App\Models\Events;
+use App\Models\AboutUs;
 use App\Models\FacilitySetting;
 use App\Models\Faq;
 use App\Models\FaqSetting;
@@ -109,6 +110,13 @@ class HomeController extends Controller
             ->get();
 
         return view('frontend.our_facilities', compact('facility_settings', 'facilities'));
+    }
+
+    public function about_us()
+    {
+        $about = AboutUs::whereNull('deleted_by')->first();
+
+        return view('frontend.about_us', compact('about'));
     }
 
     public function our_team()
