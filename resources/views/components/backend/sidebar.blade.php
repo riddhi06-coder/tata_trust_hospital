@@ -153,6 +153,7 @@
                     <span>About Us</span>
                   </a>
                 </li>
+
                 
 
                 <li class="sidebar-list {{ request()->routeIs('manage-master-testimonials.index') ? 'active' : '' }}">
@@ -212,6 +213,24 @@
                     <span>FAQ's</span>
                   </a>
                 </li>
+
+
+
+                @if(auth()->user()?->isSuperAdmin())
+                <li class="sidebar-list {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('admin.activity-logs.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-file') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-file') }}"></use>
+                    </svg>
+                    <span>Activity Log</span>
+                  </a>
+                </li>
+                @endif
+
                 
               </ul>
               <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>

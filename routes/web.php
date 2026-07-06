@@ -23,6 +23,7 @@ use App\Http\Controllers\Backend\SpecialitiesDetailsController;
 use App\Http\Controllers\Backend\FAQController;
 use App\Http\Controllers\Backend\MasterFacilitiesController;
 use App\Http\Controllers\Backend\AboutUsController;
+use App\Http\Controllers\Backend\ActivityLogController;
 
 
 
@@ -95,6 +96,10 @@ use App\Http\Controllers\Frontend\HomeController;
         Route::get('permissions-catalog/{permission}/edit',        [PermissionController::class, 'editPermission'])->middleware('permission:permissions.assign')->name('admin.permissions.manage.edit');
         Route::put('permissions-catalog/{permission}',             [PermissionController::class, 'updatePermission'])->middleware('permission:permissions.assign')->name('admin.permissions.manage.update');
         Route::delete('permissions-catalog/{permission}',          [PermissionController::class, 'destroyPermission'])->middleware('permission:permissions.assign')->name('admin.permissions.manage.destroy');
+
+        // ---- Activity Log (Super Admin only; gated inside the controller) ----
+        Route::get('activity-logs',      [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+        Route::get('activity-logs/{id}', [ActivityLogController::class, 'show'])->whereNumber('id')->name('admin.activity-logs.show');
     });
 
 
