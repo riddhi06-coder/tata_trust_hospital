@@ -78,6 +78,20 @@
                     <span>Our Team</span>
                   </a>
                 </li>
+
+
+                <li class="sidebar-list {{ request()->routeIs('manage-master-facilities.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-master-facilities.index') }}">
+                    <svg class="stroke-icon"> 
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-widget') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-widget') }}"></use>
+                    </svg>
+                    <span>Our Facilities</span>
+                  </a>
+                </li>
                 
 
                 <li class="sidebar-list {{ request()->routeIs('manage-master-testimonials.index') ? 'active' : '' }}">
