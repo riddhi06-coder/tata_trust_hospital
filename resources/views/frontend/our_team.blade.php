@@ -25,11 +25,12 @@
                 @endif
             </div>
             <div class="container">
-                <h1 class="breadcrumb-title">
-                    {!! $team_settings && !empty($team_settings->banner_heading)
-                        ? e($team_settings->banner_heading)
-                        : 'Meet the People <br>Behind The Care' !!}
-                </h1>
+                @php
+                    $teamHeading = $team_settings->banner_heading ?? 'Meet the People Behind The Care';
+                    // Break the heading onto a second line after the third word.
+                    $teamHeadingHtml = preg_replace('/^((?:\S+\s+){2}\S+)\s+/u', '$1<br>', e($teamHeading), 1);
+                @endphp
+                <h1 class="breadcrumb-title">{!! $teamHeadingHtml !!}</h1>
                 <ul class="breadcrumb-nav">
                     <li><a href="{{ url('/') }}">Home</a></li>
                     <li><span class="separator"><i class="fas fa-angle-double-right"></i></span></li>
