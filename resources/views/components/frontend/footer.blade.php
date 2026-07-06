@@ -94,7 +94,7 @@
                                                 <li><a href="{{ route('frontend.index') }}">Home</a></li>
                                                 <li><a href="about-us.html">About</a></li>
                                                 <li><a href="specialities.html">Specialities</a></li>
-                                                <li><a href="our-facilities.html">Facilities</a></li>
+                                                <li><a href="{{ route('frontend.our_facilities') }}">Facilities</a></li>
                                                 <li><a href="{{ route('frontend.faqs') }}">FAQs</a></li>
                                             </ul>
                                         </div>

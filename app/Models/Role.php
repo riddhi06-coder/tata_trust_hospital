@@ -37,13 +37,18 @@ class Role extends Model
         return $this->belongsTo(User::class, 'deleted_by');
     }
 
+    /** Per-instance cache of this role's permission slugs (avoids a query per check). */
+    protected ?\Illuminate\Support\Collection $permissionSlugCache = null;
+
     public function hasPermission(string $slug): bool
     {
         if ($this->isSuperAdmin()) {
             return true;
         }
 
-        return $this->permissions()->where('slug', $slug)->exists();
+        $this->permissionSlugCache ??= $this->permissions()->pluck('slug');
+
+        return $this->permissionSlugCache->contains($slug);
     }
 
     public function isSuperAdmin(): bool

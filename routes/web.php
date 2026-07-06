@@ -156,4 +156,5 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/specialities', [HomeController::class, 'specialities'])->name('frontend.specialities');
     Route::get('/specialities/{slug}', [HomeController::class, 'specialities_details'])->name('frontend.specialities_details');
     Route::get('/faqs', [HomeController::class, 'faqs'])->name('frontend.faqs');
+    Route::get('/facilities', [HomeController::class, 'our_facilities'])->name('frontend.our_facilities');
 

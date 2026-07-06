@@ -85,7 +85,7 @@
                                 <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-lg-flex">
                                     <ul class="navigation">
                                         <li><a href="{{ route('frontend.specialities') }}">Specialities</a></li>
-                                        <li><a href="our-facilities.html">Facilities</a></li>
+                                        <li><a href="{{ route('frontend.our_facilities') }}">Facilities</a></li>
                                         <li><a href="about-us.html">About</a></li>
                                          <li><a href="our-team.html">Team</a></li>
                                          <li><a href="blog.html">Blog</a></li> 

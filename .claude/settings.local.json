@@ -7,7 +7,13 @@
       "Bash(cd \"/c/xampp/htdocs/tata_animal_trust\" && mv database/migrations/2026_05_22_122756_create_permission_role_table.php database/migrations/2026_05_22_122758_create_permission_role_table.php && ls database/migrations/ | tail -5)",
       "Bash(mkdir -p resources/views/backend/roles resources/views/backend/users resources/views/backend/permissions)",
       "Read(//c/c/xampp/htdocs/tata_animal_trust/resources/views/**)",
-      "Bash(php -l app/Http/Controllers/Backend/MasterFacilitiesController.php)"
+      "Bash(php -l app/Http/Controllers/Backend/MasterFacilitiesController.php)",
+      "Bash(grep -vE \"PASSWORD|SECRET|=$\" .env)",
+      "Bash(php -r \"echo 'OPcache enabled: '; var_export\\(function_exists\\('opcache_get_status'\\) && \\(opcache_get_status\\(false\\) !== false\\)\\); echo PHP_EOL; echo 'opcache.enable_cli ini: '.ini_get\\('opcache.enable'\\).PHP_EOL; echo 'PHP: '.PHP_VERSION.PHP_EOL;\")",
+      "Bash(php -l app/Models/Role.php)",
+      "Bash(php -l app/Http/Controllers/Frontend/HomeController.php)",
+      "Bash(grep -roE \"[^,{}]*\\\\.fix[^,{}]*\\\\{[^}]{0,120}\" main.css)",
+      "Bash(grep -roE \"our-facilities-left-sidebar[^}]{0,200}\" main.css)"
     ],
     "additionalDirectories": [
       "c:\\c\\xampp\\htdocs\\tata_animal_trust\\database\\migrations"
