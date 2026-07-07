@@ -248,6 +248,20 @@
                 </li>
                 @endif
 
+
+                <li class="sidebar-list {{ request()->routeIs('manage-contact-details.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-contact-details.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-editors') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-editors') }}"></use>
+                    </svg>
+                    <span>Contact Details</span>
+                  </a>
+                </li>
+
                 
               </ul>
               <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>

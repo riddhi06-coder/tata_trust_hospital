@@ -121,7 +121,7 @@
                     <div class="row align-items-center">
                         <div class="col-lg-8">
                             <div class="copyright-text">
-                                <p>Copyright © 2026 Small Animal Hospital. All Rights Reserved. Designed By <a
+                                <p>Copyright © {{ date('Y') }} Small Animal Hospital. All Rights Reserved. Designed By <a
                                         href="https://www.matrixbricks.com/" target="_blank">Matrix Bricks.</a></p>
                             </div>
                         </div>

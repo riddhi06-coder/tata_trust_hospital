@@ -26,6 +26,8 @@ use App\Http\Controllers\Backend\AboutUsController;
 use App\Http\Controllers\Backend\ActivityLogController;
 use App\Http\Controllers\Backend\JoinPageController;
 use App\Http\Controllers\Backend\JobRoleController;
+use App\Http\Controllers\Backend\ContactDetailsController;
+
 
 
 //frontend controller
@@ -157,6 +159,9 @@ use App\Http\Controllers\Frontend\HomeController;
 
             // FAQ's
             Route::resource('manage-faqs', FAQController::class);
+
+            // Contact Us
+            Route::resource('manage-contact-details', ContactDetailsController::class);
 
     });
 
