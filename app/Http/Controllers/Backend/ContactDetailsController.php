@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\ContactDetails;
 use App\Models\ContactRibbonItem;
+use App\Models\ContactSocialLink;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,9 @@ class ContactDetailsController extends Controller
                 ->with('message', 'Contact Details already exist. Edit below.');
         }
 
-        return view('backend.contact_details.create');
+        return view('backend.contact_details.create', [
+            'platforms' => ContactSocialLink::PLATFORMS,
+        ]);
     }
 
     public function store(Request $request)
@@ -69,6 +72,7 @@ class ContactDetailsController extends Controller
             ]);
 
             $this->createRibbonItems($contact, $request, $ribbonDir);
+            $this->createSocialLinks($contact, $request);
         });
 
         return redirect()
@@ -80,8 +84,14 @@ class ContactDetailsController extends Controller
     {
         $contact = ContactDetails::whereNull('deleted_by')->findOrFail($id);
         $ribbons = $contact->ribbonItems()->whereNull('deleted_by')->get();
+        $socials = $contact->socialLinks()->whereNull('deleted_by')->get();
 
-        return view('backend.contact_details.edit', compact('contact', 'ribbons'));
+        return view('backend.contact_details.edit', [
+            'contact'   => $contact,
+            'ribbons'   => $ribbons,
+            'socials'   => $socials,
+            'platforms' => ContactSocialLink::PLATFORMS,
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -118,6 +128,7 @@ class ContactDetailsController extends Controller
             ]);
 
             $this->syncRibbonItems($contact, $request, $ribbonDir);
+            $this->syncSocialLinks($contact, $request);
         });
 
         return redirect()
@@ -135,6 +146,10 @@ class ContactDetailsController extends Controller
                 $userId = Auth::id();
 
                 $contact->ribbonItems()->whereNull('deleted_by')->update([
+                    'deleted_by' => $userId,
+                    'deleted_at' => $now,
+                ]);
+                $contact->socialLinks()->whereNull('deleted_by')->update([
                     'deleted_by' => $userId,
                     'deleted_at' => $now,
                 ]);
@@ -175,12 +190,18 @@ class ContactDetailsController extends Controller
             'ribbon.*.title'        => 'required_with:ribbon.*|string|max:255',
             'ribbon.*.value'        => 'nullable|string|max:500',
             'ribbon.*.icon'         => 'nullable|file|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
+
+            'social'                => 'nullable|array',
+            'social.*.platform'     => 'required_with:social.*.url|string|in:'.implode(',', array_keys(ContactSocialLink::PLATFORMS)),
+            'social.*.url'          => 'required_with:social.*.platform|string|max:2048',
         ], [
             'banner_heading.required' => 'Please enter a Banner Heading.',
             'address.required'        => 'Please enter an Address.',
             'email.required'          => 'Please enter a primary Email.',
             'emergency_no.required'   => 'Please enter an Emergency Number.',
-            'ribbon.*.title.required_with' => 'Each ribbon row needs a Title.',
+            'ribbon.*.title.required_with'    => 'Each ribbon row needs a Title.',
+            'social.*.platform.in'            => 'Choose a valid social platform.',
+            'social.*.url.required_with'      => 'Each social row needs a URL.',
         ]);
     }
 
@@ -305,5 +326,73 @@ class ContactDetailsController extends Controller
                 'deleted_at' => $now,
             ]);
         }
+    }
+
+    private function createSocialLinks(ContactDetails $contact, Request $request): void
+    {
+        $rows = $request->input('social', []);
+        $sort = 0;
+
+        foreach ($rows as $row) {
+            if (empty($row['platform']) || empty($row['url'])) { continue; }
+
+            ContactSocialLink::create([
+                'contact_details_id' => $contact->id,
+                'platform'           => $row['platform'],
+                'url'                => $row['url'],
+                'sort_order'         => $sort++,
+                'created_by'         => Auth::id(),
+                'created_at'         => Carbon::now(),
+            ]);
+        }
+    }
+
+    private function syncSocialLinks(ContactDetails $contact, Request $request): void
+    {
+        $rows    = $request->input('social', []);
+        $keepIds = [];
+        $sort    = 0;
+        $now     = Carbon::now();
+        $userId  = Auth::id();
+
+        foreach ($rows as $row) {
+            if (empty($row['platform']) || empty($row['url'])) { continue; }
+
+            $rowId = isset($row['id']) ? (int) $row['id'] : 0;
+            $data  = [
+                'platform'   => $row['platform'],
+                'url'        => $row['url'],
+                'sort_order' => $sort++,
+            ];
+
+            if ($rowId > 0) {
+                $existing = ContactSocialLink::where('contact_details_id', $contact->id)
+                    ->whereNull('deleted_by')
+                    ->find($rowId);
+
+                if (!$existing) { continue; }
+
+                $existing->update($data + [
+                    'updated_by' => $userId,
+                    'updated_at' => $now,
+                ]);
+                $keepIds[] = $existing->id;
+            } else {
+                $created = ContactSocialLink::create($data + [
+                    'contact_details_id' => $contact->id,
+                    'created_by'         => $userId,
+                    'created_at'         => $now,
+                ]);
+                $keepIds[] = $created->id;
+            }
+        }
+
+        ContactSocialLink::where('contact_details_id', $contact->id)
+            ->whereNull('deleted_by')
+            ->whereNotIn('id', $keepIds)
+            ->update([
+                'deleted_by' => $userId,
+                'deleted_at' => $now,
+            ]);
     }
 }

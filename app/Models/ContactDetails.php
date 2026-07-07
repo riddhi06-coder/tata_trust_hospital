@@ -34,4 +34,11 @@ class ContactDetails extends Model
             ->orderBy('sort_order')
             ->orderBy('id');
     }
+
+    public function socialLinks()
+    {
+        return $this->hasMany(ContactSocialLink::class, 'contact_details_id')
+            ->orderBy('sort_order')
+            ->orderBy('id');
+    }
 }

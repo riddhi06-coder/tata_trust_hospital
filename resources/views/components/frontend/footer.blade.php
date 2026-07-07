@@ -106,7 +106,7 @@
                                                 <li><a href="{{ route('frontend.join_us') }}">Join Us</a></li>
                                                 <li><a href="{{ route('frontend.gallery') }}">Gallery</a></li>
                                                 <li><a href="blog.html">Blog</a></li>
-                                                <li><a href="contact-us.html">Contact Us</a></li>
+                                                <li><a href="{{ route('frontend.contact_us') }}">Contact Us</a></li>
                                             </ul>
                                         </div>
                                     </div>

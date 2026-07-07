@@ -1,3 +1,10 @@
+    @php
+        $headerContact = \App\Models\ContactDetails::whereNull('deleted_by')
+            ->with(['socialLinks' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id')])
+            ->first();
+        $headerSocials = $headerContact ? $headerContact->socialLinks : collect();
+    @endphp
+
      <!-- PRELOADER -->
     <div id="preloader">
         <div class="preloader-icon-wrap">
@@ -41,18 +48,7 @@
  <!-- header-area -->
     <header>
         <div id="header-fixed-height"></div>
-        
-        <!--<div class="sah-header-top-new-ask">-->
-        <!--    <div class="marquee-text">-->
-        <!--        <span>-->
-        <!--            <img src="{{ asset('frontend/assets/img/icon/appointment.png') }}" alt="Book An Appointment Icon">Book An Appointment: <a-->
-        <!--                href="tel:02265383538">022-6538-3538</a> &nbsp;&nbsp;&nbsp; |-->
-        <!--            &nbsp;&nbsp;&nbsp; <img src="{{ asset('frontend/assets/img/icon/timing-icon.webp') }}" alt="Timing Icon">-->
-        <!--            Timing 24 x 7-->
-        <!--        </span>-->
-        <!--    </div>-->
-        <!--</div>-->
-        
+
          <div class="tg-header__top">
             <div class="container custom-container">
                 <div class="row">
@@ -89,7 +85,7 @@
                                         <li><a href="{{ route('frontend.about_us') }}">About</a></li>
                                          <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
                                          <li><a href="blog.html">Blog</a></li> 
-                                        <li><a href="contact-us.html">Contact</a></li>
+                                        <li><a href="{{ route('frontend.contact_us') }}">Contact</a></li>
                                     </ul>
                                 </div>
                                 <div class="tgmenu__action d-none d-md-flex">
@@ -165,9 +161,13 @@
 
                                 <div class="social-links">
                                     <ul class="list-wrap">
-                                        <li><a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a></li>
-                                        <li><a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
-                                        <li><a href="#" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                                        @forelse($headerSocials as $link)
+                                            <li><a href="{{ $link->url }}" target="_blank" title="{{ $link->platform_label }}"><i class="{{ $link->icon_class }}"></i></a></li>
+                                        @empty
+                                            <li><a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a></li>
+                                            <li><a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+                                            <li><a href="#" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                                        @endforelse
                                     </ul>
                                 </div>
                             </nav>

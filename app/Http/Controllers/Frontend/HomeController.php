@@ -19,6 +19,7 @@ use App\Models\FaqSetting;
 use App\Models\MasterFacility;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
+use App\Models\ContactDetails;
 use App\Models\JobRole;
 use App\Models\JoinPage;
 use App\Models\Specialities;
@@ -155,6 +156,17 @@ class HomeController extends Controller
             ->get();
 
         return view('frontend.join_us', compact('join_page', 'job_roles'));
+    }
+
+    public function contact_us()
+    {
+        $contact = ContactDetails::whereNull('deleted_by')
+            ->with([
+                'ribbonItems' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+            ])
+            ->first();
+
+        return view('frontend.contact_us', compact('contact'));
     }
 
     public function specialities_details(string $slug)

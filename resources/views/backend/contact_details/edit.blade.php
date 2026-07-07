@@ -94,7 +94,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-12">
                                                 <label class="form-label" for="address">Address <span class="txt-danger">*</span></label>
-                                                <textarea class="form-control" id="address" name="address" rows="3"
+                                                <textarea class="form-control ckeditor-init" id="address" name="address" rows="3"
                                                     placeholder="Full address (street, city, state, postal code)">{{ old('address', $contact->address) }}</textarea>
                                             </div>
 
@@ -197,6 +197,67 @@
                                     </div>
                                 </div>
 
+                                {{-- ===================== SOCIAL MEDIA LINKS ===================== --}}
+                                <div class="col-12">
+                                    <div class="border rounded p-3">
+                                        <div class="section-heading d-flex justify-content-between align-items-center">
+                                            <h5>Social Media Links</h5>
+                                            <button type="button" class="btn btn-primary btn-sm" id="social-add-btn">+ Add More</button>
+                                        </div>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered align-middle" id="social-table">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 30%;">Platform <span class="text-danger">*</span></th>
+                                                        <th>URL <span class="text-danger">*</span></th>
+                                                        <th style="width: 90px;" class="text-center">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="social-tbody">
+                                                    @forelse($socials as $i => $row)
+                                                        <tr data-row="{{ $i }}">
+                                                            <td>
+                                                                <input type="hidden" name="social[{{ $i }}][id]" value="{{ $row->id }}">
+                                                                <select name="social[{{ $i }}][platform]" class="form-select">
+                                                                    <option value="">— Select Platform —</option>
+                                                                    @foreach($platforms as $key => $p)
+                                                                        <option value="{{ $key }}" {{ old('social.'.$i.'.platform', $row->platform) === $key ? 'selected' : '' }}>{{ $p['label'] }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input type="url" name="social[{{ $i }}][url]" class="form-control"
+                                                                    value="{{ old('social.'.$i.'.url', $row->url) }}" placeholder="https://...">
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <button type="button" class="btn btn-danger btn-sm remove-social-row">Remove</button>
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr data-row="0">
+                                                            <td>
+                                                                <select name="social[0][platform]" class="form-select">
+                                                                    <option value="">— Select Platform —</option>
+                                                                    @foreach($platforms as $key => $p)
+                                                                        <option value="{{ $key }}">{{ $p['label'] }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input type="url" name="social[0][url]" class="form-control" placeholder="https://...">
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <button type="button" class="btn btn-danger btn-sm remove-social-row" disabled>Remove</button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {{-- ===================== DONATE INFO ===================== --}}
                                 <div class="col-12">
                                     <div class="border rounded p-3">
@@ -204,7 +265,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-12">
                                                 <label class="form-label" for="donate_info">Donate Info</label>
-                                                <textarea class="form-control" id="editor" name="donate_info" rows="6"
+                                                <textarea class="form-control ckeditor-init" id="donate_info" name="donate_info" rows="6"
                                                     placeholder="Donation-related information (bank details, links, etc.)">{{ old('donate_info', $contact->donate_info) }}</textarea>
                                                 <small class="text-muted">Supports rich text (headings, lists, links).</small>
                                             </div>
@@ -253,6 +314,37 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            /* ---------- CKEditor: attach to every .ckeditor-init textarea ---------- */
+            var editorInstances = new Map();
+            function initCKEditor(textarea) {
+                if (!textarea || editorInstances.has(textarea) || typeof ClassicEditor === 'undefined') return;
+                textarea.removeAttribute('required');
+                ClassicEditor.create(textarea, {
+                    toolbar: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', 'link',
+                        'bulletedList', 'numberedList', '|',
+                        'alignment', 'outdent', 'indent', '|',
+                        'undo', 'redo', 'removeFormat'
+                    ]
+                }).then(function (editor) { editorInstances.set(textarea, editor); })
+                  .catch(function (err) { console.error(err); });
+            }
+            function initAllEditors() {
+                document.querySelectorAll('.ckeditor-init').forEach(initCKEditor);
+            }
+            if (typeof ClassicEditor === 'undefined') {
+                var tries = 0;
+                var waitCk = setInterval(function () {
+                    if (typeof ClassicEditor !== 'undefined' || tries++ > 40) {
+                        clearInterval(waitCk);
+                        initAllEditors();
+                    }
+                }, 100);
+            } else {
+                initAllEditors();
+            }
+
             /* ---------- Banner image preview (keep-existing on cancel) ---------- */
             (function () {
                 var input = document.getElementById('banner_image');
@@ -321,6 +413,44 @@
                 var reader = new FileReader();
                 reader.onload = function (ev) { preview.src = ev.target.result; preview.style.display = 'block'; };
                 reader.readAsDataURL(file);
+            });
+
+            /* ---------- Social table: add / remove rows ---------- */
+            var socialTbody  = document.getElementById('social-tbody');
+            var socialAddBtn = document.getElementById('social-add-btn');
+            var socialNextIdx = socialTbody.querySelectorAll('tr').length;
+            var platformOptions = @json($platforms);
+
+            function buildPlatformOptions() {
+                var html = '<option value="">— Select Platform —</option>';
+                Object.keys(platformOptions).forEach(function (key) {
+                    html += '<option value="' + key + '">' + platformOptions[key].label + '</option>';
+                });
+                return html;
+            }
+
+            socialAddBtn.addEventListener('click', function () {
+                var idx = socialNextIdx++;
+                var tr = document.createElement('tr');
+                tr.setAttribute('data-row', idx);
+                tr.innerHTML =
+                    '<td>' +
+                        '<select name="social[' + idx + '][platform]" class="form-select">' + buildPlatformOptions() + '</select>' +
+                    '</td>' +
+                    '<td>' +
+                        '<input type="url" name="social[' + idx + '][url]" class="form-control" placeholder="https://...">' +
+                    '</td>' +
+                    '<td class="text-center">' +
+                        '<button type="button" class="btn btn-danger btn-sm remove-social-row">Remove</button>' +
+                    '</td>';
+                socialTbody.appendChild(tr);
+            });
+
+            socialTbody.addEventListener('click', function (e) {
+                if (!e.target.classList.contains('remove-social-row')) return;
+                if (e.target.disabled) return;
+                if (!confirm('Remove this row?')) return;
+                e.target.closest('tr').remove();
             });
         });
     </script>
