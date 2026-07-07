@@ -80,8 +80,9 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label" for="banner_heading">Banner Heading <span class="txt-danger">*</span></label>
-                                                <input class="form-control" id="banner_heading" type="text" name="banner_heading"
-                                                    value="{{ old('banner_heading') }}" placeholder="Enter Banner Heading">
+                                                <textarea class="form-control" id="banner_heading" name="banner_heading" rows="2"
+                                                    placeholder="Enter Banner Heading (press Enter to break line)">{{ old('banner_heading') }}</textarea>
+                                                <small class="text-muted">Line breaks appear as new lines on the site (e.g. type "Be A Part Of" &crarr; "Our Team!").</small>
                                             </div>
 
                                             <div class="col-md-6">

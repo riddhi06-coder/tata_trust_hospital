@@ -19,6 +19,7 @@ use App\Models\FaqSetting;
 use App\Models\MasterFacility;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
+use App\Models\JoinPage;
 use App\Models\Specialities;
 use App\Models\SpecialitiesDetails;
 use App\Models\SpecialitySetting;
@@ -137,6 +138,18 @@ class HomeController extends Controller
         $faqs         = Faq::whereNull('deleted_by')->orderBy('id')->get();
 
         return view('frontend.faqs', compact('faq_settings', 'faqs'));
+    }
+
+    public function join_us()
+    {
+        $join_page = JoinPage::whereNull('deleted_by')
+            ->with([
+                'infos'      => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+                'commonRows' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+            ])
+            ->first();
+
+        return view('frontend.join_us', compact('join_page'));
     }
 
     public function specialities_details(string $slug)

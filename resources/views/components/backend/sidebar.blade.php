@@ -197,14 +197,11 @@
                   </a>
                 </li>
                 
-              
-
-
 
                 <!-- Join Us -->
-                <li class="sidebar-list {{ request()->routeIs('manage-join-page.*') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('manage-join-page.index','speciality-details.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
-                  <a class="sidebar-link" href="{{ route('manage-join-page.index') }}">
+                  <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-maps') }}"></use>
                     </svg>
@@ -213,7 +210,12 @@
                     </svg>
                     <span>Join Us</span>
                   </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('manage-join-page.index') }}"> Page Details </a></li>
+                    <li><a href="{{ route('speciality-details.index') }}"> Details </a></li>
+                  </ul>
                 </li>
+
 
 
                 <li class="sidebar-list {{ request()->routeIs('manage-faqs.index') ? 'active' : '' }}">

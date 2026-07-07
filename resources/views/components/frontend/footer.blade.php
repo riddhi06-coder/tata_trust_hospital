@@ -103,7 +103,7 @@
                                         <div class="footer__link">
                                             <ul class="list-wrap">
                                                 <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
-                                                <li><a href="join-us.html">Join Us</a></li>
+                                                <li><a href="{{ route('frontend.join_us') }}">Join Us</a></li>
                                                 <li><a href="{{ route('frontend.gallery') }}">Gallery</a></li>
                                                 <li><a href="blog.html">Blog</a></li>
                                                 <li><a href="contact-us.html">Contact Us</a></li>
