@@ -24,6 +24,7 @@ use App\Http\Controllers\Backend\FAQController;
 use App\Http\Controllers\Backend\MasterFacilitiesController;
 use App\Http\Controllers\Backend\AboutUsController;
 use App\Http\Controllers\Backend\ActivityLogController;
+use App\Http\Controllers\Backend\JoinPageController;
 
 
 
@@ -149,6 +150,9 @@ use App\Http\Controllers\Frontend\HomeController;
 
             // About Us
             Route::resource('manage-about-us', AboutUsController::class);
+
+            // Join Us
+            Route::resource('manage-join-page', JoinPageController::class);
 
             // FAQ's
             Route::resource('manage-faqs', FAQController::class);

@@ -201,10 +201,25 @@
 
 
 
+                <!-- Join Us -->
+                <li class="sidebar-list {{ request()->routeIs('manage-join-page.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-join-page.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-maps') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-maps') }}"></use>
+                    </svg>
+                    <span>Join Us</span>
+                  </a>
+                </li>
+
+
                 <li class="sidebar-list {{ request()->routeIs('manage-faqs.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link" href="{{ route('manage-faqs.index') }}">
-                    <svg class="stroke-icon"> 
+                    <svg class="stroke-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-faq') }}"></use>
                     </svg>
                     <svg class="fill-icon">
