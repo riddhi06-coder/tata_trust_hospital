@@ -1,3 +1,21 @@
+    @php
+        $footerContact = \App\Models\ContactDetails::whereNull('deleted_by')->first();
+
+        $footerPhoneDisplay = $footerContact->emergency_no ?? '';
+        $footerPhoneTel     = $footerPhoneDisplay ? preg_replace('/[^\d+]/', '', $footerPhoneDisplay) : '';
+
+        // Footer email prefers the dedicated footer_email field, else falls back to primary email.
+        $footerEmail = ($footerContact->footer_email ?? null) ?: ($footerContact->email ?? '');
+
+        $footerMapUrl = $footerContact->map_url ?? '';
+
+        // Address for the footer widget: convert </p> + <br> to newlines, strip HTML, escape, then nl2br.
+        // Keeps the multi-line address look without letting stray editor tags break the anchor markup.
+        $footerAddressBr = $footerContact && $footerContact->address
+            ? nl2br(e(trim(strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $footerContact->address)))))
+            : '';
+    @endphp
+
     <section class="home-page-contact-us-footer-top">
         <div class="container">
             <div class="row align-items-center">
@@ -10,7 +28,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="home-appointment-emergency-footer-btn-sec">
-                        <a href="tel:02265383538" class="btn">Contact Us<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
+                        <a href="{{ $footerPhoneTel ? 'tel:'.$footerPhoneTel : route('frontend.contact_us') }}" class="btn">Contact Us<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
                                 alt="" class="injectable"></a>
                     </div>
                 </div>
@@ -32,13 +50,20 @@
                                 <div class="footer__logo">
                                     <a href="{{ route('frontend.index') }}"><img
                                             src="{{ asset('frontend/assets/img/logo/sahmumbai-logo.svg') }}" width="325" height="65" alt="Tata Trusts Small Animal Hospital Logo" loading="lazy"></a>
-                                    <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">
-                                        Tata Trusts Small Animal Hospital,<br>
-                                        G.B. Sakpal Marg, Saat Rasta,<br>
-                                        Mahalaxmi, Mumbai 400011</a></p>
-                                    <div class="footer-btn-sah-custom-sec">
-                                        <a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank" class="read-more-btn"><img src="{{ asset('frontend/assets/img/icon/map-icon-one.webp') }}" width="18" height="18" alt="View Map Icon" loading="lazy" class="view-map-img-one"> View Map</a>
-                                    </div>
+                                    @if($footerAddressBr)
+                                        <p>
+                                            @if($footerMapUrl)
+                                                <a href="{{ $footerMapUrl }}" target="_blank">{!! $footerAddressBr !!}</a>
+                                            @else
+                                                {!! $footerAddressBr !!}
+                                            @endif
+                                        </p>
+                                    @endif
+                                    @if($footerMapUrl)
+                                        <div class="footer-btn-sah-custom-sec">
+                                            <a href="{{ $footerMapUrl }}" target="_blank" class="read-more-btn"><img src="{{ asset('frontend/assets/img/icon/map-icon-one.webp') }}" width="18" height="18" alt="View Map Icon" loading="lazy" class="view-map-img-one"> View Map</a>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -48,37 +73,41 @@
                                 <h4 class="footer__widget-title">Contact Us</h4>
                                 <div class="footer__link">
                                     <ul class="address">
-                                        <li>
-                                            <div class="icon">
-                                                <img src="{{ asset('frontend/assets/img/icon/telephone-icon.webp') }}" width="40" height="40" alt="Book An Appointment Icon" loading="lazy">
-                                            </div>
-                                            <div class="address-content-sec">
-                                                <h4>Book An Appointment</h4>
-                                                <p><a href="tel:02265383538">022-6538-3538</a></p>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="icon">
-                                                <img src="{{ asset('frontend/assets/img/icon/email-icon.webp') }}" width="40" height="40" alt="Mail Us Icon" loading="lazy">
-                                            </div>
-                                            <div class="address-content-sec">
-                                                <h4>Mail Us</h4>
-                                                <p><a href="mailto:contactus@sahmumbai.com">contactus@sahmumbai.com</a>
-                                                </p>
-                                            </div>
-                                        </li>
-                                        
-                                        <li>
-                                            <div class="icon">
-                                                <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" width="40" height="40" alt="Donate Icon" loading="lazy">
-                                            </div>
-                                            <div class="address-content-sec">
-                                                <h4><a href="mailto:frontoffice@sahmumbai.com?subject=Interest%20in%20Donation%20/%20Enquiry"
-                                                target="_blank">Donate</a></h4>
-                                                <!--<p><a href="mailto:contactus@sahmumbai.com">contactus@sahmumbai.com</a></p>-->
-                                            </div>
-                                        </li>
-                                        
+                                        @if($footerPhoneDisplay)
+                                            <li>
+                                                <div class="icon">
+                                                    <img src="{{ asset('frontend/assets/img/icon/telephone-icon.webp') }}" width="40" height="40" alt="Book An Appointment Icon" loading="lazy">
+                                                </div>
+                                                <div class="address-content-sec">
+                                                    <h4>Book An Appointment</h4>
+                                                    <p><a href="tel:{{ $footerPhoneTel }}">{{ $footerPhoneDisplay }}</a></p>
+                                                </div>
+                                            </li>
+                                        @endif
+
+                                        @if($footerEmail)
+                                            <li>
+                                                <div class="icon">
+                                                    <img src="{{ asset('frontend/assets/img/icon/email-icon.webp') }}" width="40" height="40" alt="Mail Us Icon" loading="lazy">
+                                                </div>
+                                                <div class="address-content-sec">
+                                                    <h4>Mail Us</h4>
+                                                    <p><a href="mailto:{{ $footerEmail }}">{{ $footerEmail }}</a></p>
+                                                </div>
+                                            </li>
+                                        @endif
+
+                                        @if($footerContact && $footerContact->email)
+                                            <li>
+                                                <div class="icon">
+                                                    <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" width="40" height="40" alt="Donate Icon" loading="lazy">
+                                                </div>
+                                                <div class="address-content-sec">
+                                                    <h4><a href="mailto:{{ $footerContact->email }}?subject=Interest%20in%20Donation%20/%20Enquiry"
+                                                    target="_blank">Donate</a></h4>
+                                                </div>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </div>
@@ -170,8 +199,10 @@
 
     <!--Start Sticky Icon-->
     <div class="sticky-icon">
-        <a href="login.html"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp') }}" alt="Book An Appointment Icon"></a>
-        <a href="mailto:frontoffice@sahmumbai.com?subject=Interest%20in%20Donation%20/%20Enquiry"> Donate <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" alt="Donate Icon"></a>
-        <a href="contact-us.html"> Contact Us <img src="{{ asset('frontend/assets/img/icon/contact-us-floating-icon.webp') }}" alt="Contact Us Icon"></a>
+        <a href="#appointmentModal" data-bs-toggle="modal"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp') }}" alt="Book An Appointment Icon"></a>
+        @if($footerContact && $footerContact->email)
+            <a href="mailto:{{ $footerContact->email }}?subject=Interest%20in%20Donation%20/%20Enquiry"> Donate <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" alt="Donate Icon"></a>
+        @endif
+        <a href="{{ route('frontend.contact_us') }}"> Contact Us <img src="{{ asset('frontend/assets/img/icon/contact-us-floating-icon.webp') }}" alt="Contact Us Icon"></a>
     </div>
     <!--End Sticky Icon-->

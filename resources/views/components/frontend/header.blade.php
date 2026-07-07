@@ -1,8 +1,39 @@
     @php
         $headerContact = \App\Models\ContactDetails::whereNull('deleted_by')
-            ->with(['socialLinks' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id')])
+            ->with([
+                'ribbonItems' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+                'socialLinks' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+            ])
             ->first();
+
         $headerSocials = $headerContact ? $headerContact->socialLinks : collect();
+        $headerRibbons = $headerContact ? $headerContact->ribbonItems : collect();
+
+        // Split ribbon items evenly between the two top-strip columns.
+        $ribbonHalf    = (int) ceil($headerRibbons->count() / 2);
+        $leftRibbons   = $headerRibbons->slice(0, $ribbonHalf);
+        $rightRibbons  = $headerRibbons->slice($ribbonHalf);
+
+        // Phone display + tel:link helpers used in the mobile menu / offcanvas.
+        $phoneDisplay = $headerContact->emergency_no ?? '';
+        $phoneTel     = $phoneDisplay ? preg_replace('/[^\d+]/', '', $phoneDisplay) : '';
+
+        // Header/menu blocks want short plain-text address (rich-text stripped).
+        $addressPlain = $headerContact && $headerContact->address
+            ? trim(preg_replace('/\s+/', ' ', strip_tags($headerContact->address)))
+            : '';
+
+        // Smart-link helper for ribbon values: URL, email, phone, or plain text.
+        $ribbonHref = function ($value) {
+            $v = trim((string) $value);
+            if ($v === '') { return null; }
+            if (str_starts_with($v, 'http')) { return $v; }
+            if (str_contains($v, '@'))       { return 'mailto:'.$v; }
+            if (preg_match('/^\+?[\d\s\-()]+$/', $v)) {
+                return 'tel:'.preg_replace('/[^\d+]/', '', $v);
+            }
+            return null;
+        };
     @endphp
 
      <!-- PRELOADER -->
@@ -31,15 +62,21 @@
             <i class="fas fa-headset"></i>
         </button>
         <div class="social-icons">
-            <a target="_blank" href="https://www.instagram.com/sahmumbai/" class="social-icon instagram">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a target="_blank" href="https://wa.me/917021850400" class="social-icon whatsapp">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-            <a target="_blank" href="#" class="social-icon linkedin">
-                <i class="fab fa-linkedin-in"></i>
-            </a>
+            @forelse($headerSocials as $link)
+                <a target="_blank" href="{{ $link->url }}" class="social-icon {{ $link->platform }}" title="{{ $link->platform_label }}">
+                    <i class="{{ $link->icon_class }}"></i>
+                </a>
+            @empty
+                <a target="_blank" href="https://www.instagram.com/sahmumbai/" class="social-icon instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a target="_blank" href="https://wa.me/917021850400" class="social-icon whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a target="_blank" href="#" class="social-icon linkedin">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            @endforelse
         </div>
     </div>
  
@@ -49,23 +86,48 @@
     <header>
         <div id="header-fixed-height"></div>
 
-         <div class="tg-header__top">
-            <div class="container custom-container">
-                <div class="row">
-                    <div class="col-xl-6 col-lg-8 col-md-6">
-                        <ul class="tg-header__top-info left-side list-wrap">
-                            <li><img src="{{ asset('frontend/assets/img/icon/appointment.png') }}" alt="Book An Appointment Icon"><a
-                                    href="tel:02265383538">Book An Appointment : 022-6538-3538</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-xl-6 col-lg-4 col-md-6">
-                        <ul class="tg-header__top-right list-wrap">
-                            <li><img src="{{ asset('frontend/assets/img/icon/timing-icon.webp') }}" alt="Timing Icon"> Timing 24 x 7</li>
-                        </ul>
+        @if($headerRibbons->count())
+            <div class="tg-header__top">
+                <div class="container custom-container">
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-8 col-md-6">
+                            <ul class="tg-header__top-info left-side list-wrap">
+                                @foreach($leftRibbons as $r)
+                                    @php $href = $ribbonHref($r->value); @endphp
+                                    <li>
+                                        @if($r->icon)
+                                            <img src="{{ asset('home/contact/ribbon/'.$r->icon) }}" alt="{{ $r->title }}">
+                                        @endif
+                                        @if($href)
+                                            <a href="{{ $href }}">{{ $r->title }}@if($r->value)  {{ $r->value }}@endif</a>
+                                        @else
+                                            {{ $r->title }}@if($r->value)  {{ $r->value }}@endif
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="col-xl-6 col-lg-4 col-md-6">
+                            <ul class="tg-header__top-right list-wrap">
+                                @foreach($rightRibbons as $r)
+                                    @php $href = $ribbonHref($r->value); @endphp
+                                    <li>
+                                        @if($r->icon)
+                                            <img src="{{ asset('home/contact/ribbon/'.$r->icon) }}" alt="{{ $r->title }}">
+                                        @endif
+                                        @if($href)
+                                            <a href="{{ $href }}">{{ $r->title }}@if($r->value)  {{ $r->value }}@endif</a>
+                                        @else
+                                            {{ $r->title }}@if($r->value)  {{ $r->value }}@endif
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div> 
+        @endif
         
         <div id="sticky-header" class="tg-header__area">
             <div class="container custom-container">
@@ -90,7 +152,8 @@
                                 </div>
                                 <div class="tgmenu__action d-none d-md-flex">
                                     <div class="emergency-menu-button-custom-sec">
-                                        <a href="#">
+                                        <a href="{{ $phoneTel ? 'tel:'.$phoneTel : '#' }}"
+                                           @if($phoneDisplay) title="Emergency: {{ $phoneDisplay }}" aria-label="Call Emergency: {{ $phoneDisplay }}" @endif>
                                             <img src="{{ asset('frontend/assets/img/icon/call-icon-one.webp') }}" alt="">
                                         </a>
                                     </div>
@@ -121,42 +184,28 @@
                                 </div>
 
                                 <div class="tg-mobile-custom-book-appoint-sec">
-                                    <div class="address-item">
-                                        <div class="icon">
-                                            <img src="{{ asset('frontend/assets/img/icon/appointment.webp') }}" alt="">
+                                    @foreach($headerRibbons as $r)
+                                        @php $href = $ribbonHref($r->value); @endphp
+                                        <div class="address-item">
+                                            @if($r->icon)
+                                                <div class="icon">
+                                                    <img src="{{ asset('home/contact/ribbon/'.$r->icon) }}" alt="{{ $r->title }}">
+                                                </div>
+                                            @endif
+                                            <div class="address-content-sec">
+                                                <h4>{{ $r->title }}</h4>
+                                                @if($r->value)
+                                                    <p>
+                                                        @if($href)
+                                                            <a href="{{ $href }}">{{ $r->value }}</a>
+                                                        @else
+                                                            {{ $r->value }}
+                                                        @endif
+                                                    </p>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="address-content-sec">
-                                            <h4>Book An Appointment</h4>
-                                            <p><a href="tel:02265383538">022-6538-3538</a></p>
-                                        </div>
-                                    </div>
-                                    <div class="address-item">
-                                        <div class="icon">
-                                            <img src="{{ asset('frontend/assets/img/icon/time.webp') }}" alt="">
-                                        </div>
-                                        <div class="address-content-sec">
-                                            <h4>Timing</h4>
-                                            <p>24 x 7</p>
-                                        </div>
-                                    </div>
-                                    <div class="address-item">
-                                        <div class="icon">
-                                            <img src="{{ asset('frontend/assets/img/icon/map-icon-one.webp') }}" alt="">
-                                        </div>
-                                        <div class="address-content-sec">
-                                            <h4>Address</h4>
-                                            <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">Tata Trusts Small Animal Hospital, G.B. Sakpal Marg, Saat Rasta, Mahalaxmi, Mumbai 400011</a></p>
-                                        </div>
-                                    </div>
-                                    <div class="address-item">
-                                        <div class="icon">
-                                            <img src="{{ asset('frontend/assets/img/icon/email-4.webp') }}" alt="">
-                                        </div>
-                                        <div class="address-content-sec">
-                                            <h4>Mail Us</h4>
-                                            <p><a href="mailto:contactus@sahmumbai.com">contactus@sahmumbai.com</a></p>
-                                        </div>
-                                    </div>
+                                    @endforeach
                                 </div>
 
                                 <div class="social-links">
@@ -234,29 +283,41 @@
                         alt="Tata Trusts Small Animal Hospital Logo"></a>
             </div>
             <div class="offCanvas__side-info mb-30">
-                <div class="contact-list d-flex align-items-start mb-30">
-                    <img src="{{ asset('frontend/assets/img/icon/side-menu-address.webp') }}" alt="Address icon" class="contact-icon">
-                    <div>
-                        <h4>Address</h4>
-                        <p><a href="https://maps.app.goo.gl/FYcr3wnZnz6PLKmm6" target="_blank">Tata Trusts Small Animal Hospital, G.B. Sakpal Marg, Saat Rasta, Mahalaxmi, Mumbai 400011</a></p>
+                @if($addressPlain)
+                    <div class="contact-list d-flex align-items-start mb-30">
+                        <img src="{{ asset('frontend/assets/img/icon/side-menu-address.webp') }}" alt="Address icon" class="contact-icon">
+                        <div>
+                            <h4>Address</h4>
+                            <p>
+                                @if($headerContact->map_url)
+                                    <a href="{{ $headerContact->map_url }}" target="_blank">{{ $addressPlain }}</a>
+                                @else
+                                    {{ $addressPlain }}
+                                @endif
+                            </p>
+                        </div>
                     </div>
-                </div>
+                @endif
 
-                <div class="contact-list d-flex align-items-start mb-30">
-                    <img src="{{ asset('frontend/assets/img/icon/side-menu-phone.webp') }}" alt=" Phone Number icon" class="contact-icon">
-                    <div>
-                        <h4>Phone Number</h4>
-                        <p><a href="tel:02265383538">022-6538-3538</a></p>
+                @if($phoneDisplay)
+                    <div class="contact-list d-flex align-items-start mb-30">
+                        <img src="{{ asset('frontend/assets/img/icon/side-menu-phone.webp') }}" alt=" Phone Number icon" class="contact-icon">
+                        <div>
+                            <h4>Phone Number</h4>
+                            <p><a href="tel:{{ $phoneTel }}">{{ $phoneDisplay }}</a></p>
+                        </div>
                     </div>
-                </div>
+                @endif
 
-                <div class="contact-list d-flex align-items-start mb-30">
-                    <img src="{{ asset('frontend/assets/img/icon/side-menu-email.webp') }}" alt="Email icon" class="contact-icon">
-                    <div>
-                        <h4>Email Address</h4>
-                        <p><a href="mailto:contactus@sahmumbai.com">contactus@sahmumbai.com</a></p>
+                @if($headerContact && $headerContact->email)
+                    <div class="contact-list d-flex align-items-start mb-30">
+                        <img src="{{ asset('frontend/assets/img/icon/side-menu-email.webp') }}" alt="Email icon" class="contact-icon">
+                        <div>
+                            <h4>Email Address</h4>
+                            <p><a href="mailto:{{ $headerContact->email }}">{{ $headerContact->email }}</a></p>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
         <div class="offCanvas__overly"></div>

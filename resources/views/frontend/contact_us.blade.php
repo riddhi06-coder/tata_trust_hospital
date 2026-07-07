@@ -9,12 +9,11 @@
 
     @include('components.frontend.header')
 
-
     <!-- main-area -->
     <main class="fix">
 
 
-  <!-- Breadcrumb -->
+        <!-- Breadcrumb -->
         <section class="breadcrumb contact-us-breadcrumb-bg">
             <div class="breadcrumb-img-custom-sec">
                 @if($contact && $contact->banner_image)
@@ -26,7 +25,14 @@
             <div class="container">
                 <h1 class="breadcrumb-title">
                     @if($contact && $contact->banner_heading)
-                        {!! nl2br($contact->banner_heading) !!}
+                        @php
+                            $heading = nl2br($contact->banner_heading);
+                            // If the admin didn't add a break themselves, auto-break after the first comma.
+                            if (!str_contains($heading, '<br')) {
+                                $heading = preg_replace('/,\s*/', ',<br>', $heading, 1);
+                            }
+                        @endphp
+                        {!! $heading !!}
                     @else
                         Reach Out, <br> We Are Ready To Help.
                     @endif
