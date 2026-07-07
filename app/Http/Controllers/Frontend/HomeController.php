@@ -19,6 +19,7 @@ use App\Models\FaqSetting;
 use App\Models\MasterFacility;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
+use App\Models\JobRole;
 use App\Models\JoinPage;
 use App\Models\Specialities;
 use App\Models\SpecialitiesDetails;
@@ -149,7 +150,11 @@ class HomeController extends Controller
             ])
             ->first();
 
-        return view('frontend.join_us', compact('join_page'));
+        $job_roles = JobRole::whereNull('deleted_by')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('frontend.join_us', compact('join_page', 'job_roles'));
     }
 
     public function specialities_details(string $slug)

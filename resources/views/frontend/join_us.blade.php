@@ -91,70 +91,38 @@
                     </div>
                 </div>
 
-                {{-- Job role cards — kept static (not driven by CMS) --}}
+                {{-- Job role cards — driven by JobRole CRUD --}}
                 <div class="current-job-opening-job-card-sec">
-                    <div class="job-card" data-aos="fade-up" data-aos-delay="100">
-                        <div>
-                            <h4>Hospital Operations Manager</h4>
-                            <div class="job-meta">
-                                <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-1.webp') }}" alt=""> Mumbai,
-                                    Maharashtra</p>
-                                <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-2.webp') }}" alt=""> <i
-                                        class="bi bi-clock"></i>Full-time</p>
-                                <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-3.webp') }}" alt=""> On-site</p>
+                    @forelse($job_roles as $i => $role)
+                        <div class="job-card" data-aos="fade-up" data-aos-delay="{{ 100 + ($i * 50) }}">
+                            <div>
+                                <h4>{{ $role->job_position }}</h4>
+                                <div class="job-meta">
+                                    @if($role->job_location)
+                                        <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-1.webp') }}" alt=""> {{ $role->job_location }}</p>
+                                    @endif
+                                    @if($role->job_type)
+                                        <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-2.webp') }}" alt=""> <i class="bi bi-clock"></i>{{ $role->job_type }}</p>
+                                    @endif
+                                    @if($role->work_mode)
+                                        <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-3.webp') }}" alt=""> {{ $role->work_mode }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="job-actions">
+                                <a href="javascript:void(0)" class="btn apply-now-btn" data-bs-toggle="modal"
+                                   data-bs-target="#appointmentModal" data-job-title="{{ $role->job_position }}">Apply Now<img
+                                        src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}" alt="" class="injectable"></a>
+                                @if($role->jd_file)
+                                    <a href="{{ asset('home/join-us/jd/'.$role->jd_file) }}" target="_blank"
+                                        class="btn btn-job-sec" title="View Job Description"><img
+                                            src="{{ asset('frontend/assets/img/icon/pdf-download-icon.webp') }}" alt=""></a>
+                                @endif
                             </div>
                         </div>
-                        <div class="job-actions">
-                            <a href="javascript:void(0)" class="btn apply-now-btn" data-bs-toggle="modal"
-                               data-bs-target="#appointmentModal" data-job-title="Hospital Operations Manager">Apply Now<img
-                                    src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}" alt="" class="injectable"></a>
-                            <a href="{{ asset('frontend/assets/pdf/hospital-operations-manager-pdf.pdf') }}" target="_blank"
-                                class="btn btn-job-sec" title="View Job Description"><img
-                                    src="{{ asset('frontend/assets/img/icon/pdf-download-icon.webp') }}" alt=""></a>
-                        </div>
-                    </div>
-
-                    <div class="job-card" data-aos="fade-up" data-aos-delay="150">
-                        <div>
-                            <h4>Client Care Associate</h4>
-                            <div class="job-meta">
-                                <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-1.webp') }}" alt=""> Mumbai,
-                                    Maharashtra</p>
-                                <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-2.webp') }}" alt=""> <i
-                                        class="bi bi-clock"></i>Full-time</p>
-                                <p><img src="{{ asset('frontend/assets/img/icon/current-job-opening-icon-3.webp') }}" alt=""> On-site</p>
-                            </div>
-                        </div>
-                        <div class="job-actions">
-                            <a href="javascript:void(0)" class="btn apply-now-btn" data-bs-toggle="modal"
-                               data-bs-target="#appointmentModal" data-job-title="Client Care Associate">Apply Now<img
-                                    src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}" alt="" class="injectable"></a>
-                            <a href="{{ asset('frontend/assets/pdf/client-care-associate-icon-pdf.pdf') }}" target="_blank"
-                                class="btn btn-job-sec" title="View Job Description"><img
-                                    src="{{ asset('frontend/assets/img/icon/pdf-download-icon.webp') }}" alt=""></a>
-                        </div>
-                    </div>
-
-                    <div class="job-card" data-aos="fade-up" data-aos-delay="200">
-                        <div>
-                            <h4>Nursing Manager</h4>
-                            <div class="job-meta">
-                                <p><img src="assets/img/icon/current-job-opening-icon-1.webp" alt=""> Mumbai,
-                                    Maharashtra</p>
-                                <p><img src="assets/img/icon/current-job-opening-icon-2.webp" alt=""> <i
-                                        class="bi bi-clock"></i>Full-time</p>
-                                <p><img src="assets/img/icon/current-job-opening-icon-3.webp" alt=""> On-site</p>
-                            </div>
-                        </div>
-                        <div class="job-actions">
-                            <a href="javascript:void(0)" class="btn apply-now-btn" data-bs-toggle="modal"
-                               data-bs-target="#appointmentModal" data-job-title="Nursing Manager">Apply Now<img
-                                    src="assets/img/icon/right_arrow.svg" alt="" class="injectable"></a>
-                            <a href="assets/pdf/nursing-manager-pdf.pdf" target="_blank" class="btn btn-job-sec"
-                                title="View Job Description"><img src="assets/img/icon/pdf-download-icon.webp"
-                                    alt=""></a>
-                        </div>
-                    </div>
+                    @empty
+                        <p class="text-center text-muted my-4">No open positions at the moment. Please check back soon.</p>
+                    @endforelse
                 </div>
                 
             </div>
@@ -202,7 +170,7 @@
                                             <div class="scard-body">
                                                 <div class="scard-role">{{ $row->job_title }}</div>
                                                 <div class="scard-tag">
-                                                    <span>{{ $row->subject }}/span>
+                                                    <span>{{ $row->subject }}</span>
                                                 </div>
                                                 @if($row->description)
                                                     <div class="scard-desc">{!! $row->description !!}</div>

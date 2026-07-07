@@ -25,7 +25,7 @@ use App\Http\Controllers\Backend\MasterFacilitiesController;
 use App\Http\Controllers\Backend\AboutUsController;
 use App\Http\Controllers\Backend\ActivityLogController;
 use App\Http\Controllers\Backend\JoinPageController;
-
+use App\Http\Controllers\Backend\JobRoleController;
 
 
 //frontend controller
@@ -153,6 +153,7 @@ use App\Http\Controllers\Frontend\HomeController;
 
             // Join Us
             Route::resource('manage-join-page', JoinPageController::class);
+            Route::resource('manage-job-role', JobRoleController::class);
 
             // FAQ's
             Route::resource('manage-faqs', FAQController::class);

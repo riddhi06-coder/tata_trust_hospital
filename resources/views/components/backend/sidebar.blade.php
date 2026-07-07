@@ -199,7 +199,7 @@
                 
 
                 <!-- Join Us -->
-                <li class="sidebar-list {{ request()->routeIs('manage-join-page.index','speciality-details.index') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('manage-join-page.index','manage-job-role.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -212,7 +212,7 @@
                   </a>
                   <ul class="sidebar-submenu">
                     <li><a href="{{ route('manage-join-page.index') }}"> Page Details </a></li>
-                    <li><a href="{{ route('speciality-details.index') }}"> Details </a></li>
+                    <li><a href="{{ route('manage-job-role.index') }}"> Job Postings </a></li>
                   </ul>
                 </li>
 
