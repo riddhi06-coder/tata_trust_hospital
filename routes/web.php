@@ -27,6 +27,7 @@ use App\Http\Controllers\Backend\ActivityLogController;
 use App\Http\Controllers\Backend\JoinPageController;
 use App\Http\Controllers\Backend\JobRoleController;
 use App\Http\Controllers\Backend\ContactDetailsController;
+use App\Http\Controllers\Backend\PrivacyPolicyController;
 
 
 
@@ -162,6 +163,9 @@ use App\Http\Controllers\Frontend\HomeController;
 
             // Contact Us
             Route::resource('manage-contact-details', ContactDetailsController::class);
+
+            // Privacy Policy
+            Route::resource('manage-privacy-policy', PrivacyPolicyController::class);
 
     });
 

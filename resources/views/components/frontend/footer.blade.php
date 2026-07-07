@@ -7,13 +7,20 @@
         // Footer email prefers the dedicated footer_email field, else falls back to primary email.
         $footerEmail = ($footerContact->footer_email ?? null) ?: ($footerContact->email ?? '');
 
-        $footerMapUrl = $footerContact->map_url ?? '';
+        $footerMapUrl    = $footerContact->map_url ?? '';
+        $footerDonate    = $footerContact->donate_info ?? '';
 
         // Address for the footer widget: convert </p> + <br> to newlines, strip HTML, escape, then nl2br.
         // Keeps the multi-line address look without letting stray editor tags break the anchor markup.
         $footerAddressBr = $footerContact && $footerContact->address
             ? nl2br(e(trim(strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $footerContact->address)))))
             : '';
+
+        // Privacy Policy — served from the CMS if uploaded, else fall back to the static PDF.
+        $privacyPolicy = \App\Models\PrivacyPolicy::whereNull('deleted_by')->first();
+        $privacyPolicyUrl = $privacyPolicy && $privacyPolicy->file
+            ? asset('home/privacy/'.$privacyPolicy->file)
+            : asset('frontend/assets/pdf/privacy-policy.pdf');
     @endphp
 
     <section class="home-page-contact-us-footer-top">
@@ -156,7 +163,7 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="footer__bottom-menu text-end">
-                                <p><a href="{{ asset('frontend/assets/pdf/privacy-policy.pdf' )}}" target="_blank">Privacy Policy</a></p>
+                                <p><a href="{{ $privacyPolicyUrl }}" target="_blank">Privacy Policy</a></p>
                             </div>
                         </div>
                     </div>
