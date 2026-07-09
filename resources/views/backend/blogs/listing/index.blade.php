@@ -40,7 +40,7 @@
                                     </ol>
                                 </nav>
                                 <a href="{{ route('manage-blogs-listing.create') }}" class="btn btn-primary px-5 radius-30">
-                                    + Add Blog Listing
+                                    + Add Blog
                                 </a>
                             </div>
 
@@ -49,12 +49,41 @@
                                     <thead>
                                         <tr>
                                             <th>Sr No.</th>
-                                            <th>Banner Heading</th>
+                                            <th>Category</th>
+                                            <th>Thumbnail</th>
+                                            <th>Title</th>
                                             <th class="text-end" style="min-width:170px;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                  
+                                        @forelse($listings as $i => $listing)
+                                            <tr>
+                                                <td>{{ $i + 1 }}</td>
+                                                <td>{{ $listing->category->name ?? '—' }}</td>
+                                                <td>
+                                                    @if($listing->thumbnail)
+                                                        <img src="{{ asset('home/blog/thumbnails/'.$listing->thumbnail) }}" alt="{{ $listing->title }}" style="height:100px; width:100px; object-fit:cover; border-radius:4px;">
+                                                    @else
+                                                        —
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    {{ $listing->title }}
+                                                </td>
+                                               
+                                                <td class="text-end">
+                                                    <div class="d-flex gap-1 justify-content-end">
+                                                        <a href="{{ route('manage-blogs-listing.edit', $listing->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                                        <form action="{{ route('manage-blogs-listing.destroy', $listing->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this blog?');">
+                                                            @csrf @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr><td colspan="6" class="text-center text-muted py-4">No blogs added yet.</td></tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
