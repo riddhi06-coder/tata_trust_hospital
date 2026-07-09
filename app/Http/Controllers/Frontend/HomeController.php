@@ -191,6 +191,40 @@ class HomeController extends Controller
         return view('frontend.blogs', compact('settings', 'listings', 'categories', 'recentPosts', 'tags'));
     }
 
+    public function blog_details(string $slug)
+    {
+        $listing = BlogListing::whereNull('deleted_by')
+            ->where('slug', $slug)
+            ->with([
+                'category',
+                'tags'   => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+                'detail' => fn ($q) => $q->with(['socialLinks' => fn ($s) => $s->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id')]),
+            ])
+            ->firstOrFail();
+
+        $settings = BlogListingSetting::whereNull('deleted_by')->first();
+
+        $recentPosts = BlogListing::whereNull('deleted_by')
+            ->where('id', '!=', $listing->id)
+            ->orderByDesc('blog_date')
+            ->orderByDesc('id')
+            ->take(4)
+            ->get();
+
+        $categories = BlogCategory::whereNull('deleted_by')
+            ->withCount(['listings' => fn ($q) => $q->whereNull('deleted_by')])
+            ->orderBy('name')
+            ->get();
+
+        $tags = BlogListingTag::whereNull('deleted_by')
+            ->select('tag')
+            ->distinct()
+            ->orderBy('tag')
+            ->pluck('tag');
+
+        return view('frontend.blog_details', compact('listing', 'settings', 'recentPosts', 'categories', 'tags'));
+    }
+
     public function contact_us()
     {
         $contact = ContactDetails::whereNull('deleted_by')

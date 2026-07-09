@@ -44,4 +44,9 @@ class BlogListing extends Model
             ->orderBy('sort_order')
             ->orderBy('id');
     }
+
+    public function detail()
+    {
+        return $this->hasOne(BlogDetails::class, 'blog_listing_id')->whereNull('deleted_by');
+    }
 }

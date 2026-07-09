@@ -43,7 +43,7 @@
                     <div class="col-xl-9 col-lg-8 order-0 order-lg-2">
                         <div class="row">
                             @forelse($listings as $listing)
-                                @php $detailHref = '#'; @endphp
+                                @php $detailHref = route('frontend.blog_details', $listing->slug); @endphp
                                 <div class="col-md-6">
                                     <div class="blog__post-item-three blog__post-item-five shine-animate-item">
                                         <div class="blog__post-thumb-three blog__post-thumb-five shine-animate">
@@ -104,9 +104,10 @@
                                     <h4 class="widget-title">Recent Post</h4>
                                     <div class="rc-post-wrap">
                                         @foreach($recentPosts as $post)
+                                            @php $postHref = route('frontend.blog_details', $post->slug); @endphp
                                             <div class="rc-post-item">
                                                 <div class="thumb">
-                                                    <a href="#">
+                                                    <a href="{{ $postHref }}">
                                                         @if($post->thumbnail)
                                                             <img src="{{ asset('home/blog/thumbnails/'.$post->thumbnail) }}" alt="{{ $post->title }}">
                                                         @else
@@ -115,7 +116,7 @@
                                                     </a>
                                                 </div>
                                                 <div class="content">
-                                                    <h4 class="title"><a href="#">{{ $post->title }}</a></h4>
+                                                    <h4 class="title"><a href="{{ $postHref }}">{{ $post->title }}</a></h4>
                                                     <span class="date"><i class="flaticon-calendar"></i>{{ optional($post->blog_date)->format('M d, Y') }}</span>
                                                 </div>
                                             </div>

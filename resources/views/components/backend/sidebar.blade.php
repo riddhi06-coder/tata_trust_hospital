@@ -250,7 +250,7 @@
 
 
                 <!-- Blog-->
-                <li class="sidebar-list {{ request()->routeIs('manage-blogs-listing.index','manage-job-role.index'.'manage-blog-category.index') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('manage-blogs-listing.index','manage-blog-details.index'.'manage-blog-category.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -264,7 +264,7 @@
                   <ul class="sidebar-submenu">
                     <li><a href="{{ route('manage-blog-category.index') }}"> Category </a></li>
                     <li><a href="{{ route('manage-blogs-listing.index') }}"> Listing </a></li>
-                    <li><a href="{{ route('manage-job-role.index') }}"> Details </a></li>
+                    <li><a href="{{ route('manage-blog-details.index') }}"> Details </a></li>
                   </ul>
                 </li>
 

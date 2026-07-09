@@ -192,4 +192,5 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/join-us', [HomeController::class, 'join_us'])->name('frontend.join_us');
     Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('frontend.contact_us');
     Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');
+    Route::get('/blog/{slug}', [HomeController::class, 'blog_details'])->name('frontend.blog_details');
 
