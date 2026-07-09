@@ -19,6 +19,10 @@ use App\Models\FaqSetting;
 use App\Models\MasterFacility;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
+use App\Models\BlogCategory;
+use App\Models\BlogListing;
+use App\Models\BlogListingSetting;
+use App\Models\BlogListingTag;
 use App\Models\ContactDetails;
 use App\Models\JobRole;
 use App\Models\JoinPage;
@@ -156,6 +160,35 @@ class HomeController extends Controller
             ->get();
 
         return view('frontend.join_us', compact('join_page', 'job_roles'));
+    }
+
+    public function blogs()
+    {
+        $settings = BlogListingSetting::whereNull('deleted_by')->first();
+
+        $listings = BlogListing::whereNull('deleted_by')
+            ->with([
+                'category',
+                'tags' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+            ])
+            ->orderByDesc('blog_date')
+            ->orderByDesc('id')
+            ->get();
+
+        $categories = BlogCategory::whereNull('deleted_by')
+            ->withCount(['listings' => fn ($q) => $q->whereNull('deleted_by')])
+            ->orderBy('name')
+            ->get();
+
+        $recentPosts = $listings->take(4);
+
+        $tags = BlogListingTag::whereNull('deleted_by')
+            ->select('tag')
+            ->distinct()
+            ->orderBy('tag')
+            ->pluck('tag');
+
+        return view('frontend.blogs', compact('settings', 'listings', 'categories', 'recentPosts', 'tags'));
     }
 
     public function contact_us()

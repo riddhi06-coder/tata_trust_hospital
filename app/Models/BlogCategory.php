@@ -24,4 +24,9 @@ class BlogCategory extends Model
     {
         return 'slug';
     }
+
+    public function listings()
+    {
+        return $this->hasMany(BlogListing::class, 'blog_category_id');
+    }
 }

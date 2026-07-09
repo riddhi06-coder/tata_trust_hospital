@@ -35,7 +35,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="home-appointment-emergency-footer-btn-sec">
-                        <a href="{{ $footerPhoneTel ? 'tel:'.$footerPhoneTel : route('frontend.contact_us') }}" class="btn">Contact Us<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
+                        <a href="{{ route('frontend.contact_us') }}" class="btn">Contact Us<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
                                 alt="" class="injectable"></a>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
                                                 <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
                                                 <li><a href="{{ route('frontend.join_us') }}">Join Us</a></li>
                                                 <li><a href="{{ route('frontend.gallery') }}">Gallery</a></li>
-                                                <li><a href="blog.html">Blog</a></li>
+                                                <li><a href="{{ route('frontend.blogs') }}">Blog</a></li>
                                                 <li><a href="{{ route('frontend.contact_us') }}">Contact Us</a></li>
                                             </ul>
                                         </div>
