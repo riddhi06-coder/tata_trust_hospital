@@ -28,7 +28,9 @@ use App\Http\Controllers\Backend\JoinPageController;
 use App\Http\Controllers\Backend\JobRoleController;
 use App\Http\Controllers\Backend\ContactDetailsController;
 use App\Http\Controllers\Backend\PrivacyPolicyController;
-
+use App\Http\Controllers\Backend\BlogListingController;
+use App\Http\Controllers\Backend\BlogDetailsController;
+use App\Http\Controllers\Backend\BlogCategoryController;
 
 
 //frontend controller
@@ -160,6 +162,11 @@ use App\Http\Controllers\Frontend\HomeController;
 
             // FAQ's
             Route::resource('manage-faqs', FAQController::class);
+
+            // Blog
+            Route::resource('manage-blog-category', BlogCategoryController::class);
+            Route::resource('manage-blogs-listing', BlogListingController::class);
+            Route::resource('manage-blog-details', BlogDetailsController::class);
 
             // Contact Us
             Route::resource('manage-contact-details', ContactDetailsController::class);

@@ -249,6 +249,26 @@
                 @endif
 
 
+                <!-- Blog-->
+                <li class="sidebar-list {{ request()->routeIs('manage-blogs-listing.index','manage-job-role.index'.'manage-blog-category.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-blog') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-blog') }}"></use>
+                    </svg>
+                    <span>Blog</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('manage-blog-category.index') }}"> Category </a></li>
+                    <li><a href="{{ route('manage-blogs-listing.index') }}"> Listing </a></li>
+                    <li><a href="{{ route('manage-job-role.index') }}"> Details </a></li>
+                  </ul>
+                </li>
+
+
                 <li class="sidebar-list {{ request()->routeIs('manage-contact-details.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link" href="{{ route('manage-contact-details.index') }}">
