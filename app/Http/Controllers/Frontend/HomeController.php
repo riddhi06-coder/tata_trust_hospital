@@ -91,6 +91,7 @@ class HomeController extends Controller
 
         $speciality_settings = SpecialitySetting::whereNull('deleted_by')->first();
         $speciality_items    = Specialities::whereNull('deleted_by')
+            ->withCount(['details' => fn ($q) => $q->whereNull('deleted_by')])
             ->orderBy('id')
             ->get();
 
@@ -113,6 +114,7 @@ class HomeController extends Controller
     {
         $speciality_settings = SpecialitySetting::whereNull('deleted_by')->first();
         $speciality_items    = Specialities::whereNull('deleted_by')
+            ->withCount(['details' => fn ($q) => $q->whereNull('deleted_by')])
             ->orderBy('id')
             ->get();
 
@@ -552,7 +554,7 @@ class HomeController extends Controller
             ->first();
 
         if (!$detail) {
-            abort(404);
+            return redirect()->route('frontend.coming_soon');
         }
 
         return view('frontend.specialities_details', compact('speciality', 'detail'));

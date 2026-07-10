@@ -269,7 +269,7 @@
                                 <div class="col-lg-2"
                                     data-aos="fade-up"
                                     @if($aosDelay > 0) data-aos-delay="{{ $aosDelay }}" @endif>
-                                    <a href="{{ url('specialities/'.$item->slug) }}" class="spec-custom-nine-card-sec">
+                                    <a href="{{ $item->details_count > 0 ? url('specialities/'.$item->slug) : route('frontend.coming_soon') }}" class="spec-custom-nine-card-sec">
                                         <div class="spec-custom-nine-card-content-sec">
                                             <img src="{{ asset('home/specialities/'.$item->image) }}" alt="{{ $item->speciality }}">
                                             <h4>{{ $item->speciality }}</h4>

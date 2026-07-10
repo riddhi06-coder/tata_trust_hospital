@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\TracksDeletedBy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Specialities extends Model
@@ -20,4 +21,9 @@ class Specialities extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public function details(): HasMany
+    {
+        return $this->hasMany(SpecialitiesDetails::class, 'speciality_id');
+    }
 }
