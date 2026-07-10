@@ -162,25 +162,55 @@ class HomeController extends Controller
         return view('frontend.join_us', compact('join_page', 'job_roles'));
     }
 
-    public function blogs()
+    public function blogs(Request $request)
     {
-        $settings = BlogListingSetting::whereNull('deleted_by')->first();
+        $search   = trim((string) $request->input('search', ''));
+        $category = trim((string) $request->input('category', ''));
+        $tag      = trim((string) $request->input('tag', ''));
 
-        $listings = BlogListing::whereNull('deleted_by')
+        $query = BlogListing::whereNull('deleted_by')
             ->with([
                 'category',
                 'tags' => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
-            ])
-            ->orderByDesc('blog_date')
-            ->orderByDesc('id')
-            ->get();
+            ]);
+
+        if ($category !== '') {
+            $query->whereHas('category', fn ($c) => $c->whereNull('deleted_by')->where('slug', $category));
+        }
+
+        if ($tag !== '') {
+            $query->whereHas('tags', fn ($t) => $t->whereNull('deleted_by')->where('tag', $tag));
+        }
+
+        if ($search !== '') {
+            $query->where(function ($w) use ($search) {
+                $w->where('title', 'like', "%{$search}%")
+                  ->orWhere('short_description', 'like', "%{$search}%")
+                  ->orWhereHas('tags', fn ($t) => $t->whereNull('deleted_by')->where('tag', 'like', "%{$search}%"))
+                  ->orWhereHas('category', fn ($c) => $c->whereNull('deleted_by')->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $listings = $query->orderByDesc('blog_date')->orderByDesc('id')->get();
+
+        // AJAX response: just the cards partial.
+        if ($request->ajax() || $request->has('partial')) {
+            return view('frontend.partials.blog_cards', compact('listings'))->render();
+        }
+
+        $settings = BlogListingSetting::whereNull('deleted_by')->first();
 
         $categories = BlogCategory::whereNull('deleted_by')
             ->withCount(['listings' => fn ($q) => $q->whereNull('deleted_by')])
             ->orderBy('name')
             ->get();
 
-        $recentPosts = $listings->take(4);
+        // Recent posts always reflect the newest 4 blogs regardless of active filter.
+        $recentPosts = BlogListing::whereNull('deleted_by')
+            ->orderByDesc('blog_date')
+            ->orderByDesc('id')
+            ->take(4)
+            ->get();
 
         $tags = BlogListingTag::whereNull('deleted_by')
             ->select('tag')
@@ -188,7 +218,10 @@ class HomeController extends Controller
             ->orderBy('tag')
             ->pluck('tag');
 
-        return view('frontend.blogs', compact('settings', 'listings', 'categories', 'recentPosts', 'tags'));
+        return view('frontend.blogs', compact(
+            'settings', 'listings', 'categories', 'recentPosts', 'tags',
+            'search', 'category', 'tag'
+        ));
     }
 
     public function blog_details(string $slug)

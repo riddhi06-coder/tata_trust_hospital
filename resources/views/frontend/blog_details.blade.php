@@ -71,7 +71,7 @@
                                             @endif
                                         </div>
                                         <div class="col-md-5">
-                                            @if(optional($listing->detail) && $listing->detail->socialLinks->count())
+                                            @if($listing->detail && $listing->detail->socialLinks->count())
                                                 <div class="blog-post-share">
                                                     <h5 class="title">Share:</h5>
                                                     <ul class="list-wrap">
