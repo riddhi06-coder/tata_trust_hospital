@@ -212,15 +212,12 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('frontend.contact_us');
     Route::post('/contact-us/enquiry', [HomeController::class, 'contact_enquiry_store'])->name('frontend.contact_enquiry.store');
     Route::get('/thank-you', [HomeController::class, 'thank_you'])->name('frontend.thank_you');
+    Route::get('/coming-soon', [HomeController::class, 'coming_soon'])->name('frontend.coming_soon');
     Route::get('/user-login', [HomeController::class, 'user_login'])->name('frontend.user_login');
     Route::post('/user-login/send-otp', [HomeController::class, 'send_otp'])->middleware('throttle:6,10')->name('frontend.send_otp');
-    Route::post('/user-login/verify-otp', [HomeController::class, 'verify_otp'])
-        ->middleware('throttle:10,10')
-        ->name('frontend.verify_otp');
+    Route::post('/user-login/verify-otp', [HomeController::class, 'verify_otp'])->middleware('throttle:10,10')->name('frontend.verify_otp');
     Route::get('/book-an-appointment', [HomeController::class, 'book_an_appointment'])->name('frontend.book_an_appointment');
-    Route::post('/book-an-appointment/submit', [HomeController::class, 'appointment_store'])
-        ->middleware('throttle:6,10')
-        ->name('frontend.appointment_store');
+    Route::post('/book-an-appointment/submit', [HomeController::class, 'appointment_store'])->middleware('throttle:6,10')->name('frontend.appointment_store');
     Route::get('/appointment-thank-you', [HomeController::class, 'appointment_thank_you'])->name('frontend.appointment_thank_you');
     Route::post('/careers/apply', [HomeController::class, 'job_application_store'])->name('frontend.job_application.store');
     Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');    Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');

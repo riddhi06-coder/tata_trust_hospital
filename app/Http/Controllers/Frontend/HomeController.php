@@ -819,4 +819,9 @@ class HomeController extends Controller
         }
     }
 
+
+    public function coming_soon()
+    {
+        return view('frontend.coming_soon');
+    }
 }
