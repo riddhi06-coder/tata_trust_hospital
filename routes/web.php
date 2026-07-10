@@ -31,6 +31,7 @@ use App\Http\Controllers\Backend\PrivacyPolicyController;
 use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
+use App\Http\Controllers\Backend\AppointmentEnquiryController;
 use App\Http\Controllers\Backend\ContactEnquiryController;
 use App\Http\Controllers\Backend\JobApplicationController;
 use App\Http\Controllers\Backend\BlogCommentController;
@@ -183,6 +184,9 @@ use App\Http\Controllers\Frontend\HomeController;
             Route::get('manage-job-applications',       [JobApplicationController::class, 'index'])->name('manage-job-applications.index');
             Route::get('manage-job-applications/{id}',  [JobApplicationController::class, 'show'])->whereNumber('id')->name('manage-job-applications.show');
 
+            Route::get('manage-appointment-enquiries',      [AppointmentEnquiryController::class, 'index'])->name('manage-appointment-enquiries.index');
+            Route::get('manage-appointment-enquiries/{id}', [AppointmentEnquiryController::class, 'show'])->whereNumber('id')->name('manage-appointment-enquiries.show');
+
             // Contact Us
             Route::resource('manage-contact-details', ContactDetailsController::class);
 
@@ -208,15 +212,18 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('frontend.contact_us');
     Route::post('/contact-us/enquiry', [HomeController::class, 'contact_enquiry_store'])->name('frontend.contact_enquiry.store');
     Route::get('/thank-you', [HomeController::class, 'thank_you'])->name('frontend.thank_you');
-
+    Route::get('/user-login', [HomeController::class, 'user_login'])->name('frontend.user_login');
+    Route::post('/user-login/send-otp', [HomeController::class, 'send_otp'])->middleware('throttle:6,10')->name('frontend.send_otp');
+    Route::post('/user-login/verify-otp', [HomeController::class, 'verify_otp'])
+        ->middleware('throttle:10,10')
+        ->name('frontend.verify_otp');
+    Route::get('/book-an-appointment', [HomeController::class, 'book_an_appointment'])->name('frontend.book_an_appointment');
+    Route::post('/book-an-appointment/submit', [HomeController::class, 'appointment_store'])
+        ->middleware('throttle:6,10')
+        ->name('frontend.appointment_store');
+    Route::get('/appointment-thank-you', [HomeController::class, 'appointment_thank_you'])->name('frontend.appointment_thank_you');
     Route::post('/careers/apply', [HomeController::class, 'job_application_store'])->name('frontend.job_application.store');
-    Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');
-    Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');
-    Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');
+    Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');    Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');
     Route::get('/blog/{slug}', [HomeController::class, 'blog_details'])->name('frontend.blog_details');
-
-    // Blog comment submission — rate-limited to 3 requests per 10 min per IP to slow down spam.
-    Route::post('/blog/{slug}/comment', [HomeController::class, 'blog_comment_store'])
-        ->middleware('throttle:3,10')
-        ->name('frontend.blog_comment.store');
+    Route::post('/blog/{slug}/comment', [HomeController::class, 'blog_comment_store'])->middleware('throttle:3,10')->name('frontend.blog_comment.store');
 

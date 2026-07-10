@@ -35,9 +35,10 @@ return [
     'admin_notification' => env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com'),
 
     'admin_notifications' => [
-        'contact' => env('MAIL_ADMIN_CONTACT', env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
-        'career'  => env('MAIL_ADMIN_CAREER',  env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
-        // add one key per form you build later (blog_comment, appointment, donation, etc.)
+        'contact'     => env('MAIL_ADMIN_CONTACT',     env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
+        'career'      => env('MAIL_ADMIN_CAREER',      env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
+        'appointment' => env('MAIL_ADMIN_APPOINTMENT', env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
+        // add one key per form you build later (blog_comment, donation, etc.)
     ],
 
     /*

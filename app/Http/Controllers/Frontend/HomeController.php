@@ -27,13 +27,18 @@ use App\Models\BlogComment;
 use App\Models\BlogListing;
 use App\Models\BlogListingSetting;
 use App\Models\BlogListingTag;
+use App\Mail\AppointmentEnquiryMail;
 use App\Mail\ContactEnquiryMail;
 use App\Mail\JobApplicationMail;
+use App\Models\AppointmentEnquiry;
+use App\Models\AppointmentOtp;
+use App\Models\AppointmentUser;
 use App\Models\ContactDetails;
 use App\Models\ContactEnquiry;
 use App\Models\JobApplication;
 use App\Models\JobRole;
 use App\Models\JoinPage;
+use App\Services\MessageIndiaSms;
 use App\Models\Specialities;
 use App\Models\SpecialitiesDetails;
 use App\Models\SpecialitySetting;
@@ -551,6 +556,267 @@ class HomeController extends Controller
         }
 
         return view('frontend.specialities_details', compact('speciality', 'detail'));
+    }
+
+
+    public function user_login()
+    {
+        return view('frontend.user_login');
+    }
+
+    public function send_otp(Request $request, MessageIndiaSms $sms)
+    {
+        $mobile = preg_replace('/\D/', '', (string) $request->input('mobile', ''));
+
+        if (strlen($mobile) !== 10) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Enter a valid 10-digit mobile number.',
+            ], 422);
+        }
+
+        // Rate-limit: max 4 sends in a 10-minute window per mobile.
+        $recent = AppointmentOtp::where('mobile', $mobile)
+            ->where('created_at', '>=', Carbon::now()->subMinutes(10))
+            ->count();
+        if ($recent >= 4) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Too many OTP requests. Please wait a few minutes.',
+            ], 429);
+        }
+
+        $otp = (string) random_int(100000, 999999);
+
+        // Clear any prior unverified OTPs for this mobile — one active code at a time.
+        AppointmentOtp::where('mobile', $mobile)->delete();
+
+        AppointmentOtp::create([
+            'mobile'     => $mobile,
+            'otp'        => $otp,
+            'expires_at' => Carbon::now()->addMinutes(3),
+            'attempts'   => 0,
+        ]);
+
+        $sent = $sms->sendOtp($mobile, $otp);
+
+        // If SMS delivery failed we still let the user try (record was created);
+        // response tells the frontend so it can show an appropriate message.
+        return response()->json([
+            'success' => true,
+            'delivered' => $sent,
+            'mobile'  => $mobile,
+            'message' => $sent
+                ? 'OTP sent to your mobile.'
+                : 'Could not send SMS right now. Please try Resend in a moment.',
+        ]);
+    }
+
+    public function verify_otp(Request $request)
+    {
+        $mobile = preg_replace('/\D/', '', (string) $request->input('mobile', ''));
+        $otp    = preg_replace('/\D/', '', (string) $request->input('otp', ''));
+
+        if (strlen($mobile) !== 10 || strlen($otp) !== 6) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Enter the 6-digit OTP.',
+            ], 422);
+        }
+
+        $record = AppointmentOtp::where('mobile', $mobile)
+            ->where('otp', $otp)
+            ->first();
+
+        if (! $record) {
+            // Bump attempts on the latest OTP for this mobile (rate-limit brute-force).
+            AppointmentOtp::where('mobile', $mobile)
+                ->orderByDesc('id')
+                ->limit(1)
+                ->update(['attempts' => DB::raw('attempts + 1')]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Incorrect OTP. Please try again.',
+            ], 422);
+        }
+
+        if ($record->expires_at && $record->expires_at->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP has expired. Please resend.',
+            ], 422);
+        }
+
+        // Success — burn all OTPs for this mobile so it can't be reused.
+        AppointmentOtp::where('mobile', $mobile)->delete();
+
+        // Create or find the user row (name/email get added later on form submit).
+        $user = AppointmentUser::firstOrCreate(
+            ['mobile' => $mobile],
+            ['created_at' => Carbon::now()]
+        );
+        $user->update(['last_verified_at' => Carbon::now()]);
+
+        session([
+            'appointment_verified_mobile' => $mobile,
+            'appointment_user_id'         => $user->id,
+        ]);
+
+        return response()->json([
+            'success'  => true,
+            'redirect' => route('frontend.book_an_appointment'),
+        ]);
+    }
+
+    public function book_an_appointment()
+    {
+        $mobile = session('appointment_verified_mobile');
+        if (! $mobile) {
+            return redirect()
+                ->route('frontend.user_login')
+                ->with('info', 'Please verify your mobile number first.');
+        }
+
+        $user = AppointmentUser::whereNull('deleted_by')
+            ->where('mobile', $mobile)
+            ->first();
+
+        return view('frontend.book_an_appointment', compact('mobile', 'user'));
+    }
+
+    public function appointment_store(Request $request, MessageIndiaSms $sms)
+    {
+        // Must have completed OTP verification in this session.
+        $mobile = session('appointment_verified_mobile');
+        $userId = session('appointment_user_id');
+
+        if (! $mobile || ! $userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your session has expired. Please verify your mobile number again.',
+                'redirect' => route('frontend.user_login'),
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name'             => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s.\'-]+$/'],
+            'email'            => ['required', 'email', 'max:150', 'regex:/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/'],
+            'address'          => ['required', 'string', 'max:255'],
+            'pincode'          => ['required', 'regex:/^[1-9][0-9]{5}$/'],
+            'pet_name'         => ['required', 'string', 'max:100'],
+            'pet_age'          => ['nullable', 'string', 'max:60'],
+            'pet_type'         => ['required', 'in:dog,cat'],
+            'pet_gender'       => ['required', 'in:male,female'],
+            'consult_type'     => ['required', 'in:first,followup'],
+            'reason'           => ['required', 'string', 'max:2000'],
+            'appointment_date' => ['required', 'date', 'after_or_equal:today'],
+        ], [
+            'name.regex'                 => 'Name cannot contain numbers or special characters.',
+            'email.regex'                => 'Please enter a valid email address.',
+            'pincode.regex'              => 'Enter a valid 6-digit PIN code.',
+            'appointment_date.after_or_equal' => 'Appointment date cannot be in the past.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please correct the highlighted fields.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $user = AppointmentUser::whereNull('deleted_by')->where('mobile', $mobile)->first();
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your session has expired. Please verify your mobile number again.',
+                'redirect' => route('frontend.user_login'),
+            ], 401);
+        }
+
+        // Update the profile fields from this submission.
+        $user->update([
+            'name'    => $request->name,
+            'email'   => $request->email,
+            'address' => $request->address,
+            'pincode' => $request->pincode,
+        ]);
+
+        $enquiry = AppointmentEnquiry::create([
+            'appointment_user_id' => $user->id,
+            'owner_name'          => $request->name,
+            'mobile'              => $mobile,
+            'email'               => $request->email,
+            'address'             => $request->address,
+            'pincode'             => $request->pincode,
+            'pet_name'            => $request->pet_name,
+            'pet_age'             => $request->pet_age,
+            'pet_type'            => $request->pet_type,
+            'pet_gender'          => $request->pet_gender,
+            'consult_type'        => $request->consult_type,
+            'reason'              => $request->reason,
+            'appointment_date'    => $request->appointment_date,
+        ]);
+
+        // Fire SMS + emails. Failures are logged but never block the response.
+        $this->sendAppointmentNotifications($enquiry, $sms);
+
+        return response()->json([
+            'success'  => true,
+            'redirect' => route('frontend.appointment_thank_you'),
+        ]);
+    }
+
+    public function appointment_thank_you()
+    {
+        return view('frontend.appointment_thank_you');
+    }
+
+    private function sendAppointmentNotifications(AppointmentEnquiry $enquiry, MessageIndiaSms $sms): void
+    {
+        $formattedDate = $enquiry->appointment_date->format('d M Y');
+
+        // Tentative-booking SMS.
+        try {
+            $sms->sendAppointmentConfirmation($enquiry->mobile, $formattedDate);
+        } catch (\Throwable $e) {
+            Log::error('Appointment SMS failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+        }
+
+        $adminTo = config('mail.admin_notifications.appointment', config('mail.admin_notification'));
+        $hasLogo = file_exists(public_path('frontend/assets/img/logo/tata-trust-logo.webp'));
+
+        // Owner acknowledgement.
+        try {
+            Mail::to($enquiry->email)->send(new AppointmentEnquiryMail(
+                $enquiry,
+                'Appointment Request Received - SAHM',
+                'Thank you, '.e($enquiry->owner_name).'!',
+                'We have received your appointment request. Our team will contact you shortly to confirm your visit. Details of your booking are below.',
+                'Please note: this is a tentative booking. Our Customer Care Department will call you to confirm the date and time.',
+                $hasLogo
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Appointment owner mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+        }
+
+        // Admin notification.
+        try {
+            if ($adminTo) {
+                Mail::to($adminTo)
+                    ->send((new AppointmentEnquiryMail(
+                        $enquiry,
+                        'New Appointment Enquiry - '.$enquiry->owner_name,
+                        'New Appointment Enquiry',
+                        'A new appointment request has been submitted through the website. Details are below.',
+                        '',
+                        $hasLogo
+                    ))->replyTo($enquiry->email, $enquiry->owner_name));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Appointment admin mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+        }
     }
 
 }

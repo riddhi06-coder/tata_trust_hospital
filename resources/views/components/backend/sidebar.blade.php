@@ -65,7 +65,7 @@
                 @endif
 
                 <!-- Form Enquiries -->
-                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*', 'manage-appointment-enquiries.*') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -79,6 +79,7 @@
                   <ul class="sidebar-submenu">
                     <li><a href="{{ route('manage-contact-enquiries.index') }}" class="{{ request()->routeIs('manage-contact-enquiries.*') ? 'active' : '' }}">Contact Enquiries</a></li>
                     <li><a href="{{ route('manage-job-applications.index') }}" class="{{ request()->routeIs('manage-job-applications.*') ? 'active' : '' }}">Job Applications</a></li>
+                    <li><a href="{{ route('manage-appointment-enquiries.index') }}" class="{{ request()->routeIs('manage-appointment-enquiries.*') ? 'active' : '' }}">Appointment Enquiries</a></li>
                   </ul>
                 </li>
 

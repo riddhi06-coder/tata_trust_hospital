@@ -4,10 +4,6 @@
 
     <head>
         @include('components.frontend.head')
-
-        <style>
-            .form-thank-you-sec{padding:80px 0}.form-thank-you-content-main-sec{text-align:center}.form-thank-you-content-main-sec img{width:200px;margin-bottom:30px}.form-thank-you-content-main-sec p{margin-bottom:0}
-        </style>
     </head>
 
     <body>

@@ -172,41 +172,12 @@
         </div>
     </footer>
 
-    <div class="modal fade book-an-appointment-custom-popup-form-sec" id="appointmentModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-md">
-            <div class="modal-content custom-modal">
-                <div class="modal-header custom-header">
-                    <h5 class="modal-title">Book Appointment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body custom-body">
-                    <form class="appointment-form">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Your Name">
-                        </div>
-                        <div class="form-group">
-                            <input type="email" class="form-control" placeholder="Email Address">
-                        </div>
-                        <div class="form-group">
-                            <input type="tel" class="form-control" placeholder="Phone Number">
-                        </div>
-                        <div class="form-group">
-                            <textarea class="form-control" rows="3" placeholder="Your Message"></textarea>
-                        </div>
-                        <div class="bapcpop-btn-sec">
-                            <button type="submit" class="btn submit-btn">Request a Call Back</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- footer-area-end -->
 
 
     <!--Start Sticky Icon-->
     <div class="sticky-icon">
-        <a href="#appointmentModal" data-bs-toggle="modal"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp') }}" alt="Book An Appointment Icon"></a>
+        <a href="{{ route('frontend.user_login') }}" data-bs-toggle="modal"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp') }}" alt="Book An Appointment Icon"></a>
         @if($footerContact && $footerContact->email)
             <a href="mailto:{{ $footerContact->email }}?subject=Interest%20in%20Donation%20/%20Enquiry"> Donate <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" alt="Donate Icon"></a>
         @endif

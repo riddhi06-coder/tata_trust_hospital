@@ -62,10 +62,8 @@
                                         @endif
 
                                         <div class="pet-btn-group">
-                                            <a href="#"
-                                                class="btn"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#appointmentModal">
+                                            <a href="{{ route('frontend.user_login') }}"
+                                                class="btn">
                                                 Book An Appointment
                                                 <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
                                                     alt="Read More" class="injectable">
