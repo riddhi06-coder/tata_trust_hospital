@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 use App\Models\EventSetting;
 use App\Models\Events;
@@ -23,7 +26,9 @@ use App\Models\BlogCategory;
 use App\Models\BlogListing;
 use App\Models\BlogListingSetting;
 use App\Models\BlogListingTag;
+use App\Mail\ContactEnquiryMail;
 use App\Models\ContactDetails;
+use App\Models\ContactEnquiry;
 use App\Models\JobRole;
 use App\Models\JoinPage;
 use App\Models\Specialities;
@@ -267,6 +272,89 @@ class HomeController extends Controller
             ->first();
 
         return view('frontend.contact_us', compact('contact'));
+    }
+
+    public function contact_enquiry_store(Request $request)
+    {
+        // Server-side mirror of the JS validation.
+        Validator::make($request->all(), [
+            'full_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s.\'-]+$/'],
+            'email'     => ['required', 'email', 'max:150'],
+            'phone'     => ['required', 'string', 'max:20',
+                function ($attr, $value, $fail) {
+                    $digits = preg_replace('/\D/', '', (string) $value);
+                    if (strlen($digits) < 10 || strlen($digits) > 12) {
+                        $fail('Phone number must be 10 to 12 digits.');
+                    }
+                },
+            ],
+            'subject'   => ['required', 'string', 'max:200'],
+            'message'   => ['nullable', 'string', 'max:5000'],
+        ], [
+            'full_name.regex' => 'Name cannot contain numbers or special characters.',
+        ])->validate();
+
+        $enquiry = ContactEnquiry::create([
+            'full_name'  => $request->full_name,
+            'email'      => $request->email,
+            'phone'      => $request->phone,
+            'subject'    => $request->subject,
+            'message'    => $request->message,
+            'ip_address' => $request->ip(),
+            'user_agent' => (string) $request->userAgent(),
+            'created_at' => Carbon::now(),
+        ]);
+
+        // Fire the two mails. Wrapped so a failing mail server never blocks the enquiry.
+        $this->sendContactEnquiryMails($enquiry);
+
+        return redirect()
+            ->route('frontend.thank_you')
+            ->with('enquiry_name', $enquiry->full_name);
+    }
+
+    public function thank_you()
+    {
+        $name = session('enquiry_name');
+        // Guard: hitting /thank-you directly without a submission bounces to home.
+        if (! $name) {
+            return redirect()->route('frontend.contact_us');
+        }
+        return view('frontend.thank_you', compact('name'));
+    }
+
+    private function sendContactEnquiryMails(ContactEnquiry $enquiry): void
+    {
+        $adminTo = config('mail.admin_notification');
+        $hasLogo = file_exists(public_path('frontend/assets/img/logo/tata-trust-logo.webp'));
+
+        // Admin notification.
+        try {
+            if ($adminTo) {
+                Mail::to($adminTo)->send(new ContactEnquiryMail(
+                    $enquiry,
+                    'New Contact Enquiry',
+                    'You have received a new contact enquiry from the website. Details are below.',
+                    '',
+                    $hasLogo
+                ));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Contact enquiry admin mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+        }
+
+        // User confirmation.
+        try {
+            Mail::to($enquiry->email)->send(new ContactEnquiryMail(
+                $enquiry,
+                'Thanks for reaching out',
+                'Hi '.e($enquiry->full_name).', we\'ve received your enquiry and our team will get back to you shortly. ',
+                'This is an automated confirmation. Our team will contact you shortly.',
+                $hasLogo
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Contact enquiry user mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+        }
     }
 
     public function specialities_details(string $slug)

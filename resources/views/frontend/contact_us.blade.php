@@ -4,6 +4,17 @@
 
     @include('components.frontend.head')
 
+    <style>
+        #contactForm .error-msg {
+            display: block;
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            min-height: 18px;
+        }
+        #contactForm .is-invalid { border-color: #dc3545 !important; box-shadow: 0 0 0 0.15rem rgba(220,53,69,.15); }
+        #contactForm #submitBtn[disabled] { opacity: .7; cursor: not-allowed; }
+    </style>
   </head>
   <body>
 
@@ -129,7 +140,8 @@
                         <div class="contact-card contact-form-card">
 
 
-                            <form id="contactForm" action="contact_send.php" method="POST" novalidate>
+                            <form id="contactForm" action="{{ route('frontend.contact_enquiry.store') }}" method="POST" novalidate>
+                                @csrf
                                 <div class="row g-4">
 
                                     <div class="col-md-12">
@@ -208,6 +220,105 @@
     @include('components.frontend.footer')
 
     @include('components.frontend.main-js')
+
+    <script>
+    (function () {
+        var form = document.getElementById('contactForm');
+        if (!form) return;
+
+        var submitBtn = document.getElementById('submitBtn');
+        var originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+
+        function showError(id, msg) {
+            var el = document.getElementById('err_' + id);
+            var input = form.querySelector('[name="' + id + '"]');
+            if (el)    el.textContent = msg;
+            if (input) input.classList.add('is-invalid');
+        }
+
+        function clearError(id) {
+            var el = document.getElementById('err_' + id);
+            var input = form.querySelector('[name="' + id + '"]');
+            if (el)    el.textContent = '';
+            if (input) input.classList.remove('is-invalid');
+        }
+
+        // Live-clear on input.
+        ['full_name', 'email', 'phone', 'subject', 'message'].forEach(function (id) {
+            var input = form.querySelector('[name="' + id + '"]');
+            if (!input) return;
+            input.addEventListener('input', function () { clearError(id); });
+        });
+
+        form.addEventListener('submit', function (e) {
+            // Reset first
+            ['full_name', 'email', 'phone', 'subject', 'message'].forEach(clearError);
+
+            var v = function (id) {
+                var el = form.querySelector('[name="' + id + '"]');
+                return el ? (el.value || '').trim() : '';
+            };
+
+            var errors = 0;
+
+            // Name — required, no digits/special chars.
+            var name = v('full_name');
+            if (name === '') {
+                showError('full_name', 'Please enter your name.'); errors++;
+            } else if (!/^[A-Za-z\s.'\-]+$/.test(name)) {
+                showError('full_name', 'Name cannot contain numbers or special characters.'); errors++;
+            }
+
+            // Email — required + format.
+            var email = v('email');
+            if (email === '') {
+                showError('email', 'Please enter your email address.'); errors++;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+                showError('email', 'Please enter a valid email address.'); errors++;
+            }
+
+            // Phone — required, 10-12 digits after stripping spaces/dashes/etc.
+            var phone = v('phone');
+            if (phone === '') {
+                showError('phone', 'Please enter your phone number.'); errors++;
+            } else {
+                var digits = phone.replace(/\D/g, '');
+                if (!/^[\d+\s\-()]+$/.test(phone)) {
+                    showError('phone', 'Phone number contains invalid characters.'); errors++;
+                } else if (digits.length < 10 || digits.length > 12) {
+                    showError('phone', 'Phone number must be 10 to 12 digits.'); errors++;
+                }
+            }
+
+            // Subject — required.
+            var subject = v('subject');
+            if (subject === '') { showError('subject', 'Please enter a subject.'); errors++; }
+
+            // Message is optional — no validation.
+
+            if (errors > 0) {
+                e.preventDefault();
+                // Scroll to first error.
+                var firstInvalid = form.querySelector('.is-invalid');
+                if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            // Passed — disable to prevent double-submit.
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Submitting…';
+            }
+            // Fallback: re-enable after 30s if the browser stalls somehow.
+            setTimeout(function () {
+                if (submitBtn && submitBtn.disabled) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            }, 30000);
+        });
+    })();
+    </script>
 
   </body>
 </html>

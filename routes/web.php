@@ -31,6 +31,7 @@ use App\Http\Controllers\Backend\PrivacyPolicyController;
 use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
+use App\Http\Controllers\Backend\ContactEnquiryController;
 
 
 //frontend controller
@@ -168,6 +169,10 @@ use App\Http\Controllers\Frontend\HomeController;
             Route::resource('manage-blogs-listing', BlogListingController::class);
             Route::resource('manage-blog-details', BlogDetailsController::class);
 
+            // Form Enquiries (read-only: user submissions kept intact, no delete).
+            Route::get('manage-contact-enquiries',      [ContactEnquiryController::class, 'index'])->name('manage-contact-enquiries.index');
+            Route::get('manage-contact-enquiries/{id}', [ContactEnquiryController::class, 'show'])->whereNumber('id')->name('manage-contact-enquiries.show');
+
             // Contact Us
             Route::resource('manage-contact-details', ContactDetailsController::class);
 
@@ -191,6 +196,8 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/about-us', [HomeController::class, 'about_us'])->name('frontend.about_us');
     Route::get('/join-us', [HomeController::class, 'join_us'])->name('frontend.join_us');
     Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('frontend.contact_us');
+    Route::post('/contact-us/enquiry', [HomeController::class, 'contact_enquiry_store'])->name('frontend.contact_enquiry.store');
+    Route::get('/thank-you', [HomeController::class, 'thank_you'])->name('frontend.thank_you');
     Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');
     Route::get('/blog/{slug}', [HomeController::class, 'blog_details'])->name('frontend.blog_details');
 

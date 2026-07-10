@@ -54,7 +54,7 @@
                             </div>
                         </div>
 
-                        <p class="mt-4 mb-0 text-center">Don't have an account?<a class="ms-2" href="{{ route('admin.register') }}">Create Account</a></p>
+                        <!-- <p class="mt-4 mb-0 text-center">Don't have an account?<a class="ms-2" href="{{ route('admin.register') }}">Create Account</a></p> -->
                     </form>
 
                     </div>

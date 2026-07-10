@@ -18,6 +18,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Notification Address
+    |--------------------------------------------------------------------------
+    |
+    | All frontend form submissions (contact, blog comments, appointments, etc.)
+    | send their admin-side notifications to this address. Overridable via .env
+    | with MAIL_ADMIN_NOTIFICATION if you ever want a different receiver per
+    | environment (staging vs. prod) without touching code.
+    |
+    */
+
+    'admin_notification' => env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Mailer Configurations
     |--------------------------------------------------------------------------
     |
