@@ -32,6 +32,7 @@ use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
 use App\Http\Controllers\Backend\ContactEnquiryController;
+use App\Http\Controllers\Backend\JobApplicationController;
 
 
 //frontend controller
@@ -173,6 +174,9 @@ use App\Http\Controllers\Frontend\HomeController;
             Route::get('manage-contact-enquiries',      [ContactEnquiryController::class, 'index'])->name('manage-contact-enquiries.index');
             Route::get('manage-contact-enquiries/{id}', [ContactEnquiryController::class, 'show'])->whereNumber('id')->name('manage-contact-enquiries.show');
 
+            Route::get('manage-job-applications',       [JobApplicationController::class, 'index'])->name('manage-job-applications.index');
+            Route::get('manage-job-applications/{id}',  [JobApplicationController::class, 'show'])->whereNumber('id')->name('manage-job-applications.show');
+
             // Contact Us
             Route::resource('manage-contact-details', ContactDetailsController::class);
 
@@ -198,6 +202,10 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('frontend.contact_us');
     Route::post('/contact-us/enquiry', [HomeController::class, 'contact_enquiry_store'])->name('frontend.contact_enquiry.store');
     Route::get('/thank-you', [HomeController::class, 'thank_you'])->name('frontend.thank_you');
+
+    Route::post('/careers/apply', [HomeController::class, 'job_application_store'])->name('frontend.job_application.store');
+    Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');
+    Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');
     Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');
     Route::get('/blog/{slug}', [HomeController::class, 'blog_details'])->name('frontend.blog_details');
 

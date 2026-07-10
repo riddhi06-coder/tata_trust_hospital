@@ -27,8 +27,10 @@ use App\Models\BlogListing;
 use App\Models\BlogListingSetting;
 use App\Models\BlogListingTag;
 use App\Mail\ContactEnquiryMail;
+use App\Mail\JobApplicationMail;
 use App\Models\ContactDetails;
 use App\Models\ContactEnquiry;
+use App\Models\JobApplication;
 use App\Models\JobRole;
 use App\Models\JoinPage;
 use App\Models\Specialities;
@@ -279,19 +281,14 @@ class HomeController extends Controller
         // Server-side mirror of the JS validation.
         Validator::make($request->all(), [
             'full_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s.\'-]+$/'],
-            'email'     => ['required', 'email', 'max:150'],
-            'phone'     => ['required', 'string', 'max:20',
-                function ($attr, $value, $fail) {
-                    $digits = preg_replace('/\D/', '', (string) $value);
-                    if (strlen($digits) < 10 || strlen($digits) > 12) {
-                        $fail('Phone number must be 10 to 12 digits.');
-                    }
-                },
-            ],
+            'email'     => ['required', 'email', 'max:150', 'regex:/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/'],
+            'phone'     => ['required', 'regex:/^\d{10,12}$/'],
             'subject'   => ['required', 'string', 'max:200'],
             'message'   => ['nullable', 'string', 'max:5000'],
         ], [
             'full_name.regex' => 'Name cannot contain numbers or special characters.',
+            'email.regex'     => 'Please enter a valid email address.',
+            'phone.regex'     => 'Phone number must be 10 to 12 digits.',
         ])->validate();
 
         $enquiry = ContactEnquiry::create([
@@ -323,9 +320,138 @@ class HomeController extends Controller
         return view('frontend.thank_you', compact('name'));
     }
 
+    public function job_application_store(Request $request)
+    {
+        Validator::make($request->all(), [
+            'full_name'    => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s.\'-]+$/'],
+            'email'        => ['required', 'email', 'max:150', 'regex:/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/'],
+            'phone'        => ['required', 'regex:/^\d{10,12}$/'],
+            'applying_for' => ['required', 'string', 'max:255'],
+            'job_role_id'  => ['nullable', 'integer', 'exists:job_roles,id'],
+            'location'     => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s.,\'-]+$/'],
+            'joining_time' => ['required', 'string', 'max:100'],
+            'message'      => ['nullable', 'string', 'max:5000'],
+            'resume'       => ['required', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+        ], [
+            'full_name.regex'   => 'Name cannot contain numbers or special characters.',
+            'email.regex'       => 'Please enter a valid email address.',
+            'phone.regex'       => 'Phone number must be 10 to 12 digits.',
+            'location.regex'    => 'Location cannot contain numbers or special characters.',
+            'resume.mimes'      => 'Resume must be a PDF or Word document (.pdf, .doc, .docx).',
+            'resume.max'        => 'Resume must be 5MB or smaller.',
+        ])->validate();
+
+        // Store the resume under public/home/careers/resumes/ (matches project's public-uploads pattern).
+        $folder = public_path('home/careers/resumes');
+        if (!file_exists($folder)) {
+            mkdir($folder, 0755, true);
+        }
+        $file = $request->file('resume');
+        // Sanitize the original name into a URL-safe slug:
+        //   "Riddhi Bhosale - 2024.docx"  →  "Riddhi-Bhosale-2024"
+        $safeBase = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeBase = preg_replace('/\s+/', '-', $safeBase);            // spaces/tabs → hyphen
+        $safeBase = preg_replace('/[^A-Za-z0-9._-]/', '-', $safeBase); // other specials → hyphen
+        $safeBase = preg_replace('/-+/', '-', $safeBase);              // collapse repeats
+        $safeBase = trim($safeBase, '-._');
+        if ($safeBase === '') { $safeBase = 'resume'; }
+        $storedName = $safeBase.'-'.time().'-'.uniqid().'.'.strtolower($file->getClientOriginalExtension());
+        $file->move($folder, $storedName);
+
+        $application = JobApplication::create([
+            'job_role_id'  => $request->job_role_id,
+            'applying_for' => $request->applying_for,
+            'full_name'    => $request->full_name,
+            'email'        => $request->email,
+            'phone'        => $request->phone,
+            'location'     => $request->location,
+            'joining_time' => $request->joining_time,
+            'message'      => $request->message,
+            'resume_file'  => $storedName,
+            'ip_address'   => $request->ip(),
+            'user_agent'   => (string) $request->userAgent(),
+            'created_at'   => Carbon::now(),
+        ]);
+
+        $this->sendJobApplicationMails($application, $folder.'/'.$storedName, $file->getClientOriginalName());
+
+        return redirect()
+            ->route('frontend.join_thank_you')
+            ->with('applicant_name', $application->full_name);
+    }
+
+    public function join_thank_you()
+    {
+        $name = session('applicant_name');
+        // if (! $name) {
+        //     return redirect()->route('frontend.join_us');
+        // }
+        return view('frontend.join_thank_you', compact('name'));
+    }
+
+    private function sendJobApplicationMails(JobApplication $application, string $resumeAbsolutePath, string $resumeOriginalName): void
+    {
+        $adminTo  = config('mail.admin_notifications.career');
+        $hasLogo  = file_exists(public_path('frontend/assets/img/logo/tata-trust-logo.webp'));
+
+        // Look up the JobRole for the JD attachment (if the role has one uploaded).
+        $jdPath = null;
+        $jdName = null;
+        if ($application->job_role_id) {
+            $role = JobRole::whereNull('deleted_by')->find($application->job_role_id);
+            if ($role && $role->jd_file) {
+                $candidate = public_path('home/join-us/jd/'.$role->jd_file);
+                if (file_exists($candidate)) {
+                    $jdPath = $candidate;
+                    // Use a friendly filename for the recipient.
+                    $jdName = 'JD-'.preg_replace('/[^A-Za-z0-9._-]/', '_', $application->applying_for).'.'.pathinfo($role->jd_file, PATHINFO_EXTENSION);
+                }
+            }
+        }
+
+        // Admin/HR mail — includes candidate resume + JD reference.
+        try {
+            if ($adminTo) {
+                Mail::to($adminTo)->send(new JobApplicationMail(
+                    $application,
+                    'New Job Application',
+                    'A new application has been submitted through the careers page. Details below:',
+                    $jdPath ? 'Resume is attached. Job description for this role is attached as reference.'
+                            : 'Resume is attached.',
+                    $hasLogo,
+                    true,             // attach resume
+                    $resumeAbsolutePath,
+                    $resumeOriginalName,
+                    $jdPath,
+                    $jdName,
+                ));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Job application admin mail failed: '.$e->getMessage(), ['application_id' => $application->id]);
+        }
+
+        // Applicant confirmation — includes JD, no resume attachment.
+        try {
+            Mail::to($application->email)->send(new JobApplicationMail(
+                $application,
+                'Application Received',
+                'Thank you for applying for the <b>'.e($application->applying_for).'</b> role at Tata Trusts Small Animal Hospital. We have received your application and our team will review it. Here is a copy of what you submitted:',
+                $jdPath ? 'The job description is attached for your reference.' : '',
+                $hasLogo,
+                false,            // don't send applicant their own resume back
+                null,
+                null,
+                $jdPath,
+                $jdName,
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Job application user mail failed: '.$e->getMessage(), ['application_id' => $application->id]);
+        }
+    }
+
     private function sendContactEnquiryMails(ContactEnquiry $enquiry): void
     {
-        $adminTo = config('mail.admin_notification');
+        $adminTo = config('mail.admin_notifications.contact', config('mail.admin_notification'));
         $hasLogo = file_exists(public_path('frontend/assets/img/logo/tata-trust-logo.webp'));
 
         // Admin notification.

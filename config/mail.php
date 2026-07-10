@@ -18,17 +18,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Admin Notification Address
+    | Per-Form Admin Notification Addresses
     |--------------------------------------------------------------------------
     |
-    | All frontend form submissions (contact, blog comments, appointments, etc.)
-    | send their admin-side notifications to this address. Overridable via .env
-    | with MAIL_ADMIN_NOTIFICATION if you ever want a different receiver per
-    | environment (staging vs. prod) without touching code.
+    | Each frontend form (contact enquiry, career application, blog comment,
+    | appointment, etc.) fans its admin notification to its own recipient.
+    | Every key defaults to riddhi@matrixbricks.com — override any of them per
+    | environment via .env without touching code.
+    |
+    | Fallback: 'admin_notification' (single-value legacy key) is kept so the
+    | old contact-enquiry code path keeps working even before it's updated to
+    | use the array below.
     |
     */
 
     'admin_notification' => env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com'),
+
+    'admin_notifications' => [
+        'contact' => env('MAIL_ADMIN_CONTACT', env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
+        'career'  => env('MAIL_ADMIN_CAREER',  env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
+        // add one key per form you build later (blog_comment, appointment, donation, etc.)
+    ],
 
     /*
     |--------------------------------------------------------------------------

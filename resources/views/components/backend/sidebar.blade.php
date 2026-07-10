@@ -297,7 +297,7 @@
                 </li>
 
                 <!-- Form Enquiries -->
-                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*') ? 'active' : '' }}">
+                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -310,6 +310,7 @@
                   </a>
                   <ul class="sidebar-submenu">
                     <li><a href="{{ route('manage-contact-enquiries.index') }}" class="{{ request()->routeIs('manage-contact-enquiries.*') ? 'active' : '' }}">Contact Enquiries</a></li>
+                    <li><a href="{{ route('manage-job-applications.index') }}" class="{{ request()->routeIs('manage-job-applications.*') ? 'active' : '' }}">Job Applications</a></li>
                   </ul>
                 </li>
 

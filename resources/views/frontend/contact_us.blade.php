@@ -3,18 +3,6 @@
   <head>
 
     @include('components.frontend.head')
-
-    <style>
-        #contactForm .error-msg {
-            display: block;
-            color: #dc3545;
-            font-size: 0.85rem;
-            margin-top: 4px;
-            min-height: 18px;
-        }
-        #contactForm .is-invalid { border-color: #dc3545 !important; box-shadow: 0 0 0 0.15rem rgba(220,53,69,.15); }
-        #contactForm #submitBtn[disabled] { opacity: .7; cursor: not-allowed; }
-    </style>
   </head>
   <body>
 
@@ -158,8 +146,9 @@
 
                                     <div class="col-md-6">
                                         <input type="tel" name="phone" id="phone" class="form-control"
-                                               placeholder="Phone Number*" maxlength="15"
-                                               inputmode="numeric">
+                                               placeholder="Phone Number*" maxlength="12"
+                                               inputmode="numeric" pattern="[0-9]{10,12}"
+                                               oninput="this.value=this.value.replace(/\D/g,'').slice(0,12);">
                                         <small class="error-msg" id="err_phone"></small>
                                     </div>
 
@@ -273,21 +262,16 @@
             var email = v('email');
             if (email === '') {
                 showError('email', 'Please enter your email address.'); errors++;
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+            } else if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email)) {
                 showError('email', 'Please enter a valid email address.'); errors++;
             }
 
-            // Phone — required, 10-12 digits after stripping spaces/dashes/etc.
+            // Phone — digits only, 10-12 characters (cap enforced by oninput).
             var phone = v('phone');
             if (phone === '') {
                 showError('phone', 'Please enter your phone number.'); errors++;
-            } else {
-                var digits = phone.replace(/\D/g, '');
-                if (!/^[\d+\s\-()]+$/.test(phone)) {
-                    showError('phone', 'Phone number contains invalid characters.'); errors++;
-                } else if (digits.length < 10 || digits.length > 12) {
-                    showError('phone', 'Phone number must be 10 to 12 digits.'); errors++;
-                }
+            } else if (!/^\d{10,12}$/.test(phone)) {
+                showError('phone', 'Phone number must be 10 to 12 digits.'); errors++;
             }
 
             // Subject — required.

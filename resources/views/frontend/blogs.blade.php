@@ -4,41 +4,6 @@
   <head>
 
     @include('components.frontend.head')
-
-    <style>
-        .blog-grid-container { position: relative; min-height: 240px; }
-        .blog-loader-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.75);
-            z-index: 5;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-        }
-        .blog-loader-overlay.is-loading { display: flex; }
-        .blog-spinner {
-            width: 56px; height: 56px;
-            border: 6px solid #e2e8f0;
-            border-top-color: #6366f1;
-            border-radius: 50%;
-            animation: blog-spin 0.9s linear infinite;
-        }
-        @keyframes blog-spin { to { transform: rotate(360deg); } }
-
-        .sidebar-cat-list li a.is-active,
-        .sidebar-tag-list li a.is-active,
-        .blog__post-tag li a.is-active { font-weight: 700; color: #6366f1; }
-        .filter-chip {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: #eef2ff; color: #1e3a8a;
-            padding: 4px 10px; border-radius: 999px;
-            font-size: 0.85rem; font-weight: 600;
-        }
-        .filter-chip .chip-clear { cursor: pointer; opacity: 0.7; }
-        .filter-chip .chip-clear:hover { opacity: 1; }
-    </style>
-
   </head>
   <body>
 
