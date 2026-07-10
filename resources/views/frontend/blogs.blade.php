@@ -317,6 +317,23 @@
                     fetchBlogs();
                 });
             }
+
+            // Pick up a pending filter set by the detail page (kept out of the URL for SEO).
+            try {
+                var pending = sessionStorage.getItem('pendingBlogFilter');
+                if (pending) {
+                    sessionStorage.removeItem('pendingBlogFilter');
+                    var f = JSON.parse(pending) || {};
+                    var haveFilter = false;
+                    if (f.search)   { state.search   = f.search;   haveFilter = true; }
+                    if (f.category) { state.category = f.category; state.tag = ''; state.search = ''; haveFilter = true; }
+                    if (f.tag)      { state.tag      = f.tag;      state.category = ''; state.search = ''; haveFilter = true; }
+                    if (haveFilter) {
+                        if ($searchInput) $searchInput.value = state.search;
+                        fetchBlogs();
+                    }
+                }
+            } catch (e) { /* sessionStorage unavailable; ignore */ }
         })();
     </script>
 

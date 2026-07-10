@@ -64,7 +64,7 @@
                                                     <h5 class="title">Tags:</h5>
                                                     <ul class="list-wrap">
                                                         @foreach($listing->tags as $tag)
-                                                            <li><a href="#">{{ $tag->tag }}</a></li>
+                                                            <li><a href="{{ route('frontend.blogs') }}" class="js-detail-filter" data-tag="{{ $tag->tag }}">{{ $tag->tag }}</a></li>
                                                         @endforeach
                                                     </ul>
                                                 </div>
@@ -124,8 +124,8 @@
                             <div class="blog-widget">
                                 <h4 class="widget-title">Search</h4>
                                 <div class="sidebar-search-form">
-                                    <form action="#">
-                                        <input type="text" placeholder="Type Keywords. . .">
+                                    <form id="js-detail-search-form" action="{{ route('frontend.blogs') }}" method="GET">
+                                        <input type="text" id="js-detail-search-input" placeholder="Type Keywords. . .">
                                         <button type="submit"><i class="flaticon-loupe"></i></button>
                                     </form>
                                 </div>
@@ -136,7 +136,7 @@
                                     <div class="sidebar-cat-list">
                                         <ul class="list-wrap">
                                             @foreach($categories as $category)
-                                                <li><a href="#">{{ $category->name }} ({{ str_pad($category->listings_count, 2, '0', STR_PAD_LEFT) }})</a></li>
+                                                <li><a href="{{ route('frontend.blogs') }}" class="js-detail-filter" data-category="{{ $category->slug }}">{{ $category->name }} ({{ str_pad($category->listings_count, 2, '0', STR_PAD_LEFT) }})</a></li>
                                             @endforeach
                                         </ul>
                                     </div>
@@ -173,7 +173,7 @@
                                     <div class="sidebar-tag-list">
                                         <ul class="list-wrap">
                                             @foreach($tags as $tag)
-                                                <li><a href="#">{{ $tag }}</a></li>
+                                                <li><a href="{{ route('frontend.blogs') }}" class="js-detail-filter" data-tag="{{ $tag }}">{{ $tag }}</a></li>
                                             @endforeach
                                         </ul>
                                     </div>
@@ -193,5 +193,38 @@
 
     @include('components.frontend.footer')
     @include('components.frontend.main-js')
+
+    <script>
+        (function () {
+            // Filter clicks: stash the intent in sessionStorage, then let the anchor navigate to /blog.
+            // The listing page reads this on load and applies the filter without ever touching the URL.
+            document.addEventListener('click', function (e) {
+                var el = e.target.closest('.js-detail-filter');
+                if (!el) return;
+                var filter = {};
+                if (el.dataset.category) { filter.category = el.dataset.category; }
+                if (el.dataset.tag)      { filter.tag      = el.dataset.tag;      }
+                if (Object.keys(filter).length) {
+                    try { sessionStorage.setItem('pendingBlogFilter', JSON.stringify(filter)); } catch (err) {}
+                }
+                // href already points to /blog — allow default navigation.
+            });
+
+            // Search form: same treatment, but intercept to prevent ?search=... appearing in the URL.
+            var $form  = document.getElementById('js-detail-search-form');
+            var $input = document.getElementById('js-detail-search-input');
+            if ($form && $input) {
+                $form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var v = ($input.value || '').trim();
+                    try {
+                        if (v) sessionStorage.setItem('pendingBlogFilter', JSON.stringify({ search: v }));
+                        else   sessionStorage.removeItem('pendingBlogFilter');
+                    } catch (err) {}
+                    window.location.href = @json(route('frontend.blogs'));
+                });
+            }
+        })();
+    </script>
   </body>
 </html>
