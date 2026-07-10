@@ -3,29 +3,6 @@
 
 <head>
     @include('components.backend.head')
-    <style>
-        .section-heading {
-            background: linear-gradient(90deg, #eef2ff 0%, #f8fafc 100%);
-            padding: 10px 16px;
-            margin: -1rem -1rem 1rem -1rem;
-            border-bottom: 2px solid #6366f1;
-            border-top-left-radius: 0.375rem;
-            border-top-right-radius: 0.375rem;
-        }
-        .section-heading h5,
-        .section-heading h6 {
-            margin: 0 !important;
-            font-weight: 700;
-            color: #1e3a8a;
-            font-size: 1.05rem;
-        }
-        .section-subheading {
-            font-weight: 600;
-            color: #334155;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed #cbd5e1;
-        }
-    </style>
 </head>
 
 <body>

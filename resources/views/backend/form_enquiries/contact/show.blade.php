@@ -2,14 +2,6 @@
 <html lang="en">
 <head>
     @include('components.backend.head')
-    <style>
-        .enquiry-detail-row { padding: 12px 0; border-bottom: 1px solid #eef2f7; }
-        .enquiry-detail-row:last-child { border-bottom: 0; }
-        .enquiry-detail-label { color: #6b7280; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
-        .enquiry-detail-value { color: #111827; font-size: 1rem; margin-top: 2px; word-break: break-word; }
-        .enquiry-message { white-space: pre-wrap; }
-        .meta-badge { background: #eef2ff; color: #1e3a8a; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
-    </style>
 </head>
 <body>
     @include('components.backend.header')
