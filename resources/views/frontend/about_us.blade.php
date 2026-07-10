@@ -171,7 +171,7 @@
                         @if($about && !empty($about->contact_description))
                             {!! $about->contact_description !!}
                         @endif
-                        <a href="{{ url('login') }}" class="btn">Book An Appointment<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}" alt=""
+                        <a href="{{ route('frontend.user_login') }}" class="btn">Book An Appointment<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}" alt=""
                                 class="injectable"></a>
                     </div>
 
