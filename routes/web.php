@@ -33,6 +33,7 @@ use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
 use App\Http\Controllers\Backend\ContactEnquiryController;
 use App\Http\Controllers\Backend\JobApplicationController;
+use App\Http\Controllers\Backend\BlogCommentController;
 
 
 //frontend controller
@@ -170,6 +171,11 @@ use App\Http\Controllers\Frontend\HomeController;
             Route::resource('manage-blogs-listing', BlogListingController::class);
             Route::resource('manage-blog-details', BlogDetailsController::class);
 
+            // Blog comments — read-only + toggle-active + soft-delete
+            Route::get('manage-blog-comments',                  [BlogCommentController::class, 'index'])->name('manage-blog-comments.index');
+            Route::patch('manage-blog-comments/{id}/toggle',    [BlogCommentController::class, 'toggleActive'])->whereNumber('id')->name('manage-blog-comments.toggle');
+            Route::delete('manage-blog-comments/{id}',          [BlogCommentController::class, 'destroy'])->whereNumber('id')->name('manage-blog-comments.destroy');
+
             // Form Enquiries (read-only: user submissions kept intact, no delete).
             Route::get('manage-contact-enquiries',      [ContactEnquiryController::class, 'index'])->name('manage-contact-enquiries.index');
             Route::get('manage-contact-enquiries/{id}', [ContactEnquiryController::class, 'show'])->whereNumber('id')->name('manage-contact-enquiries.show');
@@ -208,4 +214,9 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');
     Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');
     Route::get('/blog/{slug}', [HomeController::class, 'blog_details'])->name('frontend.blog_details');
+
+    // Blog comment submission — rate-limited to 3 requests per 10 min per IP to slow down spam.
+    Route::post('/blog/{slug}/comment', [HomeController::class, 'blog_comment_store'])
+        ->middleware('throttle:3,10')
+        ->name('frontend.blog_comment.store');
 

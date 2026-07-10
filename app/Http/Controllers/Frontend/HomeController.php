@@ -23,6 +23,7 @@ use App\Models\MasterFacility;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
 use App\Models\BlogCategory;
+use App\Models\BlogComment;
 use App\Models\BlogListing;
 use App\Models\BlogListingSetting;
 use App\Models\BlogListingTag;
@@ -237,8 +238,9 @@ class HomeController extends Controller
             ->where('slug', $slug)
             ->with([
                 'category',
-                'tags'   => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
-                'detail' => fn ($q) => $q->with(['socialLinks' => fn ($s) => $s->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id')]),
+                'tags'     => fn ($q) => $q->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id'),
+                'detail'   => fn ($q) => $q->with(['socialLinks' => fn ($s) => $s->whereNull('deleted_by')->orderBy('sort_order')->orderBy('id')]),
+                'comments' => fn ($q) => $q->whereNull('deleted_by')->where('is_active', true)->orderByDesc('created_at'),
             ])
             ->firstOrFail();
 
@@ -263,6 +265,57 @@ class HomeController extends Controller
             ->pluck('tag');
 
         return view('frontend.blog_details', compact('listing', 'settings', 'recentPosts', 'categories', 'tags'));
+    }
+
+    public function blog_comment_store(Request $request, string $slug)
+    {
+        $isAjax = $request->ajax() || $request->wantsJson();
+
+        // Honeypot: silently succeed to fool bots without polluting the DB.
+        if (! empty($request->input('website_url'))) {
+            return $isAjax
+                ? response()->json(['success' => true, 'silent' => true])
+                : redirect()->route('frontend.blog_details', $slug);
+        }
+
+        $listing = BlogListing::whereNull('deleted_by')->where('slug', $slug)->firstOrFail();
+
+        Validator::make($request->all(), [
+            'name'    => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s.\'-]+$/'],
+            'email'   => ['required', 'email', 'max:150', 'regex:/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/'],
+            'website' => ['nullable', 'url', 'max:255'],
+            'comment' => ['required', 'string', 'min:3', 'max:5000'],
+        ], [
+            'name.regex'    => 'Name cannot contain numbers or special characters.',
+            'email.regex'   => 'Please enter a valid email address.',
+            'comment.min'   => 'Comment must be at least 3 characters.',
+        ])->validate();
+
+        $comment = BlogComment::create([
+            'blog_listing_id' => $listing->id,
+            'name'            => $request->name,
+            'email'           => $request->email,
+            'website'         => $request->website,
+            'comment'         => $request->comment,
+            'is_active'       => true,
+            'ip_address'      => $request->ip(),
+            'user_agent'      => (string) $request->userAgent(),
+            'created_at'      => Carbon::now(),
+        ]);
+
+        if ($isAjax) {
+            $totalComments = $listing->comments()->whereNull('deleted_by')->where('is_active', true)->count();
+            return response()->json([
+                'success' => true,
+                'count'   => $totalComments,
+                'html'    => view('frontend.partials.blog_comment', ['c' => $comment])->render(),
+            ]);
+        }
+
+        return redirect()
+            ->route('frontend.blog_details', $slug)
+            ->with('comment_posted', true)
+            ->withFragment('comments');
     }
 
     public function contact_us()

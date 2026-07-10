@@ -49,4 +49,9 @@ class BlogListing extends Model
     {
         return $this->hasOne(BlogDetails::class, 'blog_listing_id')->whereNull('deleted_by');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(BlogComment::class, 'blog_listing_id');
+    }
 }
