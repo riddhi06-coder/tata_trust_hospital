@@ -32,6 +32,7 @@ use App\Mail\ContactEnquiryMail;
 use App\Mail\JobApplicationMail;
 use App\Models\AppointmentEnquiry;
 use App\Models\AppointmentOtp;
+use App\Models\AppointmentStatus;
 use App\Models\AppointmentUser;
 use App\Models\ContactDetails;
 use App\Models\ContactEnquiry;
@@ -745,6 +746,12 @@ class HomeController extends Controller
             'pincode' => $request->pincode,
         ]);
 
+        // Assign the default status (e.g. "Pending") so the admin module has a
+        // starting point for every new booking.
+        $defaultStatusId = AppointmentStatus::whereNull('deleted_by')
+            ->where('is_default', true)
+            ->value('id');
+
         $enquiry = AppointmentEnquiry::create([
             'appointment_user_id' => $user->id,
             'owner_name'          => $request->name,
@@ -759,6 +766,7 @@ class HomeController extends Controller
             'consult_type'        => $request->consult_type,
             'reason'              => $request->reason,
             'appointment_date'    => $request->appointment_date,
+            'appointment_status_id' => $defaultStatusId,
         ]);
 
         // Fire SMS + emails. Failures are logged but never block the response.

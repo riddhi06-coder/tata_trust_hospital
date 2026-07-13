@@ -39,6 +39,7 @@ class ActivityLogger
         'MasterFacility'      => 'Facility',
         'FacilitySetting'     => 'Facility Settings',
         'AboutUs'             => 'About Us',
+        'AppointmentStatus'   => 'Appointment Status',
         'Role'                => 'Role',
         'Permission'          => 'Permission',
         'User'                => 'User',

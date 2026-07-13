@@ -83,6 +83,25 @@
                   </ul>
                 </li>
 
+                <!-- Appointments -->
+                <li class="sidebar-list {{ request()->routeIs('manage-appointment-users.*', 'manage-appointments.*', 'manage-appointment-statuses.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-calendar') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-calendar') }}"></use>
+                    </svg>
+                    <span>Appointments</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('manage-appointment-users.index') }}" class="{{ request()->routeIs('manage-appointment-users.*') ? 'active' : '' }}">Appointment Users</a></li>
+                    <li><a href="{{ route('manage-appointments.index') }}" class="{{ request()->routeIs('manage-appointments.*') ? 'active' : '' }}">Appointments</a></li>
+                    <li><a href="{{ route('manage-appointment-statuses.index') }}" class="{{ request()->routeIs('manage-appointment-statuses.*') ? 'active' : '' }}">Manage Statuses</a></li>
+                  </ul>
+                </li>
+
                 <!-- Home slider banner Details -->
                 <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-services.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>

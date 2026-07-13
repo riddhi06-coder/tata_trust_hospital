@@ -32,6 +32,9 @@ use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
 use App\Http\Controllers\Backend\AppointmentEnquiryController;
+use App\Http\Controllers\Backend\AppointmentUserController;
+use App\Http\Controllers\Backend\AppointmentController;
+use App\Http\Controllers\Backend\AppointmentStatusController;
 use App\Http\Controllers\Backend\ContactEnquiryController;
 use App\Http\Controllers\Backend\JobApplicationController;
 use App\Http\Controllers\Backend\BlogCommentController;
@@ -186,6 +189,21 @@ use App\Http\Controllers\Frontend\HomeController;
 
             Route::get('manage-appointment-enquiries',      [AppointmentEnquiryController::class, 'index'])->name('manage-appointment-enquiries.index');
             Route::get('manage-appointment-enquiries/{id}', [AppointmentEnquiryController::class, 'show'])->whereNumber('id')->name('manage-appointment-enquiries.show');
+
+            // ---- Appointments module ----
+            // Appointment Users (clients) — read-only list + full per-client history
+            Route::get('manage-appointment-users',      [AppointmentUserController::class, 'index'])->name('manage-appointment-users.index');
+            Route::get('manage-appointment-users/{id}', [AppointmentUserController::class, 'show'])->whereNumber('id')->name('manage-appointment-users.show');
+
+            // Appointments — filters, status management, CSV export
+            Route::get('manage-appointments',                 [AppointmentController::class, 'index'])->name('manage-appointments.index');
+            Route::post('manage-appointments/filter',         [AppointmentController::class, 'filter'])->name('manage-appointments.filter');
+            Route::get('manage-appointments/export',          [AppointmentController::class, 'export'])->name('manage-appointments.export');
+            Route::get('manage-appointments/{id}',            [AppointmentController::class, 'show'])->whereNumber('id')->name('manage-appointments.show');
+            Route::post('manage-appointments/{id}/status',    [AppointmentController::class, 'updateStatus'])->whereNumber('id')->name('manage-appointments.update-status');
+
+            // Appointment Status master (dropdown source)
+            Route::resource('manage-appointment-statuses', AppointmentStatusController::class);
 
             // Contact Us
             Route::resource('manage-contact-details', ContactDetailsController::class);
