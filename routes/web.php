@@ -36,6 +36,7 @@ use App\Http\Controllers\Backend\AppointmentEnquiryController;
 use App\Http\Controllers\Backend\AppointmentUserController;
 use App\Http\Controllers\Backend\AppointmentController;
 use App\Http\Controllers\Backend\AppointmentStatusController;
+use App\Http\Controllers\Backend\ReportController;
 use App\Http\Controllers\Backend\ContactEnquiryController;
 use App\Http\Controllers\Backend\JobApplicationController;
 use App\Http\Controllers\Backend\BlogCommentController;
@@ -210,6 +211,28 @@ use App\Http\Controllers\Frontend\HomeController;
 
             // Appointment Status master (dropdown source)
             Route::resource('manage-appointment-statuses', AppointmentStatusController::class);
+
+            // ---- Reports (CSV export; filters are AJAX POST) ----
+            // Landing lives at /reports/overview so its URL isn't a prefix of the
+            // other report URLs (the theme's active-link JS matches by substring).
+            Route::get('reports/overview', [ReportController::class, 'index'])->name('admin.reports.index');
+            Route::get('reports', fn () => redirect()->route('admin.reports.index'));
+
+            Route::get ('reports/appointments',        [ReportController::class, 'appointments'])->name('admin.reports.appointments');
+            Route::post('reports/appointments/filter', [ReportController::class, 'appointmentsFilter'])->name('admin.reports.appointments.filter');
+            Route::get ('reports/appointments/export', [ReportController::class, 'appointmentsExport'])->name('admin.reports.appointments.export');
+
+            Route::get ('reports/operational',        [ReportController::class, 'operational'])->name('admin.reports.operational');
+            Route::post('reports/operational/filter', [ReportController::class, 'operationalFilter'])->name('admin.reports.operational.filter');
+            Route::get ('reports/operational/export', [ReportController::class, 'operationalExport'])->name('admin.reports.operational.export');
+
+            Route::get ('reports/clients',        [ReportController::class, 'clients'])->name('admin.reports.clients');
+            Route::post('reports/clients/filter', [ReportController::class, 'clientsFilter'])->name('admin.reports.clients.filter');
+            Route::get ('reports/clients/export', [ReportController::class, 'clientsExport'])->name('admin.reports.clients.export');
+
+            Route::get ('reports/communication',        [ReportController::class, 'communication'])->name('admin.reports.communication');
+            Route::post('reports/communication/filter', [ReportController::class, 'communicationFilter'])->name('admin.reports.communication.filter');
+            Route::get ('reports/communication/export', [ReportController::class, 'communicationExport'])->name('admin.reports.communication.export');
 
             // Contact Us
             Route::resource('manage-contact-details', ContactDetailsController::class);

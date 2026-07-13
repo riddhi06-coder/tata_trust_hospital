@@ -102,6 +102,29 @@
                   </ul>
                 </li>
 
+                <!-- Reports -->
+                <li class="sidebar-list {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-charts') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#fill-charts') }}"></use>
+                    </svg>
+                    <span>Reports</span>
+                  </a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{{ route('admin.reports.index') }}" class="{{ request()->routeIs('admin.reports.index') ? 'active' : '' }}">Overview</a></li>
+                    <li><a href="{{ route('admin.reports.appointments') }}" class="{{ request()->routeIs('admin.reports.appointments') ? 'active' : '' }}">Appointments</a></li>
+                    <li><a href="{{ route('admin.reports.operational') }}" class="{{ request()->routeIs('admin.reports.operational') ? 'active' : '' }}">Operational</a></li>
+                    <li><a href="{{ route('admin.reports.clients') }}" class="{{ request()->routeIs('admin.reports.clients') ? 'active' : '' }}">Clients</a></li>
+                    @if(auth()->user()?->isSuperAdmin())
+                        <li><a href="{{ route('admin.reports.communication') }}" class="{{ request()->routeIs('admin.reports.communication') ? 'active' : '' }}">Communication</a></li>
+                    @endif
+                  </ul>
+                </li>
+
                 <!-- Home slider banner Details -->
                 <li class="sidebar-list {{ request()->routeIs('banner-details.index','short-introduction.index','home-services.index','manage-facilities.index','home-team.index','manage-testimonials.index','manage-board.index','manage-follow-us.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
