@@ -40,6 +40,7 @@ use App\Models\JobApplication;
 use App\Models\JobRole;
 use App\Models\JoinPage;
 use App\Services\MessageIndiaSms;
+use App\Support\CommunicationLogger;
 use App\Models\Specialities;
 use App\Models\SpecialitiesDetails;
 use App\Models\SpecialitySetting;
@@ -471,8 +472,8 @@ class HomeController extends Controller
         }
 
         // Admin/HR mail — includes candidate resume + JD reference.
-        try {
-            if ($adminTo) {
+        if ($adminTo) {
+            try {
                 Mail::to($adminTo)->send(new JobApplicationMail(
                     $application,
                     'New Job Application',
@@ -486,9 +487,18 @@ class HomeController extends Controller
                     $jdPath,
                     $jdName,
                 ));
+                CommunicationLogger::log([
+                    'channel' => 'email', 'type' => 'job_application_admin', 'recipient' => $adminTo,
+                    'subject' => 'New Job Application', 'message' => 'Admin notification for application to '.$application->applying_for.' by '.$application->full_name,
+                    'status' => 'sent', 'related' => $application,
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('Job application admin mail failed: '.$e->getMessage(), ['application_id' => $application->id]);
+                CommunicationLogger::log([
+                    'channel' => 'email', 'type' => 'job_application_admin', 'recipient' => $adminTo,
+                    'subject' => 'New Job Application', 'status' => 'failed', 'error' => $e->getMessage(), 'related' => $application,
+                ]);
             }
-        } catch (\Throwable $e) {
-            Log::error('Job application admin mail failed: '.$e->getMessage(), ['application_id' => $application->id]);
         }
 
         // Applicant confirmation — includes JD, no resume attachment.
@@ -505,8 +515,18 @@ class HomeController extends Controller
                 $jdPath,
                 $jdName,
             ));
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'job_application_user', 'recipient' => $application->email,
+                'recipient_name' => $application->full_name, 'subject' => 'Application Received',
+                'message' => 'Acknowledgement email for '.$application->applying_for.' application', 'status' => 'sent', 'related' => $application,
+            ]);
         } catch (\Throwable $e) {
             Log::error('Job application user mail failed: '.$e->getMessage(), ['application_id' => $application->id]);
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'job_application_user', 'recipient' => $application->email,
+                'recipient_name' => $application->full_name, 'subject' => 'Application Received',
+                'status' => 'failed', 'error' => $e->getMessage(), 'related' => $application,
+            ]);
         }
     }
 
@@ -516,8 +536,8 @@ class HomeController extends Controller
         $hasLogo = file_exists(public_path('frontend/assets/img/logo/tata-trust-logo.webp'));
 
         // Admin notification.
-        try {
-            if ($adminTo) {
+        if ($adminTo) {
+            try {
                 Mail::to($adminTo)->send(new ContactEnquiryMail(
                     $enquiry,
                     'New Contact Enquiry',
@@ -525,9 +545,18 @@ class HomeController extends Controller
                     '',
                     $hasLogo
                 ));
+                CommunicationLogger::log([
+                    'channel' => 'email', 'type' => 'contact_enquiry_admin', 'recipient' => $adminTo,
+                    'subject' => 'New Contact Enquiry', 'message' => 'Admin notification for contact enquiry from '.$enquiry->full_name,
+                    'status' => 'sent', 'related' => $enquiry,
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('Contact enquiry admin mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+                CommunicationLogger::log([
+                    'channel' => 'email', 'type' => 'contact_enquiry_admin', 'recipient' => $adminTo,
+                    'subject' => 'New Contact Enquiry', 'status' => 'failed', 'error' => $e->getMessage(), 'related' => $enquiry,
+                ]);
             }
-        } catch (\Throwable $e) {
-            Log::error('Contact enquiry admin mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
         }
 
         // User confirmation.
@@ -539,8 +568,18 @@ class HomeController extends Controller
                 'This is an automated confirmation. Our team will contact you shortly.',
                 $hasLogo
             ));
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'contact_enquiry_user', 'recipient' => $enquiry->email,
+                'recipient_name' => $enquiry->full_name, 'subject' => 'Thanks for reaching out',
+                'message' => 'Acknowledgement email for contact enquiry', 'status' => 'sent', 'related' => $enquiry,
+            ]);
         } catch (\Throwable $e) {
             Log::error('Contact enquiry user mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'contact_enquiry_user', 'recipient' => $enquiry->email,
+                'recipient_name' => $enquiry->full_name, 'subject' => 'Thanks for reaching out',
+                'status' => 'failed', 'error' => $e->getMessage(), 'related' => $enquiry,
+            ]);
         }
     }
 
@@ -787,9 +826,15 @@ class HomeController extends Controller
     {
         $formattedDate = $enquiry->appointment_date->format('d M Y');
 
-        // Tentative-booking SMS.
+        $smsContext = [
+            'recipient_name'      => $enquiry->owner_name,
+            'related'             => $enquiry,
+            'appointment_user_id' => $enquiry->appointment_user_id,
+        ];
+
+        // Tentative-booking SMS (the service logs the attempt itself).
         try {
-            $sms->sendAppointmentConfirmation($enquiry->mobile, $formattedDate);
+            $sms->sendAppointmentConfirmation($enquiry->mobile, $formattedDate, $smsContext);
         } catch (\Throwable $e) {
             Log::error('Appointment SMS failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
         }
@@ -807,13 +852,25 @@ class HomeController extends Controller
                 'Please note: this is a tentative booking. Our Customer Care Department will call you to confirm the date and time.',
                 $hasLogo
             ));
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'appointment_owner', 'recipient' => $enquiry->email,
+                'recipient_name' => $enquiry->owner_name, 'subject' => 'Appointment Request Received - SAHM',
+                'message' => 'Owner acknowledgement for appointment on '.$formattedDate, 'status' => 'sent',
+                'related' => $enquiry, 'appointment_user_id' => $enquiry->appointment_user_id,
+            ]);
         } catch (\Throwable $e) {
             Log::error('Appointment owner mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'appointment_owner', 'recipient' => $enquiry->email,
+                'recipient_name' => $enquiry->owner_name, 'subject' => 'Appointment Request Received - SAHM',
+                'status' => 'failed', 'error' => $e->getMessage(),
+                'related' => $enquiry, 'appointment_user_id' => $enquiry->appointment_user_id,
+            ]);
         }
 
         // Admin notification.
-        try {
-            if ($adminTo) {
+        if ($adminTo) {
+            try {
                 Mail::to($adminTo)
                     ->send((new AppointmentEnquiryMail(
                         $enquiry,
@@ -823,9 +880,21 @@ class HomeController extends Controller
                         '',
                         $hasLogo
                     ))->replyTo($enquiry->email, $enquiry->owner_name));
+                CommunicationLogger::log([
+                    'channel' => 'email', 'type' => 'appointment_admin', 'recipient' => $adminTo,
+                    'subject' => 'New Appointment Enquiry - '.$enquiry->owner_name,
+                    'message' => 'Admin notification for appointment on '.$formattedDate, 'status' => 'sent',
+                    'related' => $enquiry, 'appointment_user_id' => $enquiry->appointment_user_id,
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('Appointment admin mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
+                CommunicationLogger::log([
+                    'channel' => 'email', 'type' => 'appointment_admin', 'recipient' => $adminTo,
+                    'subject' => 'New Appointment Enquiry - '.$enquiry->owner_name,
+                    'status' => 'failed', 'error' => $e->getMessage(),
+                    'related' => $enquiry, 'appointment_user_id' => $enquiry->appointment_user_id,
+                ]);
             }
-        } catch (\Throwable $e) {
-            Log::error('Appointment admin mail failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
         }
     }
 

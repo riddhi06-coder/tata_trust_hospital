@@ -143,11 +143,17 @@ class AppointmentController extends Controller
         $appointment->update($updateData);
 
         // Fire the transactional SMS configured on this status. Never blocks the response.
+        $smsContext = [
+            'recipient_name'      => $appointment->owner_name,
+            'related'             => $appointment,
+            'appointment_user_id' => $appointment->appointment_user_id,
+            'triggered_by'        => Auth::id(),
+        ];
         try {
             if ($toStatus && $toStatus->sms_trigger === 'reschedule' && $newFmt) {
-                $sms->sendAppointmentReschedule($appointment->mobile, $oldFmt, $newFmt);
+                $sms->sendAppointmentReschedule($appointment->mobile, $oldFmt, $newFmt, $smsContext);
             } elseif ($toStatus && $toStatus->sms_trigger === 'cancellation') {
-                $sms->sendAppointmentCancellation($appointment->mobile, $currentDate ? $oldFmt : 'your scheduled date');
+                $sms->sendAppointmentCancellation($appointment->mobile, $currentDate ? $oldFmt : 'your scheduled date', $smsContext);
             }
         } catch (\Throwable $e) {
             Log::error('Appointment status SMS failed: '.$e->getMessage(), ['enquiry_id' => $appointment->id]);

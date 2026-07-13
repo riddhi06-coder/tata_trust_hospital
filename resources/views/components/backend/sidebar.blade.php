@@ -326,6 +326,19 @@
                     <span>Activity Log</span>
                   </a>
                 </li>
+
+                <li class="sidebar-list {{ request()->routeIs('admin.communication-logs.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('admin.communication-logs.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-email') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-email') }}"></use>
+                    </svg>
+                    <span>Communication Logs</span>
+                  </a>
+                </li>
                 @endif
 
               

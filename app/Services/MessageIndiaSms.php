@@ -2,148 +2,64 @@
 
 namespace App\Services;
 
+use App\Support\CommunicationLogger;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Thin wrapper around the MessageIndia SMS API.
- * Used exclusively for OTP delivery on the appointment login flow.
+ * Every attempt (success or failure) is recorded in the communication log.
+ *
+ * The optional $context array carries extra logging metadata:
+ *   - recipient_name       (string)
+ *   - related              (Eloquent model — sets related_type/related_id)
+ *   - appointment_user_id  (int)
+ *   - triggered_by         (int — admin user id; defaults to Auth::id())
  */
 class MessageIndiaSms
 {
     private string $endpoint = 'http://sms.messageindia.in/v2/sendSMS';
 
-    /**
-     * Send an OTP to the given 10-digit mobile number.
-     * Returns true on API success, false otherwise (error is logged).
-     */
-    public function sendOtp(string $mobile, string $otp): bool
+    public function sendOtp(string $mobile, string $otp, array $context = []): bool
     {
-        $cfg = config('services.messageindia');
-
-        // Fail-safe: if creds aren't configured, log locally rather than error out.
-        if (empty($cfg['username']) || empty($cfg['api_key'])) {
-            Log::warning('MessageIndia SMS credentials missing — OTP not sent', [
-                'mobile' => $mobile,
-                'otp'    => $otp,
-            ]);
-            return false;
-        }
-
         $message = "{$otp} is your OTP for Small Animal Hospital Mumbai (SAHM) appointment booking. Thank you.";
 
-        try {
-            $response = Http::timeout(15)
-                ->withoutVerifying()
-                ->get($this->endpoint, [
-                    'username'   => $cfg['username'],
-                    'apikey'     => $cfg['api_key'],
-                    'sendername' => $cfg['sender_name'],
-                    'smstype'    => 'TRANS',
-                    'numbers'    => $mobile,
-                    'message'    => $message,
-                    'peid'       => $cfg['pe_id'],
-                    'templateid' => $cfg['template_id'],
-                ]);
-
-            if (! $response->successful()) {
-                Log::error('MessageIndia SMS request failed', [
-                    'mobile' => $mobile,
-                    'status' => $response->status(),
-                    'body'   => $response->body(),
-                ]);
-                return false;
-            }
-
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('MessageIndia SMS exception: '.$e->getMessage(), ['mobile' => $mobile]);
-            return false;
-        }
+        return $this->send($mobile, $message, config('services.messageindia.template_id'), 'otp', $context);
     }
 
-    /**
-     * Send the tentative-appointment confirmation SMS.
-     * $formattedDate must already be human-friendly (e.g. "12 Jul 2026").
-     */
-    public function sendAppointmentConfirmation(string $mobile, string $formattedDate): bool
+    public function sendAppointmentConfirmation(string $mobile, string $formattedDate, array $context = []): bool
     {
-        $cfg = config('services.messageindia');
-
-        if (empty($cfg['username']) || empty($cfg['api_key'])) {
-            Log::warning('MessageIndia SMS credentials missing — appointment confirmation not sent', [
-                'mobile' => $mobile,
-                'date'   => $formattedDate,
-            ]);
-            return false;
-        }
-
         $message = "Your pet's tentative appointment with Small Animal Hospital Mumbai (SAHM) is scheduled for {$formattedDate}. Please note that this is a tentative booking. You will receive a confirmation call from our Customer Care Department shortly. For any assistance, please contact us at 022 65383538.";
 
-        try {
-            $response = Http::timeout(15)
-                ->withoutVerifying()
-                ->get($this->endpoint, [
-                    'username'   => $cfg['username'],
-                    'apikey'     => $cfg['api_key'],
-                    'sendername' => $cfg['sender_name'],
-                    'smstype'    => 'TRANS',
-                    'numbers'    => $mobile,
-                    'message'    => $message,
-                    'peid'       => $cfg['pe_id'],
-                    'templateid' => $cfg['appointment_template_id'] ?? '1707177744709776264',
-                ]);
-
-            if (! $response->successful()) {
-                Log::error('MessageIndia appointment SMS failed', [
-                    'mobile' => $mobile,
-                    'status' => $response->status(),
-                    'body'   => $response->body(),
-                ]);
-                return false;
-            }
-
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('MessageIndia appointment SMS exception: '.$e->getMessage(), ['mobile' => $mobile]);
-            return false;
-        }
+        return $this->send($mobile, $message, config('services.messageindia.appointment_template_id', '1707177744709776264'), 'appointment_confirmation', $context);
     }
 
-    /**
-     * Notify the owner that their appointment has been cancelled.
-     * $formattedDate must already be human-friendly (e.g. "12 Jul 2026").
-     */
-    public function sendAppointmentCancellation(string $mobile, string $formattedDate): bool
+    public function sendAppointmentCancellation(string $mobile, string $formattedDate, array $context = []): bool
     {
         $message = "Your pet's appointment at Small Animal Hospital Mumbai (SAHM) for {$formattedDate} has been cancelled. Please contact us to reschedule.";
 
-        return $this->send($mobile, $message, config('services.messageindia.cancellation_template_id', '1707172283922616212'));
+        return $this->send($mobile, $message, config('services.messageindia.cancellation_template_id', '1707172283922616212'), 'appointment_cancellation', $context);
     }
 
-    /**
-     * Notify the owner that their appointment has been rescheduled.
-     * Both dates must already be human-friendly (e.g. "12 Jul 2026").
-     */
-    public function sendAppointmentReschedule(string $mobile, string $oldDate, string $newDate): bool
+    public function sendAppointmentReschedule(string $mobile, string $oldDate, string $newDate, array $context = []): bool
     {
         $message = "Your pet's appointment with Small Animal Hospital Mumbai (SAHM) has been rescheduled from {$oldDate} to {$newDate}.";
 
-        return $this->send($mobile, $message, config('services.messageindia.reschedule_template_id', '1707172283932407122'));
+        return $this->send($mobile, $message, config('services.messageindia.reschedule_template_id', '1707172283932407122'), 'appointment_reschedule', $context);
     }
 
     /**
-     * Shared transactional-SMS sender. Returns true on API success, false otherwise.
+     * Shared transactional-SMS sender. Logs every attempt and returns
+     * true on API success, false otherwise.
      */
-    private function send(string $mobile, string $message, string $templateId): bool
+    private function send(string $mobile, string $message, ?string $templateId, string $type, array $context = []): bool
     {
         $cfg = config('services.messageindia');
 
+        // Fail-safe: if creds aren't configured, log locally + to the DB rather than error out.
         if (empty($cfg['username']) || empty($cfg['api_key'])) {
-            Log::warning('MessageIndia SMS credentials missing — SMS not sent', [
-                'mobile'   => $mobile,
-                'template' => $templateId,
-            ]);
+            Log::warning('MessageIndia SMS credentials missing — SMS not sent', ['mobile' => $mobile, 'type' => $type]);
+            $this->record($mobile, $message, $type, 'failed', 'SMS gateway credentials are not configured.', null, $context);
             return false;
         }
 
@@ -162,19 +78,35 @@ class MessageIndiaSms
                 ]);
 
             if (! $response->successful()) {
-                Log::error('MessageIndia SMS failed', [
-                    'mobile'   => $mobile,
-                    'template' => $templateId,
-                    'status'   => $response->status(),
-                    'body'     => $response->body(),
-                ]);
+                Log::error('MessageIndia SMS failed', ['mobile' => $mobile, 'type' => $type, 'status' => $response->status()]);
+                $this->record($mobile, $message, $type, 'failed', 'Gateway responded with HTTP '.$response->status(), $response->body(), $context);
                 return false;
             }
 
+            $this->record($mobile, $message, $type, 'sent', null, $response->body(), $context);
             return true;
         } catch (\Throwable $e) {
-            Log::error('MessageIndia SMS exception: '.$e->getMessage(), ['mobile' => $mobile]);
+            Log::error('MessageIndia SMS exception: '.$e->getMessage(), ['mobile' => $mobile, 'type' => $type]);
+            $this->record($mobile, $message, $type, 'failed', $e->getMessage(), null, $context);
             return false;
         }
+    }
+
+    /** Persist one SMS attempt to the communication log. */
+    private function record(string $mobile, string $message, string $type, string $status, ?string $error, ?string $providerResponse, array $context): void
+    {
+        CommunicationLogger::log([
+            'channel'             => 'sms',
+            'type'                => $type,
+            'recipient'           => $mobile,
+            'recipient_name'      => $context['recipient_name'] ?? null,
+            'message'             => $message,
+            'status'              => $status,
+            'error'               => $error,
+            'provider_response'   => $providerResponse,
+            'related'             => $context['related'] ?? null,
+            'appointment_user_id' => $context['appointment_user_id'] ?? null,
+            'triggered_by'        => $context['triggered_by'] ?? null,
+        ]);
     }
 }

@@ -24,6 +24,7 @@ use App\Http\Controllers\Backend\FAQController;
 use App\Http\Controllers\Backend\MasterFacilitiesController;
 use App\Http\Controllers\Backend\AboutUsController;
 use App\Http\Controllers\Backend\ActivityLogController;
+use App\Http\Controllers\Backend\CommunicationLogController;
 use App\Http\Controllers\Backend\JoinPageController;
 use App\Http\Controllers\Backend\JobRoleController;
 use App\Http\Controllers\Backend\ContactDetailsController;
@@ -113,6 +114,10 @@ use App\Http\Controllers\Frontend\HomeController;
         // ---- Activity Log (Super Admin only; gated inside the controller) ----
         Route::get('activity-logs',      [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
         Route::get('activity-logs/{id}', [ActivityLogController::class, 'show'])->whereNumber('id')->name('admin.activity-logs.show');
+
+        // ---- Communication Log (mail/SMS delivery record; Super Admin only) ----
+        Route::get('communication-logs',      [CommunicationLogController::class, 'index'])->name('admin.communication-logs.index');
+        Route::get('communication-logs/{id}', [CommunicationLogController::class, 'show'])->whereNumber('id')->name('admin.communication-logs.show');
     });
 
 
