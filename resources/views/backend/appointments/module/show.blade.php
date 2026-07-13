@@ -33,7 +33,7 @@
                             @if($appointment->status)
                                 <span class="status-badge" style="background:{{ $appointment->status->color }};">{{ $appointment->status->name }}</span>
                             @else
-                                <span class="status-badge" style="background:#6b7280;">Pending</span>
+                                <span class="status-badge status-badge--muted">Pending</span>
                             @endif
                         </div>
                         <div class="card-body">

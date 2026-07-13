@@ -58,7 +58,7 @@
                                             <th>Default</th>
                                             <th>Active</th>
                                             <th>In Use</th>
-                                            <th class="text-end" style="min-width:170px;">Actions</th>
+                                            <th class="text-end appt-actions-col">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>

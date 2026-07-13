@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     @include('components.backend.head')
+    @include('components.backend.appointment-styles')
 </head>
 <body>
     @include('components.backend.header')
@@ -67,7 +68,7 @@
                                             <th>Email</th>
                                             <th>Appointments</th>
                                             <th>Last Verified</th>
-                                            <th class="text-end" style="min-width:120px;">Actions</th>
+                                            <th class="text-end appt-actions-col">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>

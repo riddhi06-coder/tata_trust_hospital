@@ -37,8 +37,7 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-body text-center">
-                            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle"
-                                 style="width:72px;height:72px;background:#eef2ff;color:#4f46e5;font-size:26px;font-weight:700;">
+                            <div class="appt-avatar mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle">
                                 {{ $initials ?: '?' }}
                             </div>
                             <h5 class="mb-1">{{ $user->name ?: 'Unnamed Client' }}</h5>
@@ -83,7 +82,7 @@
                                                 @if($appt->status)
                                                     <span class="status-badge" style="background:{{ $appt->status->color }};">{{ $appt->status->name }}</span>
                                                 @else
-                                                    <span class="status-badge" style="background:#6b7280;">Pending</span>
+                                                    <span class="status-badge status-badge--muted">Pending</span>
                                                 @endif
                                             </td>
                                             <td>{{ optional($appt->created_at)->format('d M Y') }}</td>

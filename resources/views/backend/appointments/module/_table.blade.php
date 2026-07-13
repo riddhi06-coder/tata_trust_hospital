@@ -28,7 +28,7 @@
                         @if($appt->status)
                             <span class="status-badge" style="background:{{ $appt->status->color }};">{{ $appt->status->name }}</span>
                         @else
-                            <span class="status-badge" style="background:#6b7280;">Pending</span>
+                            <span class="status-badge status-badge--muted">Pending</span>
                         @endif
                     </td>
                     <td class="text-end text-nowrap">

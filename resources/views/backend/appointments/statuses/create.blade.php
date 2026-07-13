@@ -36,7 +36,7 @@
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label">Badge Colour</label>
-                                        <input type="color" name="color" value="{{ old('color', '#0d6efd') }}" class="form-control form-control-color" style="width:100%;">
+                                        <input type="color" name="color" value="{{ old('color', '#0d6efd') }}" class="form-control form-control-color w-100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label">Sort Order</label>
