@@ -127,10 +127,16 @@
                             <select name="appointment_status_id" id="modalStatusSelect" class="form-select" required>
                                 @foreach($statuses as $status)
                                     @if($status->is_active)
-                                        <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                        <option value="{{ $status->id }}" data-requires-date="{{ $status->requires_appointment_date ? 1 : 0 }}">{{ $status->name }}</option>
                                     @endif
                                 @endforeach
                             </select>
+                        </div>
+
+                        <div class="mb-3 d-none" id="rescheduleDateWrap">
+                            <label class="form-label">New Appointment Date <span class="text-danger">*</span></label>
+                            <input type="date" name="appointment_date" id="rescheduleDate" class="form-control" min="{{ now()->toDateString() }}">
+                            <small class="text-muted">Must be a future date and different from the current appointment date.</small>
                         </div>
 
                         <div class="mb-2">
@@ -210,12 +216,29 @@
 
             /* ---- Status update modal (delegated so AJAX-added rows work) ---- */
             var base = "{{ url('manage-appointments') }}";
+
+            // Show/require the new-date field only for reschedule-type statuses.
+            function toggleRescheduleDate() {
+                var opt = $('#modalStatusSelect option:selected');
+                var needs = opt.data('requires-date') == 1;
+                if (needs) {
+                    $('#rescheduleDateWrap').removeClass('d-none');
+                    $('#rescheduleDate').prop('required', true);
+                } else {
+                    $('#rescheduleDateWrap').addClass('d-none');
+                    $('#rescheduleDate').prop('required', false).val('');
+                }
+            }
+
+            $('#modalStatusSelect').on('change', toggleRescheduleDate);
+
             $(document).on('click', '.js-update-status', function () {
                 $('#statusForm').attr('action', base + '/' + $(this).data('id') + '/status');
                 $('#modalRef').text($(this).data('ref') || '');
                 $('#modalOwner').text($(this).data('owner') || '');
                 var cur = $(this).data('status');
                 if (cur) { $('#modalStatusSelect').val(cur); }
+                toggleRescheduleDate();
             });
         })(jQuery);
     </script>

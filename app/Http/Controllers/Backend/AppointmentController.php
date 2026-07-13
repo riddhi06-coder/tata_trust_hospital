@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AppointmentEnquiry;
 use App\Models\AppointmentStatus;
 use App\Models\AppointmentStatusHistory;
+use App\Services\MessageIndiaSms;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -65,37 +67,91 @@ class AppointmentController extends Controller
     /**
      * Update the status of an appointment, recording who / when / why.
      */
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id, MessageIndiaSms $sms)
     {
         $appointment = AppointmentEnquiry::whereNull('deleted_by')->findOrFail($id);
 
-        Validator::make($request->all(), [
+        $toStatus     = AppointmentStatus::whereNull('deleted_by')->find($request->appointment_status_id);
+        $requiresDate = $toStatus && $toStatus->requires_appointment_date;
+        $currentDate  = optional($appointment->appointment_date)->toDateString();
+
+        $rules = [
             'appointment_status_id' => ['required', 'integer', 'exists:appointment_statuses,id'],
             'note'                  => ['nullable', 'string', 'max:2000'],
-        ], [
-            'appointment_status_id.required' => 'Please choose a status.',
-            'appointment_status_id.exists'   => 'The selected status is invalid.',
-        ])->validate();
+        ];
+
+        // Statuses flagged as "requires a new date" (e.g. Rescheduled) must supply
+        // a future date that differs from the current appointment date.
+        if ($requiresDate) {
+            $rules['appointment_date'] = ['required', 'date', 'after_or_equal:today'];
+        }
+
+        $validator = Validator::make($request->all(), $rules, [
+            'appointment_status_id.required'  => 'Please choose a status.',
+            'appointment_status_id.exists'    => 'The selected status is invalid.',
+            'appointment_date.required'       => 'A new appointment date is required to reschedule.',
+            'appointment_date.after_or_equal' => 'The new appointment date cannot be in the past.',
+        ]);
+
+        if ($requiresDate) {
+            $validator->after(function ($v) use ($request, $currentDate) {
+                $new = $request->input('appointment_date');
+                if ($new && $currentDate && $new === $currentDate) {
+                    $v->errors()->add(
+                        'appointment_date',
+                        'The new date must be different from the current appointment date ('.Carbon::parse($currentDate)->format('d M Y').').'
+                    );
+                }
+            });
+        }
+
+        $validator->validate();
 
         $fromStatusId = $appointment->appointment_status_id;
         $toStatusId   = (int) $request->appointment_status_id;
+
+        $note   = $request->input('note') ?: null;
+        $oldFmt = $currentDate ? Carbon::parse($currentDate)->format('d M Y') : '—';
+        $newFmt = null;
+
+        $updateData = [
+            'appointment_status_id' => $toStatusId,
+            'updated_by'            => Auth::id(),
+            'updated_at'            => Carbon::now(),
+        ];
+
+        // On reschedule, move the appointment date and log the change in the note.
+        if ($requiresDate) {
+            $newFmt = Carbon::parse($request->appointment_date)->format('d M Y');
+            $line   = 'Appointment date changed from '.$oldFmt.' to '.$newFmt.'.';
+            $note   = $note ? ($line.' '.$note) : $line;
+
+            $updateData['appointment_date'] = $request->appointment_date;
+        }
 
         // Record the change in the immutable history trail.
         AppointmentStatusHistory::create([
             'appointment_enquiry_id' => $appointment->id,
             'from_status_id'         => $fromStatusId,
             'to_status_id'           => $toStatusId,
-            'note'                   => $request->input('note') ?: null,
+            'note'                   => $note,
             'changed_by'             => Auth::id(),
             'changed_by_name'        => optional(Auth::user())->name,
             'created_at'             => Carbon::now(),
         ]);
 
-        $appointment->update([
-            'appointment_status_id' => $toStatusId,
-            'updated_by'            => Auth::id(),
-            'updated_at'            => Carbon::now(),
-        ]);
+        $appointment->update($updateData);
+
+        // Fire the transactional SMS configured on this status. Never blocks the response.
+        try {
+            if ($toStatus && $toStatus->sms_trigger === 'reschedule' && $newFmt) {
+                $sms->sendAppointmentReschedule($appointment->mobile, $oldFmt, $newFmt);
+            } elseif ($toStatus && $toStatus->sms_trigger === 'cancellation') {
+                $sms->sendAppointmentCancellation($appointment->mobile, $currentDate ? $oldFmt : 'your scheduled date');
+            }
+        } catch (\Throwable $e) {
+            Log::error('Appointment status SMS failed: '.$e->getMessage(), ['enquiry_id' => $appointment->id]);
+        }
 
         return redirect()
             ->back()

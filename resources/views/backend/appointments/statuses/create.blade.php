@@ -47,9 +47,22 @@
                                     <input class="form-check-input" type="checkbox" name="is_active" value="1" id="isActive" {{ old('is_active', true) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="isActive">Active (available in status dropdowns)</label>
                                 </div>
-                                <div class="form-check form-switch mb-4">
+                                <div class="form-check form-switch mb-2">
                                     <input class="form-check-input" type="checkbox" name="is_default" value="1" id="isDefault" {{ old('is_default') ? 'checked' : '' }}>
                                     <label class="form-check-label" for="isDefault">Set as default (assigned to new appointments)</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="requires_appointment_date" value="1" id="requiresDate" {{ old('requires_appointment_date') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="requiresDate">Require a new appointment date (e.g. Rescheduled)</label>
+                                </div>
+                                <div class="mb-4 col-md-5">
+                                    <label class="form-label">Send SMS when this status is applied</label>
+                                    <select name="sms_trigger" class="form-select">
+                                        <option value="" {{ old('sms_trigger') === null || old('sms_trigger') === '' ? 'selected' : '' }}>No SMS</option>
+                                        <option value="cancellation" {{ old('sms_trigger') === 'cancellation' ? 'selected' : '' }}>Cancellation SMS</option>
+                                        <option value="reschedule" {{ old('sms_trigger') === 'reschedule' ? 'selected' : '' }}>Reschedule SMS</option>
+                                    </select>
+                                    <small class="text-muted">Reschedule SMS also forces a new appointment date to be entered.</small>
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">Save Status</button>

@@ -100,11 +100,16 @@
                                 @csrf
                                 <div class="mb-3">
                                     <label class="form-label">New Status <span class="text-danger">*</span></label>
-                                    <select name="appointment_status_id" class="form-select" required>
+                                    <select name="appointment_status_id" id="showStatusSelect" class="form-select" required>
                                         @foreach($statuses as $status)
-                                            <option value="{{ $status->id }}" {{ (int) $appointment->appointment_status_id === (int) $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
+                                            <option value="{{ $status->id }}" data-requires-date="{{ $status->requires_appointment_date ? 1 : 0 }}" {{ (int) $appointment->appointment_status_id === (int) $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="mb-3 d-none" id="showRescheduleWrap">
+                                    <label class="form-label">New Appointment Date <span class="text-danger">*</span></label>
+                                    <input type="date" name="appointment_date" id="showRescheduleDate" class="form-control" min="{{ now()->toDateString() }}">
+                                    <small class="text-muted">Must be a future date and different from the current one.</small>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Note / Reason <span class="text-muted">(optional)</span></label>
@@ -130,5 +135,25 @@
 
     @include('components.backend.footer')
     @include('components.backend.main-js')
+
+    <script>
+        (function ($) {
+            var $select = $('#showStatusSelect');
+
+            function toggleRescheduleDate() {
+                var needs = $select.find('option:selected').data('requires-date') == 1;
+                if (needs) {
+                    $('#showRescheduleWrap').removeClass('d-none');
+                    $('#showRescheduleDate').prop('required', true);
+                } else {
+                    $('#showRescheduleWrap').addClass('d-none');
+                    $('#showRescheduleDate').prop('required', false).val('');
+                }
+            }
+
+            $select.on('change', toggleRescheduleDate);
+            toggleRescheduleDate();
+        })(jQuery);
+    </script>
 </body>
 </html>

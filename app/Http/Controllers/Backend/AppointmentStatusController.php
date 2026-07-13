@@ -38,15 +38,20 @@ class AppointmentStatusController extends Controller
             AppointmentStatus::where('is_default', true)->update(['is_default' => false]);
         }
 
+        $smsTrigger   = $this->normalizeSmsTrigger($request->input('sms_trigger'));
+        $requiresDate = $request->boolean('requires_appointment_date') || $smsTrigger === 'reschedule';
+
         AppointmentStatus::create([
-            'name'       => $request->name,
-            'slug'       => $this->uniqueSlug($request->name),
-            'color'      => $request->color ?: '#6b7280',
-            'sort_order' => (int) $request->input('sort_order', 0),
-            'is_active'  => $request->boolean('is_active'),
-            'is_default' => $isDefault,
-            'created_by' => Auth::id(),
-            'created_at' => Carbon::now(),
+            'name'                      => $request->name,
+            'slug'                      => $this->uniqueSlug($request->name),
+            'color'                     => $request->color ?: '#6b7280',
+            'sort_order'                => (int) $request->input('sort_order', 0),
+            'is_active'                 => $request->boolean('is_active'),
+            'is_default'                => $isDefault,
+            'requires_appointment_date' => $requiresDate,
+            'sms_trigger'               => $smsTrigger,
+            'created_by'                => Auth::id(),
+            'created_at'                => Carbon::now(),
         ]);
 
         return redirect()
@@ -79,15 +84,20 @@ class AppointmentStatusController extends Controller
             $slug = $this->uniqueSlug($request->name, $status->id);
         }
 
+        $smsTrigger   = $this->normalizeSmsTrigger($request->input('sms_trigger'));
+        $requiresDate = $request->boolean('requires_appointment_date') || $smsTrigger === 'reschedule';
+
         $status->update([
-            'name'       => $request->name,
-            'slug'       => $slug,
-            'color'      => $request->color ?: '#6b7280',
-            'sort_order' => (int) $request->input('sort_order', 0),
-            'is_active'  => $request->boolean('is_active'),
-            'is_default' => $isDefault,
-            'updated_by' => Auth::id(),
-            'updated_at' => Carbon::now(),
+            'name'                      => $request->name,
+            'slug'                      => $slug,
+            'color'                     => $request->color ?: '#6b7280',
+            'sort_order'                => (int) $request->input('sort_order', 0),
+            'is_active'                 => $request->boolean('is_active'),
+            'is_default'                => $isDefault,
+            'requires_appointment_date' => $requiresDate,
+            'sms_trigger'               => $smsTrigger,
+            'updated_by'                => Auth::id(),
+            'updated_at'                => Carbon::now(),
         ]);
 
         return redirect()
@@ -139,6 +149,12 @@ class AppointmentStatusController extends Controller
         ], [
             'name.required' => 'Please enter a status name.',
         ]);
+    }
+
+    /** Only allow the known SMS trigger keys; anything else means "no SMS". */
+    private function normalizeSmsTrigger($value): ?string
+    {
+        return in_array($value, ['cancellation', 'reschedule'], true) ? $value : null;
     }
 
     private function uniqueSlug(string $source, ?int $ignoreId = null): string

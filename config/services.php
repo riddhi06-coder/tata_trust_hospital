@@ -42,6 +42,8 @@ return [
         'sender_name' => env('MESSAGEINDIA_SENDER_NAME', 'SAHMUM'),
         'template_id' => env('MESSAGEINDIA_TEMPLATE_ID', '1707172283887917938'),
         'appointment_template_id' => env('MESSAGEINDIA_APPOINTMENT_TEMPLATE_ID', '1707177744709776264'),
+        'cancellation_template_id' => env('MESSAGEINDIA_CANCELLATION_TEMPLATE_ID', '1707172283922616212'),
+        'reschedule_template_id'   => env('MESSAGEINDIA_RESCHEDULE_TEMPLATE_ID',   '1707172283932407122'),
         'pe_id'       => env('MESSAGEINDIA_PE_ID',       '1701172050186152725'),
     ],
 

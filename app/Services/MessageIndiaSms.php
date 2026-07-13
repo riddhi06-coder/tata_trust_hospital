@@ -109,4 +109,72 @@ class MessageIndiaSms
             return false;
         }
     }
+
+    /**
+     * Notify the owner that their appointment has been cancelled.
+     * $formattedDate must already be human-friendly (e.g. "12 Jul 2026").
+     */
+    public function sendAppointmentCancellation(string $mobile, string $formattedDate): bool
+    {
+        $message = "Your pet's appointment at Small Animal Hospital Mumbai (SAHM) for {$formattedDate} has been cancelled. Please contact us to reschedule.";
+
+        return $this->send($mobile, $message, config('services.messageindia.cancellation_template_id', '1707172283922616212'));
+    }
+
+    /**
+     * Notify the owner that their appointment has been rescheduled.
+     * Both dates must already be human-friendly (e.g. "12 Jul 2026").
+     */
+    public function sendAppointmentReschedule(string $mobile, string $oldDate, string $newDate): bool
+    {
+        $message = "Your pet's appointment with Small Animal Hospital Mumbai (SAHM) has been rescheduled from {$oldDate} to {$newDate}.";
+
+        return $this->send($mobile, $message, config('services.messageindia.reschedule_template_id', '1707172283932407122'));
+    }
+
+    /**
+     * Shared transactional-SMS sender. Returns true on API success, false otherwise.
+     */
+    private function send(string $mobile, string $message, string $templateId): bool
+    {
+        $cfg = config('services.messageindia');
+
+        if (empty($cfg['username']) || empty($cfg['api_key'])) {
+            Log::warning('MessageIndia SMS credentials missing — SMS not sent', [
+                'mobile'   => $mobile,
+                'template' => $templateId,
+            ]);
+            return false;
+        }
+
+        try {
+            $response = Http::timeout(15)
+                ->withoutVerifying()
+                ->get($this->endpoint, [
+                    'username'   => $cfg['username'],
+                    'apikey'     => $cfg['api_key'],
+                    'sendername' => $cfg['sender_name'],
+                    'smstype'    => 'TRANS',
+                    'numbers'    => $mobile,
+                    'message'    => $message,
+                    'peid'       => $cfg['pe_id'],
+                    'templateid' => $templateId,
+                ]);
+
+            if (! $response->successful()) {
+                Log::error('MessageIndia SMS failed', [
+                    'mobile'   => $mobile,
+                    'template' => $templateId,
+                    'status'   => $response->status(),
+                    'body'     => $response->body(),
+                ]);
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('MessageIndia SMS exception: '.$e->getMessage(), ['mobile' => $mobile]);
+            return false;
+        }
+    }
 }

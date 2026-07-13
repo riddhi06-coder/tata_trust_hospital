@@ -20,15 +20,18 @@ class AppointmentStatus extends Model
         'sort_order',
         'is_active',
         'is_default',
+        'requires_appointment_date',
+        'sms_trigger',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
 
     protected $casts = [
-        'is_active'  => 'boolean',
-        'is_default' => 'boolean',
-        'sort_order' => 'integer',
+        'is_active'                 => 'boolean',
+        'is_default'                => 'boolean',
+        'requires_appointment_date' => 'boolean',
+        'sort_order'                => 'integer',
     ];
 
     /** Appointments currently sitting at this status. */
