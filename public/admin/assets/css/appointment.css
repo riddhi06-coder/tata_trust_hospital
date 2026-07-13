@@ -83,3 +83,96 @@
 
 /* Keep the Actions column from collapsing too narrow. */
 .appt-actions-col{min-width:150px;}
+
+/* ---------- Dashboard ---------- */
+.dash-stat{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:#fff;
+    border:1px solid #eceff3;
+    border-radius:12px;
+    padding:18px 20px;
+    height:100%;
+}
+.dash-stat__num{font-size:28px;font-weight:700;line-height:1;color:#111827;}
+.dash-stat__label{font-size:13px;color:#6b7280;margin-top:6px;}
+.dash-stat__icon{
+    width:50px;height:50px;
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex:0 0 50px;
+}
+.dash-stat--primary{border-left:4px solid #4f46e5;}
+.dash-stat--primary .dash-stat__icon{background:#e0e7ff;color:#4f46e5;}
+.dash-stat--info{border-left:4px solid #0284c7;}
+.dash-stat--info .dash-stat__icon{background:#e0f2fe;color:#0284c7;}
+.dash-stat--warning{border-left:4px solid #d97706;}
+.dash-stat--warning .dash-stat__icon{background:#fef3c7;color:#d97706;}
+.dash-stat--success{border-left:4px solid #16a34a;}
+.dash-stat--success .dash-stat__icon{background:#dcfce7;color:#16a34a;}
+
+.dash-list-item{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 0;
+    border-bottom:1px solid #f1f3f5;
+}
+.dash-list-item:last-child{border-bottom:0;}
+.dash-list-item__title{font-weight:600;color:#1f2937;font-size:14px;}
+.dash-list-item__sub{font-size:12px;color:#6b7280;}
+.dash-empty{color:#9ca3af;text-align:center;padding:26px 0;font-size:14px;}
+.dash-status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;flex:0 0 10px;}
+
+/* Roomier "Today's Appointments" table so cells stop wrapping. */
+.dash-table{margin-bottom:0;}
+.dash-table th,
+.dash-table td{
+    padding:14px 16px !important;
+    vertical-align:middle;
+    white-space:nowrap;
+}
+.dash-table thead th{
+    background:#f8fafc;
+    color:#475569;
+    font-weight:600;
+    font-size:13px;
+}
+
+/* Readable chip used for dates + counts (replaces low-contrast teal badges). */
+.dash-chip{
+    display:inline-block;
+    padding:4px 11px;
+    border-radius:20px;
+    background:#eef2ff;
+    color:#3730a3 !important;
+    font-size:12px;
+    font-weight:600;
+    border:1px solid #e0e7ff;
+    line-height:1.4;
+}
+
+/* Next-2-days card headers — highlighted day label + clear date. */
+.dash-day-card .card-header{
+    background:#f8fafc;
+    border-bottom:1px solid #eef0f3;
+    padding:14px 18px;
+}
+.dash-day-pill{
+    display:inline-block;
+    padding:3px 12px;
+    border-radius:20px;
+    background:#4f46e5;
+    color:#fff !important;
+    font-size:12px;
+    font-weight:600;
+}
+.dash-day-date{color:#334155 !important;font-weight:600;font-size:14px;margin-left:8px;}
+
+/* Highlighted panel header (Today's Appointments). */
+.dash-highlight-header{
+    background:#eef2ff;
+    border-bottom:1px solid #e0e7ff !important;
+    padding:14px 18px;
+}
+.dash-highlight-header h5{color:#3730a3 !important;font-weight:700;}

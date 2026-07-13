@@ -9,8 +9,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Validation\Rules\Password as PasswordRule;
+use Carbon\Carbon;
 
 use App\Models\User;
+use App\Models\AppointmentEnquiry;
+use App\Models\AppointmentStatus;
+use App\Models\AppointmentUser;
+use App\Models\ContactEnquiry;
+use App\Models\JobApplication;
 
 class LoginController extends Controller
 {
@@ -19,7 +25,66 @@ class LoginController extends Controller
     // ----------------------------------------------------------------
     public function dashboard()
     {
-        return view('backend.dashboard');
+        $today    = Carbon::today();
+        $tomorrow = $today->copy()->addDay();
+        $dayAfter = $today->copy()->addDays(2);
+        $weekEnd  = $today->copy()->addDays(6);
+
+        // Today's appointments.
+        $todaysAppointments = AppointmentEnquiry::whereNull('deleted_by')
+            ->with('status')
+            ->whereDate('appointment_date', $today)
+            ->orderBy('id')
+            ->get();
+
+        // Next two days (tomorrow + day after), split per day.
+        $next2Days = AppointmentEnquiry::whereNull('deleted_by')
+            ->with('status')
+            ->whereDate('appointment_date', '>=', $tomorrow)
+            ->whereDate('appointment_date', '<=', $dayAfter)
+            ->orderBy('appointment_date')
+            ->orderBy('id')
+            ->get();
+
+        $tomorrowAppts = $next2Days->filter(fn ($a) => optional($a->appointment_date)->isSameDay($tomorrow))->values();
+        $dayAfterAppts = $next2Days->filter(fn ($a) => optional($a->appointment_date)->isSameDay($dayAfter))->values();
+
+        // Pending = appointments still sitting at the default status.
+        $defaultStatusId = AppointmentStatus::whereNull('deleted_by')->where('is_default', true)->value('id');
+        $pendingCount = AppointmentEnquiry::whereNull('deleted_by')
+            ->when($defaultStatusId, fn ($q) => $q->where('appointment_status_id', $defaultStatusId))
+            ->count();
+
+        // Status breakdown for the overview panel.
+        $statusBreakdown = AppointmentStatus::whereNull('deleted_by')
+            ->withCount(['appointments' => fn ($q) => $q->whereNull('deleted_by')])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        // Recent form submissions.
+        $recentContacts = ContactEnquiry::whereNull('deleted_by')->orderByDesc('id')->take(5)->get();
+        $recentJobs     = JobApplication::whereNull('deleted_by')->orderByDesc('id')->take(5)->get();
+
+        $counts = [
+            'today'    => $todaysAppointments->count(),
+            'next2'    => $next2Days->count(),
+            'week'     => AppointmentEnquiry::whereNull('deleted_by')
+                            ->whereDate('appointment_date', '>=', $today)
+                            ->whereDate('appointment_date', '<=', $weekEnd)
+                            ->count(),
+            'pending'  => $pendingCount,
+            'clients'  => AppointmentUser::whereNull('deleted_by')->count(),
+            'total'    => AppointmentEnquiry::whereNull('deleted_by')->count(),
+            'contacts' => ContactEnquiry::whereNull('deleted_by')->count(),
+            'jobs'     => JobApplication::whereNull('deleted_by')->count(),
+        ];
+
+        return view('backend.dashboard', compact(
+            'today', 'tomorrow', 'dayAfter',
+            'todaysAppointments', 'tomorrowAppts', 'dayAfterAppts',
+            'statusBreakdown', 'recentContacts', 'recentJobs', 'counts'
+        ));
     }
 
     // ----------------------------------------------------------------

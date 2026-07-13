@@ -265,24 +265,6 @@
                   </a>
                 </li>
 
-
-
-                @if(auth()->user()?->isSuperAdmin())
-                <li class="sidebar-list {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}">
-                  <i class="fa fa-thumb-tack"></i>
-                  <a class="sidebar-link" href="{{ route('admin.activity-logs.index') }}">
-                    <svg class="stroke-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-file') }}"></use>
-                    </svg>
-                    <svg class="fill-icon">
-                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-file') }}"></use>
-                    </svg>
-                    <span>Activity Log</span>
-                  </a>
-                </li>
-                @endif
-
-
                 <!-- Blog-->
                 <li class="sidebar-list {{ request()->routeIs('manage-blogs-listing.*', 'manage-blog-details.*', 'manage-blog-category.*', 'manage-blog-comments.*') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
@@ -329,7 +311,22 @@
                     </svg>
                     <span>Privacy Policy</span>
                   </a>
+                </li> 
+                
+                @if(auth()->user()?->isSuperAdmin())
+                <li class="sidebar-list {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('admin.activity-logs.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-file') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-file') }}"></use>
+                    </svg>
+                    <span>Activity Log</span>
+                  </a>
                 </li>
+                @endif
 
               
               </ul>
