@@ -116,8 +116,9 @@ use App\Http\Controllers\Frontend\HomeController;
         Route::get('activity-logs/{id}', [ActivityLogController::class, 'show'])->whereNumber('id')->name('admin.activity-logs.show');
 
         // ---- Communication Log (mail/SMS delivery record; Super Admin only) ----
-        Route::get('communication-logs',      [CommunicationLogController::class, 'index'])->name('admin.communication-logs.index');
-        Route::get('communication-logs/{id}', [CommunicationLogController::class, 'show'])->whereNumber('id')->name('admin.communication-logs.show');
+        Route::get('communication-logs',        [CommunicationLogController::class, 'index'])->name('admin.communication-logs.index');
+        Route::post('communication-logs/filter', [CommunicationLogController::class, 'filter'])->name('admin.communication-logs.filter');
+        Route::get('communication-logs/{id}',   [CommunicationLogController::class, 'show'])->whereNumber('id')->name('admin.communication-logs.show');
     });
 
 

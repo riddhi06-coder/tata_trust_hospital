@@ -61,13 +61,14 @@
                     <div class="card">
                         <div class="card-body">
 
-                            {{-- Filters --}}
-                            <form method="GET" action="{{ route('admin.communication-logs.index') }}" class="mb-4">
+                            {{-- Filters (AJAX POST; all fields auto-apply on change, no page reload) --}}
+                            <form id="clFilterForm" class="mb-4">
+                                @csrf
                                 <div class="appt-filter-panel">
                                     <div class="row g-2 align-items-end">
                                         <div class="col-lg-2 col-md-4 col-6">
                                             <label class="form-label small fw-semibold mb-1">Channel</label>
-                                            <select name="channel" class="form-select form-select-sm">
+                                            <select name="channel" class="form-select form-select-sm js-auto-filter">
                                                 <option value="">All</option>
                                                 <option value="sms" {{ request('channel') === 'sms' ? 'selected' : '' }}>SMS</option>
                                                 <option value="email" {{ request('channel') === 'email' ? 'selected' : '' }}>Email</option>
@@ -75,7 +76,7 @@
                                         </div>
                                         <div class="col-lg-3 col-md-4 col-6">
                                             <label class="form-label small fw-semibold mb-1">Type</label>
-                                            <select name="type" class="form-select form-select-sm">
+                                            <select name="type" class="form-select form-select-sm js-auto-filter">
                                                 <option value="">All</option>
                                                 @foreach($types as $t)
                                                     <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $t)) }}</option>
@@ -84,7 +85,7 @@
                                         </div>
                                         <div class="col-lg-2 col-md-4 col-6">
                                             <label class="form-label small fw-semibold mb-1">Status</label>
-                                            <select name="status" class="form-select form-select-sm">
+                                            <select name="status" class="form-select form-select-sm js-auto-filter">
                                                 <option value="">All</option>
                                                 <option value="sent" {{ request('status') === 'sent' ? 'selected' : '' }}>Sent</option>
                                                 <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>Failed</option>
@@ -92,61 +93,32 @@
                                         </div>
                                         <div class="col-lg-2 col-md-4 col-6">
                                             <label class="form-label small fw-semibold mb-1">From</label>
-                                            <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control form-control-sm">
+                                            <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control form-control-sm js-auto-filter">
                                         </div>
                                         <div class="col-lg-2 col-md-4 col-6">
                                             <label class="form-label small fw-semibold mb-1">To</label>
-                                            <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control form-control-sm">
+                                            <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control form-control-sm js-auto-filter">
                                         </div>
                                         <div class="col-lg-3 col-md-4 col-6">
                                             <label class="form-label small fw-semibold mb-1">Recipient / Subject</label>
-                                            <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Email, mobile, name…">
+                                            <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm js-auto-filter" placeholder="Email, mobile, name…">
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2 mt-3">
-                                        <button type="submit" class="btn btn-primary btn-sm px-3">Apply</button>
-                                        <a href="{{ route('admin.communication-logs.index') }}" class="btn btn-outline-secondary btn-sm px-3">Reset</a>
+                                        <button type="button" id="clFilterReset" class="btn btn-outline-secondary btn-sm px-3">Reset</button>
                                     </div>
                                 </div>
                             </form>
 
-                            <div class="table-responsive custom-scrollbar">
-                                <table class="table table-bordered table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>When</th>
-                                            <th>Channel</th>
-                                            <th>Type</th>
-                                            <th>Recipient</th>
-                                            <th>Status</th>
-                                            <th>Triggered By</th>
-                                            <th class="text-end">Details</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($logs as $log)
-                                            <tr>
-                                                <td class="text-nowrap">{{ optional($log->created_at)->format('d M Y, h:i A') }}</td>
-                                                <td><span class="badge {{ $log->channelBadgeClass() }} text-uppercase">{{ $log->channel }}</span></td>
-                                                <td>{{ $log->typeLabel() }}</td>
-                                                <td>
-                                                    <div>{{ $log->recipient }}</div>
-                                                    @if($log->recipient_name)<div class="text-muted small">{{ $log->recipient_name }}</div>@endif
-                                                </td>
-                                                <td><span class="badge {{ $log->statusBadgeClass() }} text-uppercase">{{ $log->status }}</span></td>
-                                                <td>{{ $log->triggered_by_name ?: 'System / Website' }}</td>
-                                                <td class="text-end">
-                                                    <a href="{{ route('admin.communication-logs.show', $log->id) }}" class="btn btn-sm btn-primary py-1 px-2">View</a>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr><td colspan="7" class="text-center text-muted py-4">No communication records found.</td></tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                            {{-- AJAX-swappable results --}}
+                            <div id="clResultsWrap" class="position-relative">
+                                <div id="clLoader" class="appt-loader d-none">
+                                    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading…</span></div>
+                                </div>
+                                <div id="clResults">
+                                    @include('backend.communication_logs._table')
+                                </div>
                             </div>
-
-                            <div class="mt-3">{{ $logs->links() }}</div>
 
                         </div>
                     </div>
@@ -157,5 +129,56 @@
 
     @include('components.backend.footer')
     @include('components.backend.main-js')
+
+    <script>
+        (function ($) {
+            var $form    = $('#clFilterForm');
+            var $results = $('#clResults');
+            var filterUrl = "{{ route('admin.communication-logs.filter') }}";
+
+            function loadResults(page) {
+                var data = $form.serializeArray();
+                if (page) { data.push({ name: 'page', value: page }); }
+
+                $('#clLoader').removeClass('d-none');
+                $results.css('opacity', 0.35);
+                $.ajax({
+                    url: filterUrl,
+                    method: 'POST',
+                    data: data,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    success: function (html) { $results.html(html); },
+                    complete: function () {
+                        $('#clLoader').addClass('d-none');
+                        $results.css('opacity', 1);
+                    }
+                });
+            }
+
+            // Every filter field applies on change (selects, dates, and search).
+            $form.on('change', '.js-auto-filter', function () { loadResults(); });
+            // Also apply as the user types in the search box (debounced).
+            var typingTimer;
+            $form.on('input', 'input[name=search]', function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(function () { loadResults(); }, 400);
+            });
+            // Never allow a native GET submit.
+            $form.on('submit', function (e) { e.preventDefault(); loadResults(); });
+
+            $('#clFilterReset').on('click', function () {
+                $form.find('select').val('');
+                $form.find('input[type=date], input[name=search]').val('');
+                loadResults();
+            });
+
+            $results.on('click', '.pagination a', function (e) {
+                e.preventDefault();
+                var href = $(this).attr('href') || '';
+                var m = href.match(/[?&]page=(\d+)/);
+                loadResults(m ? m[1] : 1);
+            });
+        })(jQuery);
+    </script>
 </body>
 </html>
