@@ -133,112 +133,129 @@ use App\Http\Controllers\Frontend\HomeController;
         ->group(function () {
 
 
-            // Home slider
-            Route::resource('banner-details', HomeBannerController::class);
-            Route::resource('short-introduction', ShortIntroductionController::class);
-            Route::resource('home-services', HomeServicesController::class);
-            Route::resource('manage-facilities', HomeFacilitiesController::class);
-            Route::resource('home-team', HomeTeamController::class);
-            Route::resource('manage-testimonials', HomeTestimonialsController::class);
-            Route::resource('manage-board', HomeBoardController::class);
-            Route::resource('manage-follow-us', HomeFollowUsController::class);
+            // ----------------------------------------------------------------
+            // Permission-gated resource helper.
+            // Splits a REST resource into per-action permission checks:
+            //   {prefix}.view   -> index / show
+            //   {prefix}.create -> create / store
+            //   {prefix}.edit   -> edit / update
+            //   {prefix}.delete -> destroy
+            // create/store are registered before show so /{uri}/create isn't
+            // captured by the /{uri}/{id} (show) route.
+            // ----------------------------------------------------------------
+            $crud = function (string $uri, string $controller, string $perm): void {
+                Route::resource($uri, $controller)->only(['create', 'store'])->middleware("permission:{$perm}.create");
+                Route::resource($uri, $controller)->only(['index'])->middleware("permission:{$perm}.view");
+                Route::resource($uri, $controller)->only(['edit', 'update'])->middleware("permission:{$perm}.edit");
+                Route::resource($uri, $controller)->only(['show'])->middleware("permission:{$perm}.view");
+                Route::resource($uri, $controller)->only(['destroy'])->middleware("permission:{$perm}.delete");
+            };
 
+            // Home page sections
+            $crud('banner-details',      HomeBannerController::class,        'home-banners');
+            $crud('short-introduction',  ShortIntroductionController::class, 'home-short-intro');
+            $crud('home-services',       HomeServicesController::class,      'home-specialities');
+            $crud('manage-facilities',   HomeFacilitiesController::class,    'home-facilities');
+            $crud('home-team',           HomeTeamController::class,          'home-our-team');
+            $crud('manage-testimonials', HomeTestimonialsController::class,  'home-testimonials');
+            $crud('manage-board',        HomeBoardController::class,         'home-board');
+            $crud('manage-follow-us',    HomeFollowUsController::class,      'home-follow-us');
 
             //Our Team Master
-            Route::post('manage-our-team/{id}/toggle-home', [MasterOurTeamController::class, 'toggleHome'])->name('manage-our-team.toggle-home');
-            Route::resource('manage-our-team', MasterOurTeamController::class);
+            Route::post('manage-our-team/{id}/toggle-home', [MasterOurTeamController::class, 'toggleHome'])->middleware('permission:our-team.edit')->name('manage-our-team.toggle-home');
+            $crud('manage-our-team', MasterOurTeamController::class, 'our-team');
 
             // Gallleryyyyy
-            Route::post('manage-gallery/{id}/toggle-home', [GalleryController::class, 'toggleHome'])->name('manage-gallery.toggle-home');
-            Route::resource('manage-gallery', GalleryController::class);
+            Route::post('manage-gallery/{id}/toggle-home', [GalleryController::class, 'toggleHome'])->middleware('permission:gallery.edit')->name('manage-gallery.toggle-home');
+            $crud('manage-gallery', GalleryController::class, 'gallery');
 
             // Eventssss
-            Route::post('manage-events/{id}/toggle-home', [EventsController::class, 'toggleHome'])->name('manage-events.toggle-home');
-            Route::resource('manage-events', EventsController::class);
+            Route::post('manage-events/{id}/toggle-home', [EventsController::class, 'toggleHome'])->middleware('permission:events.edit')->name('manage-events.toggle-home');
+            $crud('manage-events', EventsController::class, 'events');
 
             // Specialities
-            Route::resource('manage-specialities', SpecialitiesController::class);
-            Route::resource('speciality-details', SpecialitiesDetailsController::class);
-
+            $crud('manage-specialities', SpecialitiesController::class,        'specialities');
+            $crud('speciality-details',  SpecialitiesDetailsController::class, 'speciality-details');
 
             //Testimonials Master
-            Route::resource('manage-master-testimonials', MasterTestimonialsController::class);
+            $crud('manage-master-testimonials', MasterTestimonialsController::class, 'testimonials');
 
             //Our Facilities
-            Route::resource('manage-master-facilities', MasterFacilitiesController::class);
+            $crud('manage-master-facilities', MasterFacilitiesController::class, 'master-facilities');
 
             // About Us
-            Route::resource('manage-about-us', AboutUsController::class);
+            $crud('manage-about-us', AboutUsController::class, 'about-us');
 
             // Join Us
-            Route::resource('manage-join-page', JoinPageController::class);
-            Route::resource('manage-job-role', JobRoleController::class);
+            $crud('manage-join-page', JoinPageController::class, 'join-page');
+            $crud('manage-job-role',  JobRoleController::class,  'job-roles');
 
             // FAQ's
-            Route::resource('manage-faqs', FAQController::class);
+            $crud('manage-faqs', FAQController::class, 'faqs');
 
             // Blog
-            Route::resource('manage-blog-category', BlogCategoryController::class);
-            Route::resource('manage-blogs-listing', BlogListingController::class);
-            Route::resource('manage-blog-details', BlogDetailsController::class);
+            $crud('manage-blog-category', BlogCategoryController::class, 'blog-categories');
+            $crud('manage-blogs-listing', BlogListingController::class,  'blog-listings');
+            $crud('manage-blog-details',  BlogDetailsController::class,   'blog-details');
 
             // Blog comments — read-only + toggle-active + soft-delete
-            Route::get('manage-blog-comments',                  [BlogCommentController::class, 'index'])->name('manage-blog-comments.index');
-            Route::patch('manage-blog-comments/{id}/toggle',    [BlogCommentController::class, 'toggleActive'])->whereNumber('id')->name('manage-blog-comments.toggle');
-            Route::delete('manage-blog-comments/{id}',          [BlogCommentController::class, 'destroy'])->whereNumber('id')->name('manage-blog-comments.destroy');
+            Route::get('manage-blog-comments',                  [BlogCommentController::class, 'index'])->middleware('permission:blog-comments.view')->name('manage-blog-comments.index');
+            Route::patch('manage-blog-comments/{id}/toggle',    [BlogCommentController::class, 'toggleActive'])->middleware('permission:blog-comments.edit')->whereNumber('id')->name('manage-blog-comments.toggle');
+            Route::delete('manage-blog-comments/{id}',          [BlogCommentController::class, 'destroy'])->middleware('permission:blog-comments.delete')->whereNumber('id')->name('manage-blog-comments.destroy');
 
             // Form Enquiries (read-only: user submissions kept intact, no delete).
-            Route::get('manage-contact-enquiries',      [ContactEnquiryController::class, 'index'])->name('manage-contact-enquiries.index');
-            Route::get('manage-contact-enquiries/{id}', [ContactEnquiryController::class, 'show'])->whereNumber('id')->name('manage-contact-enquiries.show');
+            Route::get('manage-contact-enquiries',      [ContactEnquiryController::class, 'index'])->middleware('permission:contact-enquiries.view')->name('manage-contact-enquiries.index');
+            Route::get('manage-contact-enquiries/{id}', [ContactEnquiryController::class, 'show'])->middleware('permission:contact-enquiries.view')->whereNumber('id')->name('manage-contact-enquiries.show');
 
-            Route::get('manage-job-applications',       [JobApplicationController::class, 'index'])->name('manage-job-applications.index');
-            Route::get('manage-job-applications/{id}',  [JobApplicationController::class, 'show'])->whereNumber('id')->name('manage-job-applications.show');
+            Route::get('manage-job-applications',       [JobApplicationController::class, 'index'])->middleware('permission:job-applications.view')->name('manage-job-applications.index');
+            Route::get('manage-job-applications/{id}',  [JobApplicationController::class, 'show'])->middleware('permission:job-applications.view')->whereNumber('id')->name('manage-job-applications.show');
 
-            Route::get('manage-appointment-enquiries',      [AppointmentEnquiryController::class, 'index'])->name('manage-appointment-enquiries.index');
-            Route::get('manage-appointment-enquiries/{id}', [AppointmentEnquiryController::class, 'show'])->whereNumber('id')->name('manage-appointment-enquiries.show');
+            Route::get('manage-appointment-enquiries',      [AppointmentEnquiryController::class, 'index'])->middleware('permission:appointment-enquiries.view')->name('manage-appointment-enquiries.index');
+            Route::get('manage-appointment-enquiries/{id}', [AppointmentEnquiryController::class, 'show'])->middleware('permission:appointment-enquiries.view')->whereNumber('id')->name('manage-appointment-enquiries.show');
 
             // ---- Appointments module ----
             // Appointment Users (clients) — read-only list + full per-client history
-            Route::get('manage-appointment-users',      [AppointmentUserController::class, 'index'])->name('manage-appointment-users.index');
-            Route::get('manage-appointment-users/{id}', [AppointmentUserController::class, 'show'])->whereNumber('id')->name('manage-appointment-users.show');
+            Route::get('manage-appointment-users',      [AppointmentUserController::class, 'index'])->middleware('permission:appointment-users.view')->name('manage-appointment-users.index');
+            Route::get('manage-appointment-users/{id}', [AppointmentUserController::class, 'show'])->middleware('permission:appointment-users.view')->whereNumber('id')->name('manage-appointment-users.show');
 
             // Appointments — filters, status management, CSV export
-            Route::get('manage-appointments',                 [AppointmentController::class, 'index'])->name('manage-appointments.index');
-            Route::post('manage-appointments/filter',         [AppointmentController::class, 'filter'])->name('manage-appointments.filter');
-            Route::get('manage-appointments/export',          [AppointmentController::class, 'export'])->name('manage-appointments.export');
-            Route::get('manage-appointments/{id}',            [AppointmentController::class, 'show'])->whereNumber('id')->name('manage-appointments.show');
-            Route::post('manage-appointments/{id}/status',    [AppointmentController::class, 'updateStatus'])->whereNumber('id')->name('manage-appointments.update-status');
+            Route::get('manage-appointments',                 [AppointmentController::class, 'index'])->middleware('permission:appointments.view')->name('manage-appointments.index');
+            Route::post('manage-appointments/filter',         [AppointmentController::class, 'filter'])->middleware('permission:appointments.view')->name('manage-appointments.filter');
+            Route::get('manage-appointments/export',          [AppointmentController::class, 'export'])->middleware('permission:appointments.view')->name('manage-appointments.export');
+            Route::get('manage-appointments/{id}',            [AppointmentController::class, 'show'])->middleware('permission:appointments.view')->whereNumber('id')->name('manage-appointments.show');
+            Route::post('manage-appointments/{id}/status',    [AppointmentController::class, 'updateStatus'])->middleware('permission:appointments.edit')->whereNumber('id')->name('manage-appointments.update-status');
 
             // Appointment Status master (dropdown source)
-            Route::resource('manage-appointment-statuses', AppointmentStatusController::class);
+            $crud('manage-appointment-statuses', AppointmentStatusController::class, 'appointment-statuses');
 
             // ---- Reports (CSV export; filters are AJAX POST) ----
             // Landing lives at /reports/overview so its URL isn't a prefix of the
             // other report URLs (the theme's active-link JS matches by substring).
-            Route::get('reports/overview', [ReportController::class, 'index'])->name('admin.reports.index');
+            Route::get('reports/overview', [ReportController::class, 'index'])->middleware('permission:reports.view')->name('admin.reports.index');
             Route::get('reports', fn () => redirect()->route('admin.reports.index'));
 
-            Route::get ('reports/appointments',        [ReportController::class, 'appointments'])->name('admin.reports.appointments');
-            Route::post('reports/appointments/filter', [ReportController::class, 'appointmentsFilter'])->name('admin.reports.appointments.filter');
-            Route::get ('reports/appointments/export', [ReportController::class, 'appointmentsExport'])->name('admin.reports.appointments.export');
+            Route::get ('reports/appointments',        [ReportController::class, 'appointments'])->middleware('permission:reports.view')->name('admin.reports.appointments');
+            Route::post('reports/appointments/filter', [ReportController::class, 'appointmentsFilter'])->middleware('permission:reports.view')->name('admin.reports.appointments.filter');
+            Route::get ('reports/appointments/export', [ReportController::class, 'appointmentsExport'])->middleware('permission:reports.view')->name('admin.reports.appointments.export');
 
-            Route::get ('reports/operational',        [ReportController::class, 'operational'])->name('admin.reports.operational');
-            Route::post('reports/operational/filter', [ReportController::class, 'operationalFilter'])->name('admin.reports.operational.filter');
-            Route::get ('reports/operational/export', [ReportController::class, 'operationalExport'])->name('admin.reports.operational.export');
+            Route::get ('reports/operational',        [ReportController::class, 'operational'])->middleware('permission:reports.view')->name('admin.reports.operational');
+            Route::post('reports/operational/filter', [ReportController::class, 'operationalFilter'])->middleware('permission:reports.view')->name('admin.reports.operational.filter');
+            Route::get ('reports/operational/export', [ReportController::class, 'operationalExport'])->middleware('permission:reports.view')->name('admin.reports.operational.export');
 
-            Route::get ('reports/clients',        [ReportController::class, 'clients'])->name('admin.reports.clients');
-            Route::post('reports/clients/filter', [ReportController::class, 'clientsFilter'])->name('admin.reports.clients.filter');
-            Route::get ('reports/clients/export', [ReportController::class, 'clientsExport'])->name('admin.reports.clients.export');
+            Route::get ('reports/clients',        [ReportController::class, 'clients'])->middleware('permission:reports.view')->name('admin.reports.clients');
+            Route::post('reports/clients/filter', [ReportController::class, 'clientsFilter'])->middleware('permission:reports.view')->name('admin.reports.clients.filter');
+            Route::get ('reports/clients/export', [ReportController::class, 'clientsExport'])->middleware('permission:reports.view')->name('admin.reports.clients.export');
 
-            Route::get ('reports/communication',        [ReportController::class, 'communication'])->name('admin.reports.communication');
-            Route::post('reports/communication/filter', [ReportController::class, 'communicationFilter'])->name('admin.reports.communication.filter');
-            Route::get ('reports/communication/export', [ReportController::class, 'communicationExport'])->name('admin.reports.communication.export');
+            // Communication report stays additionally hidden to non-superadmins in the sidebar.
+            Route::get ('reports/communication',        [ReportController::class, 'communication'])->middleware('permission:reports.view')->name('admin.reports.communication');
+            Route::post('reports/communication/filter', [ReportController::class, 'communicationFilter'])->middleware('permission:reports.view')->name('admin.reports.communication.filter');
+            Route::get ('reports/communication/export', [ReportController::class, 'communicationExport'])->middleware('permission:reports.view')->name('admin.reports.communication.export');
 
             // Contact Us
-            Route::resource('manage-contact-details', ContactDetailsController::class);
+            $crud('manage-contact-details', ContactDetailsController::class, 'contact-details');
 
             // Privacy Policy
-            Route::resource('manage-privacy-policy', PrivacyPolicyController::class);
+            $crud('manage-privacy-policy', PrivacyPolicyController::class, 'privacy-policy');
 
     });
 

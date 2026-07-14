@@ -59,12 +59,26 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">New Password <small class="text-muted">(leave blank to keep current)</small></label>
-                                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Minimum 8 characters">
-                                    @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <div class="position-relative">
+                                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror"
+                                               placeholder="Minimum 8 characters" style="padding-right: 2.5rem;">
+                                        <span class="toggle-password" data-target="password" title="Show/Hide password"
+                                              style="position:absolute; top:50%; right:.9rem; transform:translateY(-50%); cursor:pointer; color:#6c757d; z-index:5;">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
+                                        @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Confirm New Password</label>
-                                    <input type="password" name="password_confirmation" class="form-control" placeholder="Re-enter the new password">
+                                    <div class="position-relative">
+                                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control"
+                                               placeholder="Re-enter the new password" style="padding-right: 2.5rem;">
+                                        <span class="toggle-password" data-target="password_confirmation" title="Show/Hide password"
+                                              style="position:absolute; top:50%; right:.9rem; transform:translateY(-50%); cursor:pointer; color:#6c757d; z-index:5;">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -80,5 +94,18 @@
 </div>
 
 @include('components.backend.main-js')
+<script>
+    document.querySelectorAll('.toggle-password').forEach(function (toggle) {
+        toggle.addEventListener('click', function () {
+            var input = document.getElementById(this.getAttribute('data-target'));
+            if (!input) return;
+            var icon = this.querySelector('i');
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            icon.classList.toggle('fa-eye', !show);
+            icon.classList.toggle('fa-eye-slash', show);
+        });
+    });
+</script>
 </body>
 </html>

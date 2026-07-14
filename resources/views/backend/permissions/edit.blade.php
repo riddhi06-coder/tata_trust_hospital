@@ -18,37 +18,79 @@
                         <form action="{{ route('admin.permissions.update', $role) }}" method="POST" class="theme-form">
                             @csrf @method('PUT')
 
-                            <p class="text-muted">Tick the modules/actions this role is allowed to perform.</p>
+                            <p class="text-muted">Tick the actions this role is allowed to perform. Cards mirror the sidebar.</p>
+
+                            @php
+                                // Column order + labels used across every card.
+                                $actionLabels = ['view' => 'View', 'create' => 'Create', 'edit' => 'Edit', 'delete' => 'Delete', 'assign' => 'Assign'];
+                            @endphp
+
+                            <style>
+                                /* Compact, self-contained matrix — no horizontal scroll inside cards. */
+                                .perm-matrix { table-layout: fixed; width: 100%; }
+                                .perm-matrix th,
+                                .perm-matrix td { padding: .4rem .25rem; font-size: 12px; vertical-align: middle; }
+                                .perm-matrix thead th { font-weight: 600; font-size: 11px; background-color: #6c757d; color: #fff; border-color: #6c757d; }
+                                .perm-matrix .sec-col { width: auto; word-break: break-word; }
+                                .perm-matrix .act-col { width: 16%; }
+                                .perm-matrix .form-check-input { margin: 0; float: none; }
+                            </style>
 
                             <div class="row">
                                 @foreach($permissions as $module => $perms)
+                                    @php
+                                        // Rows = sub-items (grouped by slug prefix, e.g. "home-banners").
+                                        $subItems = $perms->groupBy(fn ($p) => \Illuminate\Support\Str::beforeLast($p->slug, '.'));
+                                        // Columns = only the actions that actually exist in this card, in a fixed order.
+                                        $present  = $perms->map(fn ($p) => \Illuminate\Support\Str::afterLast($p->slug, '.'))->unique();
+                                        $cols     = collect(array_keys($actionLabels))->filter(fn ($a) => $present->contains($a))
+                                                        ->merge($present->diff(array_keys($actionLabels)))->values();
+                                    @endphp
                                     <div class="col-md-6 mb-4">
-                                        <div class="card border">
+                                        <div class="card border h-100">
                                             <div class="card-header py-2 d-flex justify-content-between align-items-center">
                                                 <strong>{{ $module }}</strong>
-                                                <label class="form-check-label small">
+                                                <label class="form-check-label small mb-0" style="cursor:pointer;">
                                                     <input type="checkbox" class="form-check-input module-toggle me-1" data-module="{{ $module }}">
                                                     Select all
                                                 </label>
                                             </div>
-                                            <div class="card-body">
-                                                @foreach($perms as $perm)
-                                                    <div class="form-check">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="permissions[]"
-                                                            value="{{ $perm->id }}"
-                                                            id="perm-{{ $perm->id }}"
-                                                            class="form-check-input perm-checkbox"
-                                                            data-module="{{ $module }}"
-                                                            {{ in_array($perm->id, $assigned) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="perm-{{ $perm->id }}">
-                                                            {{ $perm->name }}
-                                                            <small class="text-muted">({{ $perm->slug }})</small>
-                                                        </label>
-                                                    </div>
-                                                @endforeach
-                                            </div>
+                                            <table class="table table-sm table-hover mb-0 align-middle perm-matrix">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="ps-3 sec-col">Section</th>
+                                                        @foreach($cols as $col)
+                                                            <th class="text-center act-col">{{ $actionLabels[$col] ?? ucfirst($col) }}</th>
+                                                        @endforeach
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($subItems as $prefix => $items)
+                                                        @php $subLabel = preg_replace('/^(View|Create|Edit|Delete|Assign)\s+/', '', $items->first()->name); @endphp
+                                                        <tr>
+                                                            <td class="ps-3 sec-col">{{ $subLabel }}</td>
+                                                            @foreach($cols as $col)
+                                                                @php $perm = $items->first(fn ($p) => \Illuminate\Support\Str::afterLast($p->slug, '.') === $col); @endphp
+                                                                <td class="text-center act-col">
+                                                                    @if($perm)
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            name="permissions[]"
+                                                                            value="{{ $perm->id }}"
+                                                                            id="perm-{{ $perm->id }}"
+                                                                            class="form-check-input perm-checkbox"
+                                                                            data-module="{{ $module }}"
+                                                                            title="{{ $perm->slug }}"
+                                                                            {{ in_array($perm->id, $assigned) ? 'checked' : '' }}>
+                                                                    @else
+                                                                        <span class="text-muted">&mdash;</span>
+                                                                    @endif
+                                                                </td>
+                                                            @endforeach
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 @endforeach
