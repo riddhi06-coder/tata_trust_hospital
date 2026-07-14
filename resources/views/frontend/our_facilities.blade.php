@@ -67,7 +67,7 @@
                                 <div class="our-facilities-left-catagery-list">
                                     <ul>
                                         @foreach($facilities as $item)
-                                            <li><a href="#facility-{{ $item->id }}">{{ $item->name }} <img
+                                            <li><a href="#{{ \Illuminate\Support\Str::slug($item->name) }}">{{ $item->name }} <img
                                                         src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}" alt="Arrow Icon"
                                                         class="injectable"></a></li>
                                         @endforeach
@@ -81,7 +81,7 @@
 
                                 @foreach($facilities as $item)
                                     @php $contentFirst = $loop->odd; @endphp
-                                    <div class="our-facilities-right-sidebar-row {{ $contentFirst ? 'our-fac-right-sidebar-row-even' : '' }}" id="facility-{{ $item->id }}">
+                                    <div class="our-facilities-right-sidebar-row {{ $contentFirst ? 'our-fac-right-sidebar-row-even' : '' }}" id="{{ \Illuminate\Support\Str::slug($item->name) }}">
                                         <div class="row align-items-center">
                                             @if($contentFirst)
                                                 <div class="col-lg-6">
@@ -134,6 +134,39 @@
     @include('components.frontend.footer')
      
     @include('components.frontend.main-js')
+
+    <script>
+        (function () {
+            // Smoothly scroll to a facility section, offsetting for the sticky header.
+            function scrollToFacility(id, smooth) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var header = document.getElementById('sticky-header');
+                var offset = (header ? header.offsetHeight : 0) + 20;
+                var y = el.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' });
+            }
+
+            // On load: if the URL has a #section (e.g. coming from the home page), jump to it.
+            window.addEventListener('load', function () {
+                if (!window.location.hash) return;
+                var id = decodeURIComponent(window.location.hash.substring(1));
+                // Delay lets images/AOS settle so the final position is accurate.
+                setTimeout(function () { scrollToFacility(id, false); }, 350);
+            });
+
+            // In-page sidebar links: scroll with the same header offset.
+            document.querySelectorAll('.our-facilities-left-catagery-list a[href^="#"]').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    var id = decodeURIComponent(this.getAttribute('href').substring(1));
+                    if (!document.getElementById(id)) return;
+                    e.preventDefault();
+                    history.replaceState(null, '', '#' + id);
+                    scrollToFacility(id, true);
+                });
+            });
+        })();
+    </script>
 
   </body>
 </html>

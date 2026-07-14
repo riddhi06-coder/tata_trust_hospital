@@ -314,7 +314,7 @@
 
                             <div class="home-about-world-class-care-sec" data-aos="fade-right" data-aos-delay="200">
 
-                                <a href="{{ url('our-facilities') }}" class="btn">
+                                <a href="{{ route('frontend.our_facilities') }}" class="btn">
                                     Read More
                                     <span class="visually-hidden">Our Facilities</span>
                                     <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
@@ -343,15 +343,16 @@
 
                                             <div class="product__item">
 
+                                                @php $facAnchor = route('frontend.our_facilities').'#'.\Illuminate\Support\Str::slug($item['name']); @endphp
                                                 <div class="product__thumb">
 
-                                                    <a href="{{ url('our-facilities') }}">
+                                                    <a href="{{ $facAnchor }}">
                                                         <img src="{{ asset('home/facilities/'.$item['icon']) }}"
                                                             alt="{{ $item['name'] }}">
                                                     </a>
 
                                                     <div class="product__add-cart">
-                                                        <a href="{{ url('our-facilities') }}" class="btn">
+                                                        <a href="{{ $facAnchor }}" class="btn">
                                                             {{ $item['name'] }}
                                                         </a>
                                                     </div>
@@ -463,7 +464,7 @@
 
                 <div class="team__bottom-content">
 
-                    <a href="{{ url('our-team') }}" class="btn">
+                    <a href="{{ route('frontend.our_team') }}" class="btn">
                         View More
                         <span class="visually-hidden">Our team</span>
                         <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
@@ -611,7 +612,7 @@
                                 data-aos="fade-left"
                                 data-aos-delay="200">
 
-                                <a href="{{ url('our-team#our-team-our-board-sec') }}" class="btn">
+                                <a href="{{ route('frontend.our_team') }}#our-team-our-board-sec" class="btn">
                                     Read More
                                     <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
                                         alt=""
