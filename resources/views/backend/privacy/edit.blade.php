@@ -47,8 +47,13 @@
                                 @csrf
                                 @method('PUT')
 
-                                <div class="col-md-12">
-                                    <label class="form-label" for="file">Privacy Policy Document</label>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="name">Policy Name <span class="txt-danger">*</span></label>
+                                    <input class="form-control" id="name" type="text" name="name" value="{{ old('name', $policy->name) }}" placeholder="e.g. Privacy Policy, Refund Policy, Terms &amp; Conditions">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="file">Policy Document</label>
                                     <input class="form-control" id="file" type="file" name="file" accept=".pdf,.doc,.docx">
                                     <small class="text-muted">Leave blank to keep current. PDF or Word (.pdf, .doc, .docx) — max 5MB.</small>
 

@@ -384,7 +384,7 @@
                     <svg class="fill-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-knowledgebase') }}"></use>
                     </svg>
-                    <span>Privacy Policy</span>
+                    <span>Policy</span>
                   </a>
                 </li>
                 @endif

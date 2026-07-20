@@ -13,6 +13,7 @@ class PrivacyPolicy extends Model
     protected $table = 'privacy_policies';
 
     protected $fillable = [
+        'name',
         'file',
         'created_by',
         'updated_by',

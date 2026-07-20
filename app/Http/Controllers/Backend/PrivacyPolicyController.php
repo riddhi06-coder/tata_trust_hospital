@@ -15,31 +15,20 @@ class PrivacyPolicyController extends Controller
 
     public function index()
     {
-        $policy = PrivacyPolicy::whereNull('deleted_by')->first();
+        $policies = PrivacyPolicy::whereNull('deleted_by')
+            ->orderBy('name')
+            ->get();
 
-        return view('backend.privacy.index', compact('policy'));
+        return view('backend.privacy.index', compact('policies'));
     }
 
     public function create()
     {
-        $existing = PrivacyPolicy::whereNull('deleted_by')->first();
-        if ($existing) {
-            return redirect()
-                ->route('manage-privacy-policy.edit', $existing->id)
-                ->with('message', 'A Privacy Policy already exists. Edit below.');
-        }
-
         return view('backend.privacy.create');
     }
 
     public function store(Request $request)
     {
-        if (PrivacyPolicy::whereNull('deleted_by')->exists()) {
-            return redirect()
-                ->route('manage-privacy-policy.index')
-                ->with('error', 'A Privacy Policy already exists. Delete it first before adding a new one.');
-        }
-
         $this->validatePayload($request, false)->validate();
 
         $folder = public_path(self::FILE_DIR);
@@ -48,6 +37,7 @@ class PrivacyPolicyController extends Controller
         $file = $this->uploadFile($request, $folder);
 
         PrivacyPolicy::create([
+            'name'       => $request->input('name'),
             'file'       => $file,
             'created_by' => Auth::id(),
             'created_at' => Carbon::now(),
@@ -55,7 +45,7 @@ class PrivacyPolicyController extends Controller
 
         return redirect()
             ->route('manage-privacy-policy.index')
-            ->with('message', 'Privacy Policy uploaded successfully.');
+            ->with('message', 'Policy uploaded successfully.');
     }
 
     public function edit($id)
@@ -81,6 +71,7 @@ class PrivacyPolicyController extends Controller
         }
 
         $policy->update([
+            'name'       => $request->input('name'),
             'file'       => $file,
             'updated_by' => Auth::id(),
             'updated_at' => Carbon::now(),
@@ -88,7 +79,7 @@ class PrivacyPolicyController extends Controller
 
         return redirect()
             ->route('manage-privacy-policy.index')
-            ->with('message', 'Privacy Policy updated successfully.');
+            ->with('message', 'Policy updated successfully.');
     }
 
     public function destroy($id)
@@ -103,7 +94,7 @@ class PrivacyPolicyController extends Controller
 
             return redirect()
                 ->route('manage-privacy-policy.index')
-                ->with('message', 'Privacy Policy deleted successfully.');
+                ->with('message', 'Policy deleted successfully.');
         } catch (\Exception $ex) {
             return redirect()->back()->with('error', 'Something went wrong - '.$ex->getMessage());
         }
@@ -117,11 +108,14 @@ class PrivacyPolicyController extends Controller
             .'|file|mimes:pdf,doc,docx|max:5120';
 
         return Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
             'file' => $rule,
         ], [
-            'file.required' => 'Please upload a Privacy Policy document.',
-            'file.mimes'    => 'Privacy Policy must be a PDF or Word document (.pdf, .doc, .docx).',
-            'file.max'      => 'Privacy Policy must be 5MB or smaller.',
+            'name.required' => 'Please enter a policy name.',
+            'name.max'      => 'Policy name should not exceed 255 characters.',
+            'file.required' => 'Please upload a policy document.',
+            'file.mimes'    => 'Policy must be a PDF or Word document (.pdf, .doc, .docx).',
+            'file.max'      => 'Policy must be 5MB or smaller.',
         ]);
     }
 

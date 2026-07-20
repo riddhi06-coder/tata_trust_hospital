@@ -16,11 +16,12 @@
             ? nl2br(e(trim(strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $footerContact->address)))))
             : '';
 
-        // Privacy Policy — served from the CMS if uploaded, else fall back to the static PDF.
-        $privacyPolicy = \App\Models\PrivacyPolicy::whereNull('deleted_by')->first();
-        $privacyPolicyUrl = $privacyPolicy && $privacyPolicy->file
-            ? asset('home/privacy/'.$privacyPolicy->file)
-            : asset('frontend/assets/pdf/privacy-policy.pdf');
+        // Policies — all CMS-uploaded policies (Privacy Policy, Refund Policy, etc.),
+        // each rendered as its own footer link. Falls back to the static PDF if none exist.
+        $footerPolicies = \App\Models\PrivacyPolicy::whereNull('deleted_by')
+            ->whereNotNull('file')
+            ->orderBy('id')
+            ->get();
     @endphp
 
     <section class="home-page-contact-us-footer-top">
@@ -155,20 +156,19 @@
             <div class="footer__bottom">
                 <div class="container">
                     <div class="row align-items-center">
-                        <div class="col-lg-8">
+                        <div class="col-lg-6">
                             <div class="copyright-text">
-                                <p>Copyright © {{ date('Y') }} Small Animal Hospital. All Rights Reserved. Designed By <a
+                                <p>Copyright © 2026 Small Animal Hospital. All Rights Reserved. Designed By <a
                                         href="https://www.matrixbricks.com/" target="_blank">Matrix Bricks.</a></p>
                             </div>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-6">
                             <div class="footer__bottom-menu text-end">
-                                <p><a href="{{ $privacyPolicyUrl }}" target="_blank">Privacy Policy</a></p>
+                                <p>@forelse($footerPolicies as $policy)<a href="{{ asset('home/privacy/'.$policy->file) }}" target="_blank">{{ $policy->name }}</a>@if(! $loop->last) | @endif @empty<a href="assets/pdf/hospital-online-payment-terms-and-conditions.pdf" target="_blank">Terms and Conditions</a> | <a href="assets/pdf/privacy-policy.pdf" target="_blank">Website Privacy Policy</a> | <a href="assets/pdf/hospital-privacy-policy-for-hospital-online-payments.pdf" target="_blank">Online Payment Privacy Policy</a>@endforelse</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </footer>
 

@@ -46,8 +46,13 @@
                             <form class="row g-3 custom-input" action="{{ route('manage-privacy-policy.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
 
-                                <div class="col-md-12">
-                                    <label class="form-label" for="file">Privacy Policy Document <span class="txt-danger">*</span></label>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="name">Policy Name <span class="txt-danger">*</span></label>
+                                    <input class="form-control" id="name" type="text" name="name" value="{{ old('name') }}" placeholder="e.g. Privacy Policy, Refund Policy, Terms &amp; Conditions">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="file">Policy Document <span class="txt-danger">*</span></label>
                                     <input class="form-control" id="file" type="file" name="file" accept=".pdf,.doc,.docx">
                                     <small class="text-muted">PDF or Word document (.pdf, .doc, .docx) — max 5MB.</small>
                                     <div id="file-name" class="mt-2 text-muted" style="display:none;"></div>

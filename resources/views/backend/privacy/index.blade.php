@@ -36,14 +36,12 @@
                                 <nav aria-label="breadcrumb">
                                     <ol class="breadcrumb mb-0">
                                         <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
-                                        <li class="breadcrumb-item active">Privacy Policy</li>
+                                        <li class="breadcrumb-item active">Policies</li>
                                     </ol>
                                 </nav>
-                                @if(! $policy)
-                                    <a href="{{ route('manage-privacy-policy.create') }}" class="btn btn-primary px-5 radius-30">
-                                        + Add Privacy Policy
-                                    </a>
-                                @endif
+                                <a href="{{ route('manage-privacy-policy.create') }}" class="btn btn-primary px-5 radius-30">
+                                    + Add Policy
+                                </a>
                             </div>
 
                             <div class="table-responsive custom-scrollbar">
@@ -51,15 +49,17 @@
                                     <thead>
                                         <tr>
                                             <th>Sr No.</th>
-                                            <th>File</th>
+                                            <th>Policy Name</th>
+                                            <th>Document</th>
                                             <th>Uploaded</th>
                                             <th class="text-end" style="min-width:170px;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if($policy)
+                                        @forelse($policies as $key => $policy)
                                             <tr>
-                                                <td>1</td>
+                                                <td>{{ $key + 1 }}</td>
+                                                <td>{{ $policy->name }}</td>
                                                 <td>
                                                     <a href="{{ asset('home/privacy/'.$policy->file) }}" target="_blank" class="btn btn-sm btn-outline-primary">View / Download</a>
                                                     <div class="text-muted small mt-1">{{ $policy->file }}</div>
@@ -68,16 +68,16 @@
                                                 <td class="text-end">
                                                     <div class="d-flex gap-1 justify-content-end">
                                                         <a href="{{ route('manage-privacy-policy.edit', $policy->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                                                        <form action="{{ route('manage-privacy-policy.destroy', $policy->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete the Privacy Policy document?');">
+                                                        <form action="{{ route('manage-privacy-policy.destroy', $policy->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this policy?');">
                                                             @csrf @method('DELETE')
                                                             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                                         </form>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        @else
-                                            <tr><td colspan="4" class="text-center text-muted py-4">No Privacy Policy uploaded yet.</td></tr>
-                                        @endif
+                                        @empty
+                                            <tr><td colspan="5" class="text-center text-muted py-4">No policies uploaded yet.</td></tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
