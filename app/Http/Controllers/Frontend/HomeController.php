@@ -65,7 +65,7 @@ class HomeController extends Controller
     // Home Page
     public function index()
     {
-        $banner = HomeBanner::wherenull('deleted_by')->orderBy('created_at', 'asc')->get();
+        $banner = HomeBanner::wherenull('deleted_by')->orderBy('priority', 'asc')->orderBy('created_at', 'asc')->get();
         $short_intro = ShortIntroduction::wherenull('deleted_by')->first();
         $specialities = HomeServices::wherenull('deleted_by')->first();
         $facilities = HomeFacilities::wherenull('deleted_by')->first();

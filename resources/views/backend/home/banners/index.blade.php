@@ -49,6 +49,7 @@
                                     <thead>
                                         <tr>
                                             <th>Sr No.</th>
+                                            <th>Priority</th>
                                             <th>Heading</th>
                                             <th>Image/Video</th>
                                             <th>Actions</th>
@@ -58,6 +59,10 @@
                                         @forelse($banners as $key => $banner)
                                             <tr>
                                                 <td>{{ $key + 1 }}</td>
+
+                                                <td>
+                                                    <span class="badge bg-primary">{{ $banner->priority }}</span>
+                                                </td>
 
                                                 <td>
                                                     {{ $banner->banner_heading ?? '-' }}
@@ -116,7 +121,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="4" class="text-center">
+                                                <td colspan="5" class="text-center">
                                                     No banners found.
                                                 </td>
                                             </tr>

@@ -17,7 +17,10 @@ class HomeBannerController extends Controller
  
     public function index()
     {
-        $banners = HomeBanner::wherenull('deleted_by')->get();
+        $banners = HomeBanner::wherenull('deleted_by')
+            ->orderBy('priority', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->get();
         return view('backend.home.banners.index', compact('banners'));
     }
 
@@ -33,6 +36,7 @@ class HomeBannerController extends Controller
             [
                 'banner_heading' => 'required|string|max:255',
                 'banner_title'   => 'nullable|string|max:255',
+                'priority'       => 'nullable|integer|min:0|max:9999',
 
                 'banner_media'   => 'required|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:5120',
             ],
@@ -45,6 +49,7 @@ class HomeBannerController extends Controller
 
                 'banner_heading.max'    => 'Banner heading should not exceed 255 characters.',
                 'banner_title.max'      => 'Banner title should not exceed 255 characters.',
+                'priority.integer'      => 'Priority must be a whole number.',
             ]
         );
 
@@ -125,6 +130,7 @@ class HomeBannerController extends Controller
 
             'banner_media'   => $fileName,
             'media_type'     => $mediaType,
+            'priority'       => $request->input('priority', 0) ?? 0,
 
             'created_by'     => Auth::id(),
             'created_at'     => Carbon::now(),
@@ -148,12 +154,14 @@ class HomeBannerController extends Controller
             [
                 'banner_heading' => 'required|string|max:255',
                 'banner_title'   => 'nullable|string|max:255',
+                'priority'       => 'nullable|integer|min:0|max:9999',
 
                 'banner_media'   => 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:5120',
             ],
 
             [
                 'banner_heading.required' => 'Please enter banner heading.',
+                'priority.integer'        => 'Priority must be a whole number.',
 
                 'banner_media.file'       => 'Uploaded file is invalid.',
                 'banner_media.mimes'      => 'Only jpg, jpeg, png, webp, mp4 and webm files are allowed.',
@@ -247,6 +255,7 @@ class HomeBannerController extends Controller
 
             'banner_media'   => $fileName,
             'media_type'     => $mediaType,
+            'priority'       => $request->input('priority', $banner->priority) ?? 0,
 
             'updated_by'     => Auth::id(),
             'updated_at'     => Carbon::now(),

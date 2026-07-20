@@ -14,8 +14,9 @@ class HomeBanner extends Model
     protected $fillable = [
         'banner_heading',
         'banner_title',
-        'banner_media',   
-        'media_type',    
+        'banner_media',
+        'media_type',
+        'priority',
         'created_by',
 
         'created_at',

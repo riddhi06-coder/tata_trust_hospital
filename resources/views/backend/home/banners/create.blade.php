@@ -62,11 +62,20 @@
                                         <!-- Banner Title-->
                                         <div class="col-md-6">
                                             <label class="form-label" for="banner_title">Banner Title </label>
-                                            <input class="form-control" id="banner_title" type="text" name="banner_title" placeholder="Enter Banner Title" >
+                                            <input class="form-control" id="banner_title" type="text" name="banner_title" value="{{ old('banner_title') }}" placeholder="Enter Banner Title" >
                                             <div class="invalid-feedback">Please enter a Banner Title.</div>
                                         </div>
 
-                                    
+                                        <!-- Priority -->
+                                        <div class="col-md-6 mt-5">
+                                            <label class="form-label" for="priority">Priority </label>
+                                            <input class="form-control @error('priority') is-invalid @enderror" id="priority" type="number" name="priority" min="0" step="1" value="{{ old('priority', 0) }}" placeholder="0">
+                                            <small class="text-secondary d-block mt-1">Lower number appears first on the home page.</small>
+                                            @error('priority')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
 
                                         <!-- Banner Media -->
                                         <div class="col-md-6 mt-5">

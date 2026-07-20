@@ -80,6 +80,16 @@
                                             <div class="invalid-feedback">Please enter a Banner Title.</div>
                                         </div>
 
+                                        <!-- Priority -->
+                                        <div class="col-md-6 mt-5">
+                                            <label class="form-label" for="priority">Priority </label>
+                                            <input class="form-control @error('priority') is-invalid @enderror" id="priority" type="number" name="priority" min="0" step="1" value="{{ old('priority', $slider->priority) }}" placeholder="0">
+                                            <small class="text-secondary d-block mt-1">Lower number appears first on the home page.</small>
+                                            @error('priority')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
 
                                         <!-- Upload New Media -->
                                         <div class="col-md-6 mt-5">
