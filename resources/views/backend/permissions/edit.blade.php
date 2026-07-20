@@ -25,17 +25,6 @@
                                 $actionLabels = ['view' => 'View', 'create' => 'Create', 'edit' => 'Edit', 'delete' => 'Delete', 'assign' => 'Assign'];
                             @endphp
 
-                            <style>
-                                /* Compact, self-contained matrix — no horizontal scroll inside cards. */
-                                .perm-matrix { table-layout: fixed; width: 100%; }
-                                .perm-matrix th,
-                                .perm-matrix td { padding: .4rem .25rem; font-size: 12px; vertical-align: middle; }
-                                .perm-matrix thead th { font-weight: 600; font-size: 11px; background-color: #6c757d; color: #fff; border-color: #6c757d; }
-                                .perm-matrix .sec-col { width: auto; word-break: break-word; }
-                                .perm-matrix .act-col { width: 16%; }
-                                .perm-matrix .form-check-input { margin: 0; float: none; }
-                            </style>
-
                             <div class="row">
                                 @foreach($permissions as $module => $perms)
                                     @php
@@ -48,7 +37,7 @@
                                     @endphp
                                     <div class="col-md-6 mb-4">
                                         <div class="card border h-100">
-                                            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                                            <div class="card-header perm-card-header py-2 d-flex justify-content-between align-items-center">
                                                 <strong>{{ $module }}</strong>
                                                 <label class="form-check-label small mb-0" style="cursor:pointer;">
                                                     <input type="checkbox" class="form-check-input module-toggle me-1" data-module="{{ $module }}">
