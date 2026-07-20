@@ -25,7 +25,7 @@
                                 <h2 class="title">Coming Soon</h2>
                             </div>
                             <p class="text-center" data-aos="fade-up" data-aos-delay="150">Stay tuned for updates. We will get back to you soon!</p>
-                            <a href="{{ route('frontend.coming_soon') }}" class="btn" data-aos="fade-up" data-aos-delay="200">Back to Home<span class="visually-hidden">Home Page</span><img src="{{ (' frontend/assets/img/icon/right_arrow.svg' ) }}" alt="Read More" class="injectable"></a>
+                            <a href="{{ route('frontend.index') }}" class="btn" data-aos="fade-up" data-aos-delay="200">Back to Home<span class="visually-hidden">Home Page</span><img src="{{ (' frontend/assets/img/icon/right_arrow.svg' ) }}" alt="Read More" class="injectable"></a>
                         </div>
                     </div>
                 </div>
