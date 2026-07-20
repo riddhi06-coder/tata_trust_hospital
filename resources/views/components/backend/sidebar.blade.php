@@ -68,6 +68,19 @@
                 </li>
                 @endif
 
+                <li class="sidebar-list {{ request()->routeIs('manage-flyer.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-flyer.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-editors') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-editors') }}"></use>
+                    </svg>
+                    <span>Flyer</span>
+                  </a>
+                </li>
+
                 <!-- Form Enquiries -->
                 @if($can('contact-enquiries.view') || $can('job-applications.view') || $can('appointment-enquiries.view'))
                 <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*', 'manage-appointment-enquiries.*') ? 'active' : '' }}">

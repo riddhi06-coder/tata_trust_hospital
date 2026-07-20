@@ -40,7 +40,7 @@ use App\Http\Controllers\Backend\ReportController;
 use App\Http\Controllers\Backend\ContactEnquiryController;
 use App\Http\Controllers\Backend\JobApplicationController;
 use App\Http\Controllers\Backend\BlogCommentController;
-
+use App\Http\Controllers\Backend\FlyerController;
 
 //frontend controller
 use App\Http\Controllers\Frontend\HomeController;
@@ -257,6 +257,9 @@ use App\Http\Controllers\Frontend\HomeController;
             // Privacy Policy
             $crud('manage-privacy-policy', PrivacyPolicyController::class, 'privacy-policy');
 
+            // Flyer
+            Route::post('manage-flyer/{id}/toggle-status', [FlyerController::class, 'toggleStatus'])->middleware('permission:flyer.edit')->name('manage-flyer.toggle-status');
+            $crud('manage-flyer', FlyerController::class, 'flyer');
     });
 
 

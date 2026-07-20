@@ -815,10 +815,45 @@
 
     
     @include('components.frontend.footer')
+
+    	
+	<!-- Modal -->
+    @if($flyer_popups->count())
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+                @if($flyer_popups->count() === 1)
+                    <img src="{{ asset('home/flyer/'.$flyer_popups->first()->flyer_image) }}" alt="Popup Image">
+                @else
+                    <div id="flyerCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @foreach($flyer_popups as $i => $flyer_popup)
+                                <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
+                                    <img src="{{ asset('home/flyer/'.$flyer_popup->flyer_image) }}" class="d-block" alt="Popup Image">
+                                </div>
+                            @endforeach
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#flyerCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#flyerCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
      
     @include('components.frontend.main-js')
 
 
+    	
     <script>
         $(document).ready(function () {
             $('.image-popup').magnificPopup({
@@ -835,6 +870,7 @@
             });
         });
     </script>
+
 
   </body>
 </html>

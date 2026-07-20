@@ -612,4 +612,13 @@ $(function () {
         }
     }, interval);
 
+
+    
+});
+    /* Flyer popup (#imageModal) — auto-open 10s after load if present */
+    document.addEventListener("DOMContentLoaded", function () {
+        const e = document.getElementById("imageModal");
+        if (e && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+            setTimeout(function () { new bootstrap.Modal(e).show(); }, 10000);
+    }
 });

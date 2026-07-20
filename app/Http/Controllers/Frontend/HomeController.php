@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\EventSetting;
 use App\Models\Events;
+use App\Models\Flyer;
 use App\Models\AboutUs;
 use App\Models\FacilitySetting;
 use App\Models\Faq;
@@ -97,7 +98,14 @@ class HomeController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us','gallery_settings','gallery_images','event_settings','events','speciality_settings','speciality_items'));
+        // Active flyer popups (skip records with no image).
+        $flyer_popups = Flyer::whereNull('deleted_by')
+            ->where('is_active', true)
+            ->whereNotNull('flyer_image')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('frontend.index', compact('banner','short_intro','specialities','facilities','our_team','team_members','testimonial_details','testimonials','our_board','follow_us','gallery_settings','gallery_images','event_settings','events','speciality_settings','speciality_items','flyer_popups'));
     }
 
 
