@@ -16,6 +16,7 @@ class SpecialitiesDetails extends Model
 
     protected $fillable = [
         'speciality_id',
+        'is_preventive',
         'banner_image',
         'section_image',
         'section_heading',
@@ -23,13 +24,23 @@ class SpecialitiesDetails extends Model
         'service_heading',
         'services',
         'short_info',
+        'preventive_section_heading',
+        'preventive_section_description',
+        'preventive_services',
+        'preventive_plans_heading',
+        'preventive_plans_description',
+        'preventive_plans',
+        'preventive_disclaimer',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
 
     protected $casts = [
-        'services' => 'array',
+        'services'            => 'array',
+        'is_preventive'       => 'boolean',
+        'preventive_services' => 'array',
+        'preventive_plans'    => 'array',
     ];
 
     public function speciality(): BelongsTo

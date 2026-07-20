@@ -544,3 +544,33 @@
     border-color: #4A55A2;
     box-shadow: 0 0 0 .18rem rgba(74, 85, 162, .18);
 }
+
+/* =========================================================
+   Speciality Details form — spacing + image-preview frames
+   (Preventive Care layout). Applied via .spec-details-form.
+   ========================================================= */
+.spec-details-form.row { --bs-gutter-y: 2rem; }
+.spec-details-form .row { --bs-gutter-y: 1.75rem; }
+.spec-details-form .table > :not(caption) > * > * { padding: 0.8rem; }
+.spec-details-form h5 { margin-top: 0.5rem; }
+.spec-details-form hr { margin-top: 0.25rem; margin-bottom: 0.25rem; opacity: .15; }
+
+/* Framed background so uploaded images with white backgrounds stay visible. */
+.spec-details-form #pservice-table img,
+.spec-details-form .plan-table img {
+    background: #475569;
+    padding: 6px;
+    border-radius: 6px;
+    border-color: #334155 !important;
+}
+
+/* Keep the "+ Add More" buttons a consistent solid colour (no white-on-hover flip). */
+.spec-details-form .btn-add-row,
+.spec-details-form .btn-add-row:hover,
+.spec-details-form .btn-add-row:focus,
+.spec-details-form .btn-add-row:active {
+    background-color: var(--theme-deafult, #4A55A2) !important;
+    border-color: var(--theme-deafult, #4A55A2) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
