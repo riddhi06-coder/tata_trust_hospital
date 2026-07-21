@@ -22,7 +22,7 @@
                     @foreach($banner as $item)
 
                         <div class="swiper-slide">
-                            <div class="pet-hero-slide">
+                            <div class="pet-hero-slide {{ $loop->iteration == 4 ? 'preventive-care-slide' : '' }}">
 
                                 <!-- MEDIA -->
                                 <div class="pet-hero-image">
@@ -260,26 +260,21 @@
                         </div>
                     </div>
 
-                    @foreach($speciality_items->chunk(5) as $chunkIndex => $chunk)
-                        @if($chunkIndex > 0)<br>@endif
-
-                        <div class="row justify-content-center g-4">
-                            @foreach($chunk->values() as $index => $item)
-                                @php $aosDelay = $index * 150; @endphp
-                                <div class="col-lg-2"
-                                    data-aos="fade-up"
-                                    @if($aosDelay > 0) data-aos-delay="{{ $aosDelay }}" @endif>
-                                    <a href="{{ $item->details_count > 0 ? url('specialities/'.$item->slug) : route('frontend.coming_soon') }}" class="spec-custom-nine-card-sec">
-                                        <div class="spec-custom-nine-card-content-sec">
-                                            <img src="{{ asset('home/specialities/'.$item->image) }}" alt="{{ $item->speciality }}">
-                                            <h4>{{ $item->speciality }}</h4>
-                                        </div>
-                                    </a>
+                    <div class="row justify-content-center g-4">
+                        @foreach($speciality_items as $index => $item)
+                        @php $aosDelay = ($index % 5) * 150; @endphp
+                        <div class="col-lg-2" data-aos="fade-up" @if($aosDelay > 0) data-aos-delay="{{ $aosDelay }}" @endif>
+                            <a href="{{ $item->details_count > 0 ? url('specialities/'.$item->slug) : route('frontend.coming_soon') }}"
+                               class="spec-custom-nine-card-sec">
+                                <div class="spec-custom-nine-card-content-sec">
+                                    <img src="{{ asset('home/specialities/'.$item->image) }}"
+                                         alt="{{ $item->speciality }}">
+                                    <h4>{{ $item->speciality }}</h4>
                                 </div>
-                            @endforeach
-                        </div>
+                            </a>
+                    </div>
                     @endforeach
-
+                </div>
                 </div>
             </section>
         @endif
