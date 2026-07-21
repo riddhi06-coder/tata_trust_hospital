@@ -605,6 +605,11 @@ class HomeController extends Controller
             return redirect()->route('frontend.coming_soon');
         }
 
+        // Preventive Care specialities use a different page layout (same URL).
+        if ($detail->is_preventive) {
+            return view('frontend.specialities_preventive', compact('speciality', 'detail'));
+        }
+
         return view('frontend.specialities_details', compact('speciality', 'detail'));
     }
 

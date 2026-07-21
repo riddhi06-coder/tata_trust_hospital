@@ -20935,3 +20935,54 @@ FLOATING SOCIAL MENU
 #imageModal .carousel-control-prev{left:8px}
 #imageModal .carousel-control-next{right:8px}
 @media (max-width:575px){#imageModal img,#imageModal .carousel-item img{height:auto;max-height:450px}#imageModal .modal-dialog{max-width:calc(100% - 20px);margin:15px auto}}
+
+/* ============================================================
+   Preventive Care — speciality details page
+   (from Downloads/main.css; classes used in
+   frontend/specialities_preventive.blade.php)
+   ============================================================ */
+.preventive-care-breadcrumb{position:relative;padding:120px 0;margin-bottom:0;border-bottom:2px solid #dc746c;overflow:hidden;z-index:1}
+.preventive-care-breadcrumb::after{content:"";position:absolute;inset:0;background:url("../img/banner/preventive-care-banner-bg.webp") center center/contain repeat-x;z-index:-2}
+.breadcrumb-img-custom-sec{position:absolute;inset:0;z-index:-1}
+.breadcrumb-img-custom-sec img{width:100%;height:100%;object-fit:contain;object-position:bottom right;display:block}
+
+.preventive-care-main-sec{padding:80px 0}
+.preventive-care-sidebar-img-sec img{width:100%;height:100%;border-radius:60px;filter:grayscale(100%);transition:.4s}
+.preventive-care-sidebar-content-sec p{text-align:justify}
+.preventive-care-sidebar-content-sec p:last-child{margin-bottom:0}
+.preventive-care-sidebar-content-sec h4{margin-bottom:30px;font-weight:600;font-size:24px;text-transform:capitalize;line-height:1.1;position:relative;display:inline-block}
+.preventive-care-sidebar-content-sec h4::after{content:"";position:absolute;left:0;bottom:-15px;width:50px;height:3px;background:#f8aaa4}
+
+.preventive-care-custom-seven-sec{padding:80px 0;background:url(https://sahmumbai.com/assets/img/bg/backdrop-bg.webp) center center/cover no-repeat fixed}
+.per-care-custom-sev-eyebrow{text-align:center;background:#fff4f4;border:1px solid #f8aaa4;border-radius:10px;padding:20px 10px;width:100%;max-width:100%;margin-bottom:10px}
+.per-care-custom-sev-eyebrow p{font-size:14px;font-weight:600;color:#dc746c;margin-bottom:0;margin-top:10px;line-height:1.2}
+.pre-care-custom-det-dot{width:60px;height:60px;min-width:60px;border-radius:50%;background:#dc746c;display:flex;align-items:center;justify-content:center;padding:5px;margin:0 auto}
+.pre-care-custom-det-dot img{width:40px}
+.per-care-custom-sev-custom-para{text-align:center;margin-top:30px;margin-bottom:0}
+
+.life-stage-packages-section{padding:80px 0}
+.life-stage-packages-dogs-cats-sec{margin-top:30px}
+.life-stage-packages-dogs-custom-sec{border:2px solid #f8aaa4;border-radius:10px;padding:70px 20px 20px;position:relative;background:rgba(251,217,215,.2)}
+.life-stage-packages-cats-custom-sec{border:2px solid #9a70a1;border-radius:10px;padding:70px 20px 20px;position:relative;background:rgba(154,112,161,.1)}
+.life-stage-packages-cats-custom-sec .most-loved{background:#9a70a1}
+.life-stage-packages-cats-custom-sec .badge-card{background:rgba(154,112,161,.3)}
+.most-loved{position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#dc746c;color:#fff;font-size:18px;font-weight:600;line-height:1;margin-bottom:0;padding:10px 40px;border-radius:10px;white-space:nowrap}
+.badge-card{background:#fbd9d7;border-radius:10px;padding:40px 10px 20px;text-align:center;position:relative;margin-top:0;height:100%;transition:transform .3s,box-shadow .3s}
+.badge-card:hover{transform:translateY(-6px);box-shadow:0 22px 36px -18px rgba(44,33,30,.28)}
+.badge-circle{width:60px;height:60px;border-radius:50%;position:absolute;top:-30px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center}
+.plan-name{font-size:16px;font-weight:600;text-align:center;font-family:var(--tg-heading-font-family);line-height:var(--tg-heading-line-height);text-transform:unset;color:#2b2b2b;margin-bottom:10px}
+.plan-age{line-height:1.5;display:block;font-size:14px;margin-bottom:10px;font-family:var(--tg-body-font-family);font-weight:var(--tg-fw-regular);color:var(--tg-body-color)}
+.plan-price{font-size:22px;font-weight:600;line-height:1;margin-bottom:0;font-family:var(--tg-heading-font-family)}
+
+.fine-print{background:#fbd9d7;border-radius:10px;padding:20px;margin:30px 0 0;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.fine-print .paw-seal{flex:0 0 auto;width:60px;height:60px;padding:10px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.fine-print p{color:var(--tg-body-color);text-transform:capitalize;font-family:var(--tg-body-font-family);margin-bottom:0;font-weight:var(--tg-fw-regular);font-size:var(--tg-body-font-size)}
+.fine-print-custom-para p a{color:var(--tg-body-color);text-decoration:none;position:relative;display:inline-block}
+.fine-print-custom-para p a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:currentColor;transition:width .3s}
+.fine-print-custom-para p a:hover::after,.fine-print-custom-para p a:focus::after{width:100%}
+
+@media (max-width:767px){
+    .life-stage-packages-dogs-custom-sec{margin-bottom:60px}
+    .fine-print .paw-seal{margin:0 auto}
+    .fine-print p{text-align:center}
+}
