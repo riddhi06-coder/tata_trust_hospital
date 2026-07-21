@@ -188,6 +188,24 @@
     </main>
     <!-- main-area-end -->
 
+    <!-- Validation error popup -->
+    <div class="modal fade" id="apptErrorModal" tabindex="-1" aria-labelledby="apptErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apptErrorModalLabel">Please fix the following</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul id="apptErrorList" class="mb-0 ps-3"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @include('components.frontend.footer')
 
     @include('components.frontend.main-js')
@@ -231,47 +249,67 @@
             $apptDate.setAttribute('min', y + '-' + m + '-' + d);
         }
 
+        // Show a list of error messages in the popup (falls back to alert if Bootstrap isn't ready).
+        function showErrorPopup(messages) {
+            var list = document.getElementById('apptErrorList');
+            if (list) {
+                list.innerHTML = '';
+                messages.forEach(function (m) {
+                    var li = document.createElement('li');
+                    li.textContent = m;
+                    list.appendChild(li);
+                });
+            }
+            var el = document.getElementById('apptErrorModal');
+            if (el && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(el).show();
+            } else {
+                alert(messages.join('\n'));
+            }
+        }
+
         function validate() {
             fieldsWithErrors.forEach(clearErr);
+            var messages = [];
+            var fail = function (id, msg) { show(id, msg); messages.push(msg); };
             var v = function (n) {
                 var el = form.querySelector('[name="' + n + '"]');
                 return el ? (el.value || '').trim() : '';
             };
-            var errs = 0;
 
             var name = v('name');
-            if (name === '') { show('name', 'Please enter your name.'); errs++; }
-            else if (!/^[A-Za-z\s.'\-]+$/.test(name)) { show('name', 'Name cannot contain numbers or special characters.'); errs++; }
+            if (name === '') { fail('name', 'Please enter your name.'); }
+            else if (!/^[A-Za-z\s.'\-]+$/.test(name)) { fail('name', 'Name cannot contain numbers or special characters.'); }
 
             var email = v('email');
-            if (email === '') { show('email', 'Please enter your email.'); errs++; }
-            else if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email)) { show('email', 'Please enter a valid email address.'); errs++; }
+            if (email === '') { fail('email', 'Please enter your email.'); }
+            else if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email)) { fail('email', 'Please enter a valid email address.'); }
 
-            if (v('address') === '') { show('address', 'Please enter your address.'); errs++; }
+            if (v('address') === '') { fail('address', 'Please enter your address.'); }
 
             // Indian PIN: exactly 6 digits, first digit 1-9.
             var pin = v('pincode');
-            if (pin === '') { show('pincode', 'Please enter your PIN code.'); errs++; }
-            else if (!/^[1-9][0-9]{5}$/.test(pin)) { show('pincode', 'Enter a valid 6-digit PIN code.'); errs++; }
+            if (pin === '') { fail('pincode', 'Please enter your pincode.'); }
+            else if (!/^[1-9][0-9]{5}$/.test(pin)) { fail('pincode', 'Enter a valid 6-digit PIN code.'); }
 
-            if (v('pet_name') === '') { show('pet_name', "Please enter your pet's name."); errs++; }
+            if (v('pet_name') === '') { fail('pet_name', 'Please enter the pet name.'); }
 
-            if (! form.querySelector('[name="pet_type"]:checked'))    { show('pet_type',    'Please select pet type.'); errs++; }
-            if (! form.querySelector('[name="pet_gender"]:checked'))  { show('pet_gender',  'Please select pet gender.'); errs++; }
-            if (! form.querySelector('[name="consult_type"]:checked')){ show('consult_type','Please select a consultation type.'); errs++; }
+            if (! form.querySelector('[name="pet_type"]:checked'))     { fail('pet_type',     'Please select your pet type.'); }
+            if (! form.querySelector('[name="pet_gender"]:checked'))   { fail('pet_gender',   'Please select gender.'); }
+            if (! form.querySelector('[name="consult_type"]:checked')) { fail('consult_type', 'Please select consultation type.'); }
 
-            if (v('reason') === '') { show('reason', 'Please describe the reason for the visit.'); errs++; }
+            if (v('reason') === '') { fail('reason', 'Please enter the reason.'); }
 
             var apptDate = v('appointment_date');
             if (apptDate === '') {
-                show('appointment_date', 'Please pick an appointment date.'); errs++;
+                fail('appointment_date', 'Please select a date.');
             } else {
                 var chosen = new Date(apptDate + 'T00:00:00');
                 var todayMid = new Date(); todayMid.setHours(0,0,0,0);
-                if (chosen < todayMid) { show('appointment_date', 'Appointment date cannot be in the past.'); errs++; }
+                if (chosen < todayMid) { fail('appointment_date', 'Appointment date cannot be in the past.'); }
             }
 
-            return errs === 0;
+            return messages;
         }
 
         var SUBMIT_URL = @json(route('frontend.appointment_store'));
@@ -286,7 +324,9 @@
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!validate()) {
+            var problems = validate();
+            if (problems.length) {
+                showErrorPopup(problems);
                 var first = form.querySelector('.is-invalid');
                 if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
@@ -318,9 +358,12 @@
                 }
                 // Validation errors: map to inline field errors.
                 if (res.status === 422 && res.data && res.data.errors) {
+                    var serverMsgs = [];
                     Object.keys(res.data.errors).forEach(function (k) {
                         show(k, res.data.errors[k][0]);
+                        serverMsgs.push(res.data.errors[k][0]);
                     });
+                    showErrorPopup(serverMsgs);
                     var first = form.querySelector('.is-invalid');
                     if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } else {

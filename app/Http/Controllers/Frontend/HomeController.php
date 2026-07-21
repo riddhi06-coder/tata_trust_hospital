@@ -71,7 +71,7 @@ class HomeController extends Controller
         $specialities = HomeServices::wherenull('deleted_by')->first();
         $facilities = HomeFacilities::wherenull('deleted_by')->first();
         $our_team = HomeTeam::wherenull('deleted_by')->first();
-        $team_members = OurTeam::wherenull('deleted_by')->orderBy('created_at', 'asc')->where('show_on_home', '1')->get();
+        $team_members = OurTeam::wherenull('deleted_by')->orderBy('name', 'asc')->where('show_on_home', '1')->get();
 
         $testimonial_details = HomeTestimonials::wherenull('deleted_by')->first();
         $testimonials = Testimonials::wherenull('deleted_by')->orderBy('created_at', 'asc')->get();
@@ -157,7 +157,7 @@ class HomeController extends Controller
 
         $team_members  = OurTeam::whereNull('deleted_by')
             ->where('show_on_team_page', true)
-            ->orderBy('name')
+            ->orderBy('name','asc')
             ->get();
 
         return view('frontend.our_team', compact('team_settings', 'team_members'));

@@ -56,6 +56,18 @@
                                     </div>
                                 </div>
 
+                                <!-- Name (shown as image caption on the home page) -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="image_caption">Name</label>
+                                    <input class="form-control" id="image_caption" type="text" name="image_caption" value="{{ old('image_caption') }}" placeholder="e.g. Late Mr Ratan N. Tata">
+                                </div>
+
+                                <!-- Designation (shown as image subtitle on the home page) -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="image_subtitle">Designation</label>
+                                    <input class="form-control" id="image_subtitle" type="text" name="image_subtitle" value="{{ old('image_subtitle') }}" placeholder="e.g. Founder and Chairman Emeritus">
+                                </div>
+
                                 <!-- Description -->
                                 <div class="col-md-12">
                                     <label class="form-label">Description <span class="txt-danger">*</span></label>

@@ -31,9 +31,11 @@ class HomeBoardController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'title'       => 'required|string|max:255',
-                'description' => 'required|string',
-                'image'       => 'required|file|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'title'          => 'required|string|max:255',
+                'description'    => 'required|string',
+                'image'          => 'required|file|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'image_caption'  => 'nullable|string|max:255',
+                'image_subtitle' => 'nullable|string|max:255',
             ],
             [
                 'title.required'       => 'Please enter Heading.',
@@ -60,11 +62,13 @@ class HomeBoardController extends Controller
         $file->move($folder, $fileName);
 
         HomeBoard::create([
-            'title'       => $request->title,
-            'description' => $request->description,
-            'image'       => $fileName,
-            'created_by'  => Auth::id(),
-            'created_at'  => Carbon::now(),
+            'title'          => $request->title,
+            'description'    => $request->description,
+            'image'          => $fileName,
+            'image_caption'  => $request->image_caption,
+            'image_subtitle' => $request->image_subtitle,
+            'created_by'     => Auth::id(),
+            'created_at'     => Carbon::now(),
         ]);
 
         return redirect()
@@ -85,9 +89,11 @@ class HomeBoardController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'title'       => 'required|string|max:255',
-                'description' => 'required|string',
-                'image'       => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'title'          => 'required|string|max:255',
+                'description'    => 'required|string',
+                'image'          => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:2048',
+                'image_caption'  => 'nullable|string|max:255',
+                'image_subtitle' => 'nullable|string|max:255',
             ],
             [
                 'title.required'       => 'Please enter Heading.',
@@ -121,11 +127,13 @@ class HomeBoardController extends Controller
         }
 
         $board->update([
-            'title'       => $request->title,
-            'description' => $request->description,
-            'image'       => $fileName,
-            'updated_by'  => Auth::id(),
-            'updated_at'  => Carbon::now(),
+            'title'          => $request->title,
+            'description'    => $request->description,
+            'image'          => $fileName,
+            'image_caption'  => $request->image_caption,
+            'image_subtitle' => $request->image_subtitle,
+            'updated_by'     => Auth::id(),
+            'updated_at'     => Carbon::now(),
         ]);
 
         return redirect()

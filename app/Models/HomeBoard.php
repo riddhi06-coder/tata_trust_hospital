@@ -16,6 +16,8 @@ class HomeBoard extends Model
         'title',
         'description',
         'image',
+        'image_caption',
+        'image_subtitle',
         'created_by',
         'updated_by',
         'deleted_by',
