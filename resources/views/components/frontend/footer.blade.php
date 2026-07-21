@@ -8,7 +8,15 @@
         $footerEmail = ($footerContact->footer_email ?? null) ?: ($footerContact->email ?? '');
 
         $footerMapUrl    = $footerContact->map_url ?? '';
-        $footerDonate    = $footerContact->donate_info ?? '';
+
+        // donate_info may hold a full HTML anchor (rich editor) OR a plain link.
+        // Pull the real URL out either way so it isn't dumped into the href as markup.
+        $footerDonate = $footerContact->donate_info ?? '';
+        if ($footerDonate && preg_match('/href\s*=\s*["\']([^"\']+)["\']/i', $footerDonate, $mDonate)) {
+            $footerDonateUrl = html_entity_decode($mDonate[1]);
+        } else {
+            $footerDonateUrl = trim(strip_tags($footerDonate));
+        }
 
         // Address for the footer widget: convert </p> + <br> to newlines, strip HTML, escape, then nl2br.
         // Keeps the multi-line address look without letting stray editor tags break the anchor markup.
@@ -177,9 +185,9 @@
 
     <!--Start Sticky Icon-->
     <div class="sticky-icon">
-        <a href="{{ route('frontend.user_login') }}" data-bs-toggle="modal"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp') }}" alt="Book An Appointment Icon"></a>
-        @if($footerContact && $footerContact->email)
-            <a href="mailto:{{ $footerContact->email }}?subject=Interest%20in%20Donation%20/%20Enquiry"> Donate <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" alt="Donate Icon"></a>
+        <a href="{{ route('frontend.user_login') }}"> Book An Appointment <img src="{{ asset('frontend/assets/img/icon/appointment-floating-icon.webp') }}" alt="Book An Appointment Icon"></a>
+        @if($footerDonateUrl)
+            <a href="{{ $footerDonateUrl }}"> Donate <img src="{{ asset('frontend/assets/img/icon/donate-floating-icon.webp') }}" alt="Donate Icon" title="Donate Icon"></a>
         @endif
         <a href="{{ route('frontend.contact_us') }}"> Contact Us <img src="{{ asset('frontend/assets/img/icon/contact-us-floating-icon.webp') }}" alt="Contact Us Icon"></a>
     </div>
