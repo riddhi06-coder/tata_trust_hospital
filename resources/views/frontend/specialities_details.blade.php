@@ -132,7 +132,7 @@
                                     <div class="doctor-content gau-doc-content-sec">
                                         <h2>{{ $doctor->name }}</h2>
                                         @if(!empty($doctor->designation))
-                                            <h4>{{ $doctor->designation }}</h4>
+                                            <h4>{{ strip_tags($doctor->designation) }}</h4>
                                         @endif
                                         @if(!empty($doctorBio))
                                             {!! nl2br(e($doctorBio)) !!}

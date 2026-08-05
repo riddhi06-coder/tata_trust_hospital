@@ -20991,3 +20991,39 @@ FLOATING SOCIAL MENU
     background-image: url("https://anvayafoundation.com/tata_trusts_hospital/public/frontend/assets/img/banner/preventive-care-banner-bg.webp");
     background-size: contain;
 }
+
+
+
+/* ========= */
+.pet-hero-content p {
+  font-family: OpenSans-Light;
+    font-weight: 400;
+    color: #2b2b2b;
+    font-size: 24px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+ }
+
+ .pet-hero-content small {
+    font-size: 20px;
+    font-family: OpenSans-SemiBold;
+    color: var(--tg-body-color);
+    font-weight: var(--tg-fw-regular);
+    margin-bottom: 40px;
+ }
+
+ @media (max-width: 767px) {
+  .pet-hero-content p {
+    font-size: 16px;
+  }
+
+  .pet-hero-content small {
+    font-size: 14px;
+  }
+ }
+
+@media (max-width: 992px) {
+    .pet-swiper-prev {
+    	left: 20px;
+	}
+}

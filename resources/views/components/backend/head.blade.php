@@ -56,5 +56,24 @@
         .ck-content li {
             margin-bottom: 5px;
         }
-    
+
+        /* Keep editor text readable regardless of admin theme or pasted markup.
+           Pasted content often carries an inline white colour (copied from a
+           dark-themed page/Word) that turned invisible on the white canvas.
+           Force a dark text colour + white canvas on the whole editing surface
+           — !important beats inline colours so nothing can go invisible while
+           editing. (The paste sanitizer in main-js also strips these colours so
+           the SAVED html stays clean for the public site.) */
+        .ck.ck-content,
+        .ck-editor__editable,
+        .ck-editor__editable_inline,
+        .ck.ck-content * {
+            color: #33383e !important;
+            background-color: transparent !important;
+        }
+        .ck-editor__editable,
+        .ck-editor__editable_inline {
+            background-color: #ffffff !important;
+        }
+
     </style>

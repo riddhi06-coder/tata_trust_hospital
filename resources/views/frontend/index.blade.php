@@ -21,8 +21,17 @@
 
                     @foreach($banner as $item)
 
+                        @php
+                            // Preventive Care Plans banner — detected by its heading text
+                            // (e.g. "SAH Preventive Care"), so it doesn't depend on slide order.
+                            $isPreventive = \Illuminate\Support\Str::contains(
+                                \Illuminate\Support\Str::lower(strip_tags((string) $item->banner_heading)),
+                                'preventive care'
+                            );
+                        @endphp
+
                         <div class="swiper-slide">
-                            <div class="pet-hero-slide {{ $loop->iteration == 4 ? 'preventive-care-slide' : '' }}">
+                            <div class="pet-hero-slide {{ $isPreventive ? 'preventive-care-slide' : '' }}">
 
                                 <!-- MEDIA -->
                                 <div class="pet-hero-image">
@@ -54,20 +63,34 @@
                                     <div class="pet-hero-content">
 
                                         @if(!empty($item->banner_heading))
-                                            <h1>{!! $item->banner_heading !!}</h1>
+                                            @if($item->priority == 1)
+                                                <p>{!! $item->banner_heading !!}</p>
+                                            @else
+                                                <h1>{!! $item->banner_heading !!}</h1>
+                                            @endif
                                         @endif
 
                                         @if(!empty($item->banner_title))
-                                            <p>{{ $item->banner_title }}</p>
+                                            <small>{{ $item->banner_title }}</small>
                                         @endif
 
-                                        <div class="pet-btn-group">
-                                            <a href="{{ route('frontend.user_login') }}"
-                                                class="btn">
-                                                Book An Appointment
-                                                <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
-                                                    alt="Read More" class="injectable">
-                                            </a>
+                                        <div class="pet-btn-group mt-4">
+                                            @if($isPreventive)
+                                                {{-- Preventive Care banner → Specialities ▸ Preventive Care --}}
+                                                <a href="{{ route('frontend.specialities_details', ['slug' => 'preventive-health-check-ups']) }}"
+                                                    class="btn">
+                                                    Read More
+                                                    <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
+                                                        alt="Read More" class="injectable">
+                                                </a>
+                                            @else
+                                                <a href="{{ route('frontend.user_login') }}"
+                                                    class="btn">
+                                                    Book An Appointment
+                                                    <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
+                                                        alt="Read More" class="injectable">
+                                                </a>
+                                            @endif
                                         </div>
 
                                     </div>
@@ -439,9 +462,13 @@
 
                                         @if(!empty($member->designation))
 
-                                            @foreach(explode(',', $member->designation) as $designation)
-                                                <p>{{ trim($designation) }}</p>
-                                            @endforeach
+                                            @if(\Illuminate\Support\Str::contains($member->designation, '<'))
+                                                {!! $member->designation !!}
+                                            @else
+                                                @foreach(explode(',', $member->designation) as $designation)
+                                                    <p>{{ trim($designation) }}</p>
+                                                @endforeach
+                                            @endif
 
                                         @endif
 

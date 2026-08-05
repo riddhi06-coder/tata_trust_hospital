@@ -67,7 +67,7 @@
                                 <div class="team__item-content">
                                     <h4 class="title">{{ $member->name }}</h4>
                                     @if(!empty($member->education))<p>{{ $member->education }}</p>@endif
-                                    @if(!empty($member->designation))<p>{{ $member->designation }}</p>@endif
+                                    @if(!empty($member->designation))@if(\Illuminate\Support\Str::contains($member->designation, '<')){!! $member->designation !!}@else<p>{{ $member->designation }}</p>@endif @endif
                                 </div>
                             </div>
                         </div>

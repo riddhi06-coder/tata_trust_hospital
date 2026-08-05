@@ -63,7 +63,7 @@
                                             <tr>
                                                 <td>{{ $i + 1 }}</td>
                                                 <td>{{ $member->name }}</td>
-                                                <td>{{ $member->designation }}</td>
+                                                <td>{!! strip_tags($member->designation, '<br>') !!}</td>
                                                 <td>
                                                     @if(!empty($member->image))
                                                         <img src="{{ asset('our-team/'.$member->image) }}" alt="" style="height:98px; width:88px; object-fit:cover; border-radius:50%; border:1px solid #e5e7eb;">

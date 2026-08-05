@@ -37,7 +37,7 @@ class MasterOurTeamController extends Controller
 
         $rules = [
             'name'              => 'required|string|max:255',
-            'designation'       => 'required|string|max:255',
+            'designation'       => 'required|string|max:2000',
             'education'         => 'nullable|string|max:500',
             'bio'               => 'nullable|string',
             'social_media_link' => 'nullable|url|max:1000',
@@ -103,7 +103,7 @@ class MasterOurTeamController extends Controller
 
         $rules = [
             'name'              => 'required|string|max:255',
-            'designation'       => 'required|string|max:255',
+            'designation'       => 'required|string|max:2000',
             'education'         => 'nullable|string|max:500',
             'bio'               => 'nullable|string',
             'social_media_link' => 'nullable|url|max:1000',
@@ -243,7 +243,7 @@ class MasterOurTeamController extends Controller
             'name.required'         => 'Please enter Member Name.',
             'name.max'              => 'Member Name must be 255 characters or less.',
             'designation.required'  => 'Please enter Designation.',
-            'designation.max'       => 'Designation must be 255 characters or less.',
+            'designation.max'       => 'Designation is too long.',
             'education.max'         => 'Education must be 500 characters or less.',
             'social_media_link.url' => 'Social Media Link must be a valid URL.',
             'social_media_link.max' => 'Social Media Link must be 1000 characters or less.',

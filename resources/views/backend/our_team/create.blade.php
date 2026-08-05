@@ -202,7 +202,7 @@
                                 <!-- Designation -->
                                 <div class="col-md-6">
                                     <label class="form-label" for="designation">Designation <span class="txt-danger">*</span></label>
-                                    <input class="form-control" id="designation" type="text" name="designation" value="{{ old('designation') }}" placeholder="e.g. Chief Veterinarian">
+                                    <textarea class="form-control ckeditor-init" id="designation" name="designation" rows="4" placeholder="e.g. Chief Veterinarian">{!! old('designation') !!}</textarea>
                                 </div>
 
                                 <!-- Education (optional) -->
@@ -313,6 +313,37 @@
                         if (input) input.value = '';
                     }
                 });
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            /* ---------- CKEditor: attach to every .ckeditor-init textarea (Designation) ---------- */
+            var editorInstances = new Map();
+            function initCKEditor(textarea) {
+                if (!textarea || editorInstances.has(textarea) || typeof ClassicEditor === 'undefined') return;
+                textarea.removeAttribute('required');
+                ClassicEditor.create(textarea, {
+                    toolbar: [
+                        'bold', 'italic', 'underline', 'link',
+                        'bulletedList', 'numberedList', '|',
+                        'undo', 'redo', 'removeFormat'
+                    ]
+                }).then(function (editor) { editorInstances.set(textarea, editor); })
+                  .catch(function (err) { console.error(err); });
+            }
+            function initAllEditors() { document.querySelectorAll('.ckeditor-init').forEach(initCKEditor); }
+            if (typeof ClassicEditor === 'undefined') {
+                var tries = 0;
+                var waitCk = setInterval(function () {
+                    if (typeof ClassicEditor !== 'undefined' || tries++ > 40) {
+                        clearInterval(waitCk);
+                        initAllEditors();
+                    }
+                }, 100);
+            } else {
+                initAllEditors();
             }
         });
     </script>

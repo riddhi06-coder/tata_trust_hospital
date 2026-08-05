@@ -170,20 +170,30 @@ class BlogDetailsController extends Controller
         $imageRule = ($isUpdate ? 'nullable' : 'required')
             .'|file|image|mimes:jpg,jpeg,png,webp|max:10240';
 
+        // Social links are optional. Drop fully-blank rows before validating so an
+        // untouched empty row doesn't trip required_with (empty inputs submit as ""
+        // which counts as "present"). Partially-filled rows are kept and validated.
+        $social = collect($request->input('social', []))
+            ->filter(fn ($row) => filled($row['platform'] ?? null) || filled($row['url'] ?? null))
+            ->values()
+            ->all();
+        $request->merge(['social' => $social]);
+
         return Validator::make($request->all(), [
             'blog_listing_id' => 'required|exists:blog_listings,id',
             'image'           => $imageRule,
             'information'     => 'required|string',
 
             'social'                => 'nullable|array',
-            'social.*.platform'     => 'required_with:social.*.url|string|in:'.implode(',', array_keys(BlogDetailSocialLink::PLATFORMS)),
-            'social.*.url'          => 'required_with:social.*.platform|string|max:2048',
+            'social.*.platform'     => 'nullable|required_with:social.*.url|string|in:'.implode(',', array_keys(BlogDetailSocialLink::PLATFORMS)),
+            'social.*.url'          => 'nullable|required_with:social.*.platform|string|max:2048',
         ], [
             'blog_listing_id.required' => 'Please select a Blog Title.',
             'image.required'           => 'Please upload an Image.',
             'information.required'     => 'Please enter the Information content.',
-            'social.*.platform.in'     => 'Choose a valid social platform.',
-            'social.*.url.required_with' => 'Each social row needs a URL.',
+            'social.*.platform.in'          => 'Choose a valid social platform.',
+            'social.*.platform.required_with' => 'Choose a social platform for each row.',
+            'social.*.url.required_with'    => 'Each social row needs a URL.',
         ]);
     }
 
