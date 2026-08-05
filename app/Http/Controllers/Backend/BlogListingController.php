@@ -171,6 +171,15 @@ class BlogListingController extends Controller
         $thumbRule = ($isUpdate ? 'nullable' : 'required')
             .'|file|image|mimes:jpg,jpeg,png,webp|max:5120';
 
+        // Tags are optional. Drop blank tag rows before validating so an untouched
+        // empty row doesn't trip required_with (empty inputs submit as "" which
+        // counts as "present"). Filled rows are kept and validated.
+        $tags = collect($request->input('tags', []))
+            ->filter(fn ($row) => filled($row['tag'] ?? null))
+            ->values()
+            ->all();
+        $request->merge(['tags' => $tags]);
+
         $rules = [
             'blog_category_id'  => 'required|exists:blog_categories,id',
             'title'             => 'required|string|max:500',
@@ -179,7 +188,7 @@ class BlogListingController extends Controller
             'blog_date'         => 'nullable|date',
 
             'tags'              => 'nullable|array',
-            'tags.*.tag'        => 'required_with:tags.*|string|max:100',
+            'tags.*.tag'        => 'nullable|string|max:100',
         ];
 
         if ($showBanner) {
