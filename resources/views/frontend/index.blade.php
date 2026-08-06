@@ -513,18 +513,19 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                    <div class="col-lg-6 col-md-8 order-0 order-lg-2 d-none">
                         <div class="testi-img-custom-sp-sec">
                             @if($testimonial_details && !empty($testimonial_details->image))
                                 <img src="{{ asset('home/testimonials/'.$testimonial_details->image) }}"
                                     alt="{{ $testimonial_details->title ?? 'Testimonial' }}"
                                     data-aos="fade-left"
-                                    data-aos-delay="150">
+                                    data-aos-delay="150"
+                                    class="img-fluid">
                             @endif
                         </div>
                     </div>
 
-                    <div class="col-lg-6">
+                    <div class="col-lg-12">
                         <div class="testimonial__item-wrap">
 
                             <div class="swiper testimonial-active">
@@ -549,9 +550,9 @@
 
                                                         {!! $testimonial->testimony !!}
 
-                                                        <h2 class="title">
+                                                        <h3 class="title">
                                                             {{ $testimonial->name }}
-                                                        </h2>
+                                                        </h3>
 
                                                     </div>
 
