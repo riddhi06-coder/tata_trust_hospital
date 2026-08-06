@@ -17,6 +17,7 @@ class Events extends Model
         'thumbnail',
         'image',
         'month',
+        'year',
         'show_on_home',
         'created_by',
         'updated_by',
@@ -26,6 +27,7 @@ class Events extends Model
     protected $casts = [
         'show_on_home' => 'boolean',
         'month'        => 'integer',
+        'year'         => 'integer',
     ];
 
     public const MONTHS = [
@@ -46,5 +48,11 @@ class Events extends Model
     public function getMonthNameAttribute(): ?string
     {
         return self::MONTHS[$this->month] ?? null;
+    }
+
+    /** "January 2026", "January", "2026", or null — whatever is set. */
+    public function getPeriodLabelAttribute(): ?string
+    {
+        return trim(($this->month_name ?? '').' '.($this->year ?? '')) ?: null;
     }
 }

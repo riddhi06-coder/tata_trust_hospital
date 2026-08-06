@@ -120,6 +120,16 @@ class HomeController extends Controller
         return view('frontend.gallery', compact('gallery_settings', 'gallery_images'));
     }
 
+    public function events()
+    {
+        $event_settings = EventSetting::whereNull('deleted_by')->first();
+        $events         = Events::whereNull('deleted_by')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('frontend.events', compact('event_settings', 'events'));
+    }
+
     public function specialities()
     {
         $speciality_settings = SpecialitySetting::whereNull('deleted_by')->first();

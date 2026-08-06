@@ -27,8 +27,9 @@ class EventsController extends Controller
         $showBanner = ! $hasEvents;
         $settings   = $showBanner ? EventSetting::whereNull('deleted_by')->first() : null;
         $months     = Events::MONTHS;
+        $years      = $this->yearOptions();
 
-        return view('backend.events.create', compact('showBanner', 'settings', 'months'));
+        return view('backend.events.create', compact('showBanner', 'settings', 'months', 'years'));
     }
 
     public function store(Request $request)
@@ -39,6 +40,7 @@ class EventsController extends Controller
         $rules = [
             'title'     => 'required|string|max:255',
             'month'     => 'nullable|integer|min:1|max:12',
+            'year'      => 'nullable|integer|min:2000|max:2100',
             'thumbnail' => 'required|file|image|mimes:jpg,jpeg,png,webp|max:5120',
             'image'     => 'required|file|image|mimes:jpg,jpeg,png,webp|max:10240',
         ];
@@ -60,6 +62,9 @@ class EventsController extends Controller
             'month.integer'      => 'Please choose a valid month.',
             'month.min'          => 'Please choose a valid month.',
             'month.max'          => 'Please choose a valid month.',
+            'year.integer'       => 'Please choose a valid year.',
+            'year.min'           => 'Please choose a valid year.',
+            'year.max'           => 'Please choose a valid year.',
         ]);
 
         $validator->validate();
@@ -86,6 +91,7 @@ class EventsController extends Controller
             'thumbnail'  => $thumbName,
             'image'      => $imgName,
             'month'      => $request->month,
+            'year'       => $request->year,
             'created_by' => Auth::id(),
             'created_at' => Carbon::now(),
         ]);
@@ -102,8 +108,9 @@ class EventsController extends Controller
         $showBanner = ((int) $event->id === (int) $firstId);
         $settings   = $showBanner ? EventSetting::whereNull('deleted_by')->first() : null;
         $months     = Events::MONTHS;
+        $years      = $this->yearOptions($event->year);
 
-        return view('backend.events.edit', compact('event', 'showBanner', 'settings', 'months'));
+        return view('backend.events.edit', compact('event', 'showBanner', 'settings', 'months', 'years'));
     }
 
     public function update(Request $request, $id)
@@ -115,6 +122,7 @@ class EventsController extends Controller
         $rules = [
             'title'        => 'required|string|max:255',
             'month'        => 'nullable|integer|min:1|max:12',
+            'year'         => 'nullable|integer|min:2000|max:2100',
             'thumbnail'    => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:5120',
             'image'        => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:10240',
             'show_on_home' => 'nullable|boolean',
@@ -135,6 +143,9 @@ class EventsController extends Controller
             'month.integer'  => 'Please choose a valid month.',
             'month.min'      => 'Please choose a valid month.',
             'month.max'      => 'Please choose a valid month.',
+            'year.integer'   => 'Please choose a valid year.',
+            'year.min'       => 'Please choose a valid year.',
+            'year.max'       => 'Please choose a valid year.',
         ]);
 
         $validator->validate();
@@ -174,6 +185,7 @@ class EventsController extends Controller
         $event->update([
             'title'        => $request->title,
             'month'        => $request->month,
+            'year'         => $request->year,
             'thumbnail'    => $thumbName,
             'image'        => $imgName,
             'show_on_home' => (bool) $request->boolean('show_on_home'),
@@ -224,6 +236,25 @@ class EventsController extends Controller
                 'message' => 'Something went wrong - '.$ex->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Year dropdown options — a rolling window (next year down to five years
+     * back), always including the currently-saved year so an out-of-window
+     * value stays selectable on edit.
+     */
+    private function yearOptions(?int $current = null): array
+    {
+        $now   = (int) Carbon::now()->year;
+        $years = range($now + 1, $now - 5);
+
+        if ($current !== null && ! in_array($current, $years, true)) {
+            $years[] = $current;
+        }
+
+        rsort($years);
+
+        return $years;
     }
 
     private function saveSectionSettings(Request $request): void

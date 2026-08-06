@@ -65,13 +65,25 @@
                                         placeholder="Enter Event Title">
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <label class="form-label" for="month">Month</label>
                                     <select class="form-control" id="month" name="month">
                                         <option value="">— Select Month —</option>
                                         @foreach($months as $num => $name)
                                             <option value="{{ $num }}" {{ (string) old('month') === (string) $num ? 'selected' : '' }}>
                                                 {{ $name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label" for="year">Year</label>
+                                    <select class="form-control" id="year" name="year">
+                                        <option value="">— Select Year —</option>
+                                        @foreach($years as $yr)
+                                            <option value="{{ $yr }}" {{ (string) old('year') === (string) $yr ? 'selected' : '' }}>
+                                                {{ $yr }}
                                             </option>
                                         @endforeach
                                     </select>

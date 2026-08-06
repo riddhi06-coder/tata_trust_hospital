@@ -146,9 +146,11 @@
                                         <li><a href="{{ route('frontend.our_facilities') }}">Facilities</a></li>
                                         <li><a href="{{ route('frontend.about_us') }}">About</a></li>
                                         <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
+                                        <li><a href="{{ route('frontend.events') }}">Events</a></li>
                                         <li><a href="{{ route('frontend.blogs') }}">Blog</a></li> 
-                                        <li><a href="{{ route('frontend.contact_us') }}">Contact</a></li>
                                         <li><a href="{{ route('frontend.coming_soon') }}">Media</a></li>
+                                        <li><a href="{{ route('frontend.contact_us') }}">Contact</a></li>
+                                       
                                     </ul>
                                 </div>
                                 <div class="tgmenu__action d-none d-md-flex">

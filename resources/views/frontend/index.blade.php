@@ -728,9 +728,9 @@
                                         title="{{ $event->title }}">
                                         <img src="{{ asset('home/events/'.$event->thumbnail) }}" alt="{{ $event->title }}">
                                     </a>
-                                    @if(!empty($event->month_name))
+                                    @if(!empty($event->period_label))
                                         <ul class="list-wrap upcoming-events-post-tag upcoming-events-post-tag-three">
-                                            <li>{{ $event->month_name }}</li>
+                                            <li>{{ $event->period_label }}</li>
                                         </ul>
                                     @endif
                                 </div>

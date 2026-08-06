@@ -50,7 +50,7 @@
                                         <tr>
                                             <th>Sr No.</th>
                                             <th>Title</th>
-                                            <th>Month</th>
+                                            <th>Month / Year</th>
                                             <th>Thumbnail</th>
                                             <th>Show on Home</th>
                                             <th class="text-end" style="min-width:170px;">Actions</th>
@@ -61,7 +61,7 @@
                                             <tr>
                                                 <td>{{ $i + 1 }}</td>
                                                 <td>{{ $event->title }}</td>
-                                                <td>{{ $event->month_name ?? '—' }}</td>
+                                                <td>{{ $event->period_label ?? '—' }}</td>
                                                 <td>
                                                     @if(!empty($event->thumbnail))
                                                         <img src="{{ asset('home/events/'.$event->thumbnail) }}" alt=""
