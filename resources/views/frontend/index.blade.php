@@ -676,8 +676,14 @@
                                                 <div class="homepage-gallery-item">
                                                     <div class="homepage-gallery-thumb">
                                                         <img src="{{ asset('home/gallery/'.$img->image) }}"
-                                                            alt="{{ $gallery_settings->banner_heading ?? 'Gallery image' }}">
+                                                            alt="{{ $img->title ?? $gallery_settings->banner_heading ?? 'Gallery image' }}"
+                                                            title="{{ $img->title ?? 'Gallery Image' }}">
                                                     </div>
+                                                    @if(!empty($img->title))
+                                                        <div class="homepage-gallery-content">
+                                                            <h3 class="homepage-gallery-title">{{ $img->title }}</h3>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach

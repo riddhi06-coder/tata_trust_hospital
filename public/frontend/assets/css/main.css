@@ -20154,6 +20154,14 @@ FLOATING SOCIAL MENU
 
 .homepage-gallery-item {
   margin-bottom: 25px;
+  background-color: #fbd9d7;
+  border-radius: 20px;
+  padding: 5px 5px 15px;
+}
+
+.homepage-gallery-content {
+  padding: 10px 4px 4px;
+  text-align: center;
 }
 
 .homepage-gallery-item:hover .product__thumb::before {
@@ -20190,6 +20198,19 @@ FLOATING SOCIAL MENU
 
 .homepage-gallery-thumb img:hover {
   filter: grayscale(0%);
+}
+
+.homepage-gallery-title {
+  margin-bottom: 0;
+  font-size: 16px;
+  text-align: center;
+  font-family: OpenSans-SemiBold;
+  font-weight: var(--tg-fw-bold);
+  line-height: var(--tg-heading-line-height);
+  color: #2b2b2b;
+  text-transform: capitalize;
+  min-height: 39px;
+  padding: 0 10px;
 }
 
 .homepage-gallery-nav-wrap button {

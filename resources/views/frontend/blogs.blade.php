@@ -39,7 +39,7 @@
         <section class="blog__area pt-100 pb-100">
             <div class="container">
                 <div class="row">
-                    <div class="col-xl-9 col-lg-8 order-0 order-lg-2">
+                    <div class="col-xl-9 col-lg-8">
 
                         {{-- Active filter chip / clear-all --}}
                         <div id="active-filter-bar" class="mb-3" style="{{ ($search || $category || $tag) ? '' : 'display:none;' }}">
