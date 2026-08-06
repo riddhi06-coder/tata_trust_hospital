@@ -56,6 +56,7 @@ class ModulePermissionsSeeder extends Seeder
                 ['About Us',              'about-us',              ['view', 'create', 'edit', 'delete']],
                 ['Gallery',               'gallery',               ['view', 'create', 'edit', 'delete']],
                 ['Events',                'events',                ['view', 'create', 'edit', 'delete']],
+                ['Media',                 'media',                 ['view', 'create', 'edit', 'delete']],
                 ['FAQs',                  'faqs',                  ['view', 'create', 'edit', 'delete']],
                 ['Contact Details',       'contact-details',       ['view', 'create', 'edit', 'delete']],
                 ['Privacy Policy',        'privacy-policy',        ['view', 'create', 'edit', 'delete']],

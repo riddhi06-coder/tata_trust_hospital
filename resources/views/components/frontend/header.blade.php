@@ -148,7 +148,7 @@
                                         <li><a href="{{ route('frontend.our_team') }}">Team</a></li>
                                         <li><a href="{{ route('frontend.events') }}">Events</a></li>
                                         <li><a href="{{ route('frontend.blogs') }}">Blog</a></li> 
-                                        <li><a href="{{ route('frontend.coming_soon') }}">Media</a></li>
+                                        <li><a href="{{ route('frontend.media') }}">Media</a></li>
                                         <li><a href="{{ route('frontend.contact_us') }}">Contact</a></li>
                                        
                                     </ul>

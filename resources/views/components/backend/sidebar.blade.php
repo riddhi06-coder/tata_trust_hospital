@@ -309,6 +309,21 @@
                   </a>
                 </li>
                 @endif
+
+                @if($can('media.view'))
+                <li class="sidebar-list {{ request()->routeIs('manage-media.index') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link" href="{{ route('manage-media.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-social') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-social') }}"></use>
+                    </svg>
+                    <span>Media</span>
+                  </a>
+                </li>
+                @endif
                 
 
                 <!-- Join Us -->

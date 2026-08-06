@@ -41,6 +41,7 @@ use App\Http\Controllers\Backend\ContactEnquiryController;
 use App\Http\Controllers\Backend\JobApplicationController;
 use App\Http\Controllers\Backend\BlogCommentController;
 use App\Http\Controllers\Backend\FlyerController;
+use App\Http\Controllers\Backend\MediaController;
 
 //frontend controller
 use App\Http\Controllers\Frontend\HomeController;
@@ -173,6 +174,9 @@ use App\Http\Controllers\Frontend\HomeController;
             Route::post('manage-events/{id}/toggle-home', [EventsController::class, 'toggleHome'])->middleware('permission:events.edit')->name('manage-events.toggle-home');
             $crud('manage-events', EventsController::class, 'events');
 
+            // Media
+            $crud('manage-media', MediaController::class, 'media');
+
             // Specialities
             $crud('manage-specialities', SpecialitiesController::class,        'specialities');
             $crud('speciality-details',  SpecialitiesDetailsController::class, 'speciality-details');
@@ -270,6 +274,7 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/', [HomeController::class, 'index'])->name('frontend.index');
     Route::get('/gallery', [HomeController::class, 'gallery'])->name('frontend.gallery');
     Route::get('/events', [HomeController::class, 'events'])->name('frontend.events');
+    Route::get('/media', [HomeController::class, 'media'])->name('frontend.media');
     Route::get('/specialities', [HomeController::class, 'specialities'])->name('frontend.specialities');
     Route::get('/specialities/{slug}', [HomeController::class, 'specialities_details'])->name('frontend.specialities_details');
     Route::get('/faqs', [HomeController::class, 'faqs'])->name('frontend.faqs');

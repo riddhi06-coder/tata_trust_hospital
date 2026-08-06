@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\EventSetting;
 use App\Models\Events;
+use App\Models\Media;
+use App\Models\MediaSetting;
 use App\Models\Flyer;
 use App\Models\AboutUs;
 use App\Models\FacilitySetting;
@@ -128,6 +130,16 @@ class HomeController extends Controller
             ->get();
 
         return view('frontend.events', compact('event_settings', 'events'));
+    }
+
+    public function media()
+    {
+        $media_settings = MediaSetting::whereNull('deleted_by')->first();
+        $media_items    = Media::whereNull('deleted_by')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('frontend.media', compact('media_settings', 'media_items'));
     }
 
     public function specialities()

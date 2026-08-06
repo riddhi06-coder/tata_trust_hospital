@@ -38,6 +38,8 @@ class ActivityLogger
         'FaqSetting'          => 'FAQ Settings',
         'MasterFacility'      => 'Facility',
         'FacilitySetting'     => 'Facility Settings',
+        'Media'               => 'Media',
+        'MediaSetting'        => 'Media Settings',
         'AboutUs'             => 'About Us',
         'AppointmentStatus'   => 'Appointment Status',
         'Role'                => 'Role',

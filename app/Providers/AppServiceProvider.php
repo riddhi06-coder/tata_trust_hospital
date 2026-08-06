@@ -32,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\HomeTeam::class,
         \App\Models\HomeTestimonials::class,
         \App\Models\MasterFacility::class,
+        \App\Models\Media::class,
+        \App\Models\MediaSetting::class,
         \App\Models\OurTeam::class,
         \App\Models\OurTeamSetting::class,
         \App\Models\Permission::class,
