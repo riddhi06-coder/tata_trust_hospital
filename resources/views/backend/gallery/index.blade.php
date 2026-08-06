@@ -50,6 +50,7 @@
                                         <tr>
                                             <th>Sr No.</th>
                                             <th>Image</th>
+                                            <th>Title</th>
                                             <th>Show on Home</th>
                                             <th class="text-end" style="min-width:170px;">Actions</th>
                                         </tr>
@@ -62,6 +63,7 @@
                                                     <img src="{{ asset('home/gallery/'.$img->image) }}" alt=""
                                                         style="height:80px; width:120px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;">
                                                 </td>
+                                                <td>{{ $img->title ?? '—' }}</td>
                                                 <td>
                                                     <div class="form-check form-switch m-0">
                                                         <input type="checkbox"
@@ -82,7 +84,7 @@
                                                 </td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="4" class="text-center text-muted py-4">No gallery images added yet.</td></tr>
+                                            <tr><td colspan="5" class="text-center text-muted py-4">No gallery images added yet.</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>

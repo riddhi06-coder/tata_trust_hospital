@@ -38,6 +38,8 @@ class GalleryController extends Controller
         $rules = [
             'images'   => 'required|array|min:1',
             'images.*' => 'file|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'titles'   => 'nullable|array',
+            'titles.*' => 'nullable|string|max:255',
         ];
 
         if ($showBanner) {
@@ -68,13 +70,16 @@ class GalleryController extends Controller
             $this->saveBannerSettings($request, $folder);
         }
 
+        $titles = $request->input('titles', []);
+
         $count = 0;
-        foreach ($request->file('images', []) as $file) {
+        foreach ($request->file('images', []) as $i => $file) {
             $fileName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
             $file->move($folder, $fileName);
 
             GalleryImage::create([
                 'image'      => $fileName,
+                'title'      => $titles[$i] ?? null,
                 'created_by' => Auth::id(),
                 'created_at' => Carbon::now(),
             ]);
@@ -105,6 +110,7 @@ class GalleryController extends Controller
 
         $rules = [
             'image'        => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'title'        => 'nullable|string|max:255',
             'show_on_home' => 'nullable|boolean',
         ];
 
@@ -148,6 +154,7 @@ class GalleryController extends Controller
 
         $image->update([
             'image'        => $fileName,
+            'title'        => $request->title,
             'show_on_home' => (bool) $request->boolean('show_on_home'),
             'updated_by'   => Auth::id(),
             'updated_at'   => Carbon::now(),

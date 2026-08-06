@@ -21112,3 +21112,32 @@ FLOATING SOCIAL MENU
   background: #d9655c;
   color: #fff;
 }
+
+/* =========== */
+.gallery__item {
+  background-color: #fbd9d7;
+  border-radius: 20px;
+}
+
+.gallery-animal-hospital-content {
+    padding: 10px 4px 4px;
+    text-align: center;
+}
+
+.gallery-animal-hospital-title {
+    font-family: OpenSans-SemiBold;
+    font-size: 16px;
+    color: #2b2b2b;
+    font-weight: var(--tg-fw-bold);
+    margin: 0;
+    text-transform: capitalize;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    min-height: 40px;
+}
+
+.gallery__item::after,
+.gallery__item::before {
+  display: none;
+}

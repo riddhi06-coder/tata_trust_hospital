@@ -80,6 +80,10 @@
                                     <a href="{{ $imgUrl }}" class="popup-image">
                                         <img src="{{ asset('frontend/assets/img/icon/gallery-icon.webp') }}" alt="" class="injectable">
                                     </a>
+
+                                    <div class="gallery-animal-hospital-content">
+                                        <h3 class="gallery-animal-hospital-title">Clients consulting with the doctor</h3>
+                                    </div>
                                 </div>
                             </div>
                         @empty

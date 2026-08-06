@@ -106,6 +106,13 @@
                                     </div>
                                 </div>
 
+                                <div class="col-md-6">
+                                    <label class="form-label" for="title">Image Title</label>
+                                    <input class="form-control" id="title" type="text" name="title"
+                                        value="{{ old('title', $image->title) }}"
+                                        placeholder="Enter Image Title (optional)">
+                                </div>
+
                                 <div class="col-md-6 d-flex align-items-center">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="show_on_home"

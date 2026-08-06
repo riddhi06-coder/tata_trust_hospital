@@ -117,7 +117,8 @@
             var summary     = document.getElementById('selectedSummary');
             var submitBtn   = document.getElementById('submitBtn');
 
-            var store = new DataTransfer();
+            var store  = new DataTransfer();
+            var titles = [];   // per-file titles, kept in sync with store.files order
 
             function renderPreviews() {
                 previewGrid.innerHTML = '';
@@ -135,6 +136,16 @@
                     meta.className = 'meta';
                     meta.textContent = file.name;
 
+                    var titleInput = document.createElement('input');
+                    titleInput.type = 'text';
+                    titleInput.name = 'titles[]';
+                    titleInput.className = 'form-control form-control-sm mt-1';
+                    titleInput.placeholder = 'Image title (optional)';
+                    titleInput.value = titles[idx] || '';
+                    titleInput.addEventListener('input', function () {
+                        titles[idx] = titleInput.value;
+                    });
+
                     var removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'remove-btn';
@@ -147,6 +158,7 @@
                     tile.appendChild(removeBtn);
                     tile.appendChild(img);
                     tile.appendChild(meta);
+                    tile.appendChild(titleInput);
                     previewGrid.appendChild(tile);
                 });
 
@@ -162,16 +174,22 @@
                 Array.from(fileList).forEach(function (f) {
                     if (!/^image\//.test(f.type)) return;
                     store.items.add(f);
+                    titles.push('');
                 });
                 renderPreviews();
             }
 
             function removeFileAt(index) {
                 var next = new DataTransfer();
+                var nextTitles = [];
                 Array.from(store.files).forEach(function (f, i) {
-                    if (i !== index) next.items.add(f);
+                    if (i !== index) {
+                        next.items.add(f);
+                        nextTitles.push(titles[i] || '');
+                    }
                 });
-                store = next;
+                store  = next;
+                titles = nextTitles;
                 renderPreviews();
             }
 
