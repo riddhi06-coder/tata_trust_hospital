@@ -3,6 +3,8 @@
 namespace App\Support;
 
 use App\Models\ContactEnquiry;
+use App\Models\OurTeam;
+use App\Models\Specialities;
 use App\Models\WhatsAppConversation;
 use App\Services\WhatsAppFortius;
 use Illuminate\Support\Facades\Log;
@@ -12,11 +14,13 @@ use Illuminate\Support\Facades\Log;
  * Runs inside the 24-hour window (user messages first → we reply free-form),
  * so NO approved templates are needed.
  *
- * Flows follow the client-approved concept; tone is professional & polished.
- * Content marked "[to be confirmed]" needs the real hospital data.
+ * Flows follow the client-approved concept, with an elegant, warm tone.
+ * Services and Team are pulled LIVE from the database and link to the matching
+ * website pages, so content stays in sync with the site. Items still marked
+ * "[to be confirmed]" need the real hospital data (address, map link, parking).
  *
- * NOTE: "Book an appointment" sends the OTP login link (per instruction),
- * rather than the full in-chat guided booking shown in the concept.
+ * "Book an appointment" sends the OTP login link (per instruction) rather than
+ * the full in-chat guided booking shown in the concept.
  */
 class WhatsAppBot
 {
@@ -25,20 +29,11 @@ class WhatsAppBot
     /** Words that always restart the conversation at the main menu. */
     private array $resetWords = ['hi', 'hello', 'hey', 'menu', 'start', 'main menu', 'restart'];
 
-    /** Services shown under "Our services". Descriptions are placeholders — confirm / wire to Specialities. */
-    private array $services = [
-        'svc_general'     => ['General Medicine',              'Consultations and treatment for routine and complex health concerns.'],
-        'svc_surgery'     => ['Surgery',                       'Routine and advanced surgical procedures in a fully equipped operating theatre.'],
-        'svc_vaccination' => ['Vaccination & Preventive Care', 'Core vaccinations, deworming and wellness check-ups tailored to your pet.'],
-        'svc_ortho'       => ['Orthopaedics',                  'Diagnosis and treatment of bone, joint and mobility conditions.'],
-        'svc_diagnostics' => ['Diagnostics & Imaging',         'In-house laboratory, X-ray and imaging for accurate diagnosis.'],
-    ];
-
     /** FAQs shown under "Common questions". [short title, full question, answer]. */
     private array $faqs = [
-        'faq_fees'    => ['Consultation fees', 'What are the consultation fees?', "Consultation fees vary by service and department. Our team will confirm the exact charges when they contact you. For immediate assistance, please call 022 6538 3538."],
-        'faq_reports' => ['Medical reports',   "Can I access my pet's medical reports?", "Yes. Reports can be collected at the hospital or shared with you digitally. Our reception team will be glad to assist you."],
-        'faq_bring'   => ['What to bring',     'What should I bring for a visit?', "Please carry:\n• Your pet's previous prescriptions or reports\n• Vaccination card, if available\n• A leash or carrier for safe transport"],
+        'faq_fees'    => ['Consultation fees', 'What are the consultation fees?', "Consultation fees vary by service. Our team will share the exact charges when they call you. For immediate help, please call 022 6538 3538."],
+        'faq_reports' => ['Medical reports',   "Can I get my pet's reports?",     "Yes — your pet's reports can be collected at the hospital or shared with you digitally. Our reception team will be glad to help."],
+        'faq_bring'   => ['What to bring',     'What should I bring for a visit?', "Great question! Please carry:\n• Your pet's previous prescriptions or reports\n• Vaccination card, if any\n• A leash or carrier for safe travel"],
         'faq_parking' => ['Parking',           'Is parking available?', "Parking details are being updated. [to be confirmed]"],
     ];
 
@@ -79,96 +74,151 @@ class WhatsAppBot
         }
 
         switch ($input) {
-            case 'menu_book':
-                $url = config('services.whatsapp.booking_url');
-                $this->wa->sendText($c->wa_id, "*Book an Appointment*\n\nTo schedule a visit for your pet, please log in and complete your booking here:\n{$url}\n\nOnce submitted, our Customer Care team will contact you to confirm the details.", $ctx);
-                $this->backToMenuHint($c, $ctx);
-                break;
-
-            case 'menu_services':
-                $this->wa->sendList($c->wa_id, "*Our Services*\n\nPlease select a department to learn more:", 'View Services',
-                    array_map(fn ($id) => ['id' => $id, 'title' => $this->services[$id][0]], array_keys($this->services)), null, $ctx);
-                $c->step = 'idle';
-                $c->save();
-                break;
-
-            case 'menu_timings':
-                $this->wa->sendText($c->wa_id, "*Timings & Location*\n\nSmall Animal Hospital Mumbai\n[Hospital address — to be confirmed]\n\nWorking Hours\nMonday to Saturday: 9:00 AM – 8:00 PM\nSunday: 9:00 AM – 1:00 PM\n\nPhone: 022 6538 3538\nDirections: [Google Maps link]", $ctx);
-                $this->wa->sendButtons($c->wa_id, 'How would you like to proceed?', [
-                    ['id' => 'menu_book',      'title' => 'Book a visit'],
-                    ['id' => 'menu_emergency', 'title' => 'Emergency help'],
-                    ['id' => 'menu_back',      'title' => 'Main menu'],
-                ], null, $ctx);
-                $c->step = 'idle';
-                $c->save();
-                break;
-
-            case 'menu_emergency':
-                $this->wa->sendText($c->wa_id, "*Emergency Assistance*\n\nIf your pet requires urgent care, please contact us immediately.\n\nCall now: *022 6538 3538*\n\nOr visit us directly at:\n[Hospital address — to be confirmed]\n\nIf possible, please carry any previous medical reports or current medication.", $ctx);
-                $this->wa->sendButtons($c->wa_id, 'We can also help with:', [
-                    ['id' => 'menu_timings', 'title' => 'Directions'],
-                    ['id' => 'menu_talk',    'title' => 'Message the team'],
-                    ['id' => 'menu_back',    'title' => 'Main menu'],
-                ], null, $ctx);
-                $c->step = 'idle';
-                $c->save();
-                break;
-
-            case 'menu_faq':
-                $this->wa->sendList($c->wa_id, "*Common Questions*\n\nPlease select a question:", 'View Questions',
-                    array_map(fn ($id) => ['id' => $id, 'title' => $this->faqs[$id][0], 'description' => $this->faqs[$id][1]], array_keys($this->faqs)), null, $ctx);
-                $c->step = 'idle';
-                $c->save();
-                break;
-
-            case 'menu_talk':
-                $c->step = 'lead_reason';
-                $c->save();
-                $this->wa->sendText($c->wa_id, "*Talk to Our Team*\n\nI would be happy to connect you with our Customer Care team. Please type your question or message below, and our team will get back to you shortly.", $ctx);
-                break;
-
-            case 'menu_careers':
-                $this->wa->sendText($c->wa_id, "*Careers at SAHM*\n\nWe are always looking for passionate people to join our team. Please view our current openings and apply here:\n".route('frontend.join_us'), $ctx);
-                $this->backToMenuHint($c, $ctx);
-                break;
-
-            default:
-                // Unrecognised input (incl. the "Main menu" button) — greet + show menu.
-                $this->sendMenu($c, $ctx);
+            case 'menu_book':          $this->bookAppointment($c, $ctx); break;
+            case 'menu_services':      $this->servicesList($c, $ctx); break;
+            case 'menu_services_all':  $this->link($c, $ctx, "*Our Services* 🏥\n\nExplore all our departments and specialities here:", route('frontend.specialities')); break;
+            case 'menu_team':          $this->teamInfo($c, $ctx); break;
+            case 'menu_blog':          $this->link($c, $ctx, "*Blog & Articles* 📝\n\nExplore pet-care tips, updates and stories from our team here:", route('frontend.blogs')); break;
+            case 'menu_timings':       $this->timings($c, $ctx); break;
+            case 'menu_emergency':     $this->emergency($c, $ctx); break;
+            case 'menu_faq':           $this->faqList($c, $ctx); break;
+            case 'menu_talk':          $this->startTalk($c, $ctx); break;
+            case 'menu_careers':       $this->link($c, $ctx, "*Careers at SAHM* 💼\n\nWe'd love to hear from you! View our current openings and apply here:", route('frontend.join_us')); break;
+            default:                   $this->sendMenu($c, $ctx);   // unrecognised / "Main menu"
         }
     }
 
-    /** Greeting + the main-menu list (professional tone). */
+    /** Greeting + the main-menu list (warm, elegant tone). */
     private function sendMenu(WhatsAppConversation $c, array $ctx): void
     {
         $c->step = 'idle';
         $c->data = null;
         $c->save();
 
-        $greeting = "Welcome to *Small Animal Hospital Mumbai*.\n\n"
-            ."I am your virtual assistant and I am here to help. Please select an option below to continue:";
+        $greeting = "Hello, and welcome to *Small Animal Hospital Mumbai*. 🐾\n\n"
+            ."I'm here to help you and your pet. How may I assist you today?";
 
         $this->wa->sendList($c->wa_id, $greeting, 'Main Menu', [
-            ['id' => 'menu_book',      'title' => 'Book an appointment', 'description' => 'Schedule a visit for your pet'],
-            ['id' => 'menu_services',  'title' => 'Our services',        'description' => 'Departments and specialities'],
-            ['id' => 'menu_timings',   'title' => 'Timings & location',  'description' => 'Hours, address and directions'],
-            ['id' => 'menu_emergency', 'title' => 'Emergency help',      'description' => 'Urgent assistance for your pet'],
-            ['id' => 'menu_faq',       'title' => 'Common questions',    'description' => 'Fees, reports and visit details'],
-            ['id' => 'menu_talk',      'title' => 'Talk to our team',    'description' => 'Connect with our staff'],
-            ['id' => 'menu_careers',   'title' => 'Careers',             'description' => 'Current openings'],
+            ['id' => 'menu_book',      'title' => 'Book an appointment', 'description' => 'Reserve a visit for your pet'],
+            ['id' => 'menu_services',  'title' => 'Our services',        'description' => 'Departments & specialities'],
+            ['id' => 'menu_team',      'title' => 'Meet the team',       'description' => 'Our doctors & specialists'],
+            ['id' => 'menu_timings',   'title' => 'Timings & location',  'description' => 'Hours, address & directions'],
+            ['id' => 'menu_emergency', 'title' => 'Emergency help',      'description' => 'Urgent care for your pet'],
+            ['id' => 'menu_faq',       'title' => 'Common questions',    'description' => 'Fees, reports & more'],
+            ['id' => 'menu_blog',      'title' => 'Blog & articles',     'description' => 'Pet-care tips & updates'],
+            ['id' => 'menu_talk',      'title' => 'Talk to our team',    'description' => 'Speak with a real person'],
+            ['id' => 'menu_careers',   'title' => 'Careers',             'description' => 'Join our team'],
         ], null, $ctx);
     }
 
-    /** One service's description + next-step buttons. */
-    private function serviceDetail(WhatsAppConversation $c, string $id, array $ctx): void
+    /** Book an appointment → OTP login link. */
+    private function bookAppointment(WhatsAppConversation $c, array $ctx): void
     {
-        [$title, $desc] = $this->services[$id] ?? ['Our Services', ''];
-        $this->wa->sendText($c->wa_id, "*{$title}*\n\n{$desc}\n\nWould you like to book an appointment or speak with our team?", $ctx);
+        $url = config('services.whatsapp.booking_url') ?: route('frontend.user_login');
+        $this->wa->sendText($c->wa_id, "*Book an Appointment* 🐾\n\nWonderful — let's get your pet booked. Please tap below to log in and reserve your visit:\n{$url}\n\nOnce submitted, our Customer Care team will call you to confirm the details.", $ctx);
+        $this->backToMenuHint($c, $ctx);
+    }
+
+    /** "Our services" — live list of specialities from the database. */
+    private function servicesList(WhatsAppConversation $c, array $ctx): void
+    {
+        $items = Specialities::whereNull('deleted_by')->orderBy('id')->limit(9)->get();
+
+        if ($items->isEmpty()) {
+            $this->link($c, $ctx, "*Our Services* 🏥\n\nExplore our departments and specialities here:", route('frontend.specialities'));
+            return;
+        }
+
+        $rows = $items->map(fn ($s) => ['id' => 'svc_'.$s->id, 'title' => $s->speciality])->values()->all();
+        $rows[] = ['id' => 'menu_services_all', 'title' => 'View all on website'];
+
+        $this->wa->sendList($c->wa_id, "*Our Services* 🏥\n\nHere's what we care for at SAHM. Tap any to learn more:", 'View Services', $rows, null, $ctx);
+        $c->step = 'idle';
+        $c->save();
+    }
+
+    /** One speciality → short intro + link to its website page. */
+    private function serviceDetail(WhatsAppConversation $c, string $input, array $ctx): void
+    {
+        $id = (int) str_replace('svc_', '', $input);
+        $s  = Specialities::whereNull('deleted_by')->find($id);
+
+        if (! $s) {
+            $this->sendMenu($c, $ctx);
+            return;
+        }
+
+        $url = route('frontend.specialities_details', $s->slug);
+        $this->wa->sendText($c->wa_id, "*{$s->speciality}*\n\nLearn more about our {$s->speciality} care here:\n{$url}\n\nWould you like to book an appointment or speak with our team?", $ctx);
         $this->wa->sendButtons($c->wa_id, 'Please choose an option:', [
             ['id' => 'menu_book', 'title' => 'Book appointment'],
             ['id' => 'menu_talk', 'title' => 'Talk to our team'],
             ['id' => 'menu_back', 'title' => 'Main menu'],
         ], null, $ctx);
+        $c->step = 'idle';
+        $c->save();
+    }
+
+    /** "Meet the team" — live team list from the database + link to the team page. */
+    private function teamInfo(WhatsAppConversation $c, array $ctx): void
+    {
+        $members = OurTeam::whereNull('deleted_by')
+            ->where('show_on_team_page', true)
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+
+        $url = route('frontend.our_team');
+
+        if ($members->isEmpty()) {
+            $this->wa->sendText($c->wa_id, "*Meet Our Team* 👩‍⚕️\n\nMeet our veterinarians and specialists here:\n{$url}", $ctx);
+        } else {
+            $lines = $members
+                ->map(function ($m) {
+                    $desig = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $m->designation))));
+                    if (mb_strlen($desig) > 60) {
+                        $desig = mb_substr($desig, 0, 57).'…';
+                    }
+                    return '• *'.$m->name.'*'.($desig !== '' ? ' — '.$desig : '');
+                })
+                ->implode("\n");
+            $this->wa->sendText($c->wa_id, "*Meet Our Team* 👩‍⚕️\n\nOur experienced veterinarians and specialists:\n\n{$lines}\n\nView full profiles here:\n{$url}", $ctx);
+        }
+
+        $this->backToMenuHint($c, $ctx);
+    }
+
+    /** Timings & location. */
+    private function timings(WhatsAppConversation $c, array $ctx): void
+    {
+        $this->wa->sendText($c->wa_id, "*Timings & Location* 📍\n\nSmall Animal Hospital Mumbai\n[Hospital address — to be confirmed]\n\n🕐 Mon–Sat: 9:00 AM – 8:00 PM\nSunday: 9:00 AM – 1:00 PM\n\n📞 022 6538 3538\n🗺️ Directions: [Google Maps link]", $ctx);
+        $this->wa->sendButtons($c->wa_id, 'How would you like to proceed?', [
+            ['id' => 'menu_book',      'title' => 'Book a visit'],
+            ['id' => 'menu_emergency', 'title' => 'Emergency help'],
+            ['id' => 'menu_back',      'title' => 'Main menu'],
+        ], null, $ctx);
+        $c->step = 'idle';
+        $c->save();
+    }
+
+    /** Emergency — phone-first. */
+    private function emergency(WhatsAppConversation $c, array $ctx): void
+    {
+        $this->wa->sendText($c->wa_id, "*Emergency Help* 🚨\n\nI'm here to help — a pet emergency is serious, so please don't wait.\n\n📞 *Call us now: 022 6538 3538*\n\n🏥 Or come straight to the hospital:\n[Hospital address — to be confirmed]\n\nIf you can, please bring any past reports or the medicine your pet is on.", $ctx);
+        $this->wa->sendButtons($c->wa_id, 'We can also help with:', [
+            ['id' => 'menu_timings', 'title' => 'Directions'],
+            ['id' => 'menu_talk',    'title' => 'Message the team'],
+            ['id' => 'menu_back',    'title' => 'Main menu'],
+        ], null, $ctx);
+        $c->step = 'idle';
+        $c->save();
+    }
+
+    /** FAQ list. */
+    private function faqList(WhatsAppConversation $c, array $ctx): void
+    {
+        $this->wa->sendList($c->wa_id, "*Common Questions* ❓\n\nPlease select a question:", 'View Questions',
+            array_map(fn ($id) => ['id' => $id, 'title' => $this->faqs[$id][0], 'description' => $this->faqs[$id][1]], array_keys($this->faqs)), null, $ctx);
         $c->step = 'idle';
         $c->save();
     }
@@ -186,17 +236,15 @@ class WhatsAppBot
         $c->save();
     }
 
-    /** Offer a quick way back to the menu after answering. */
-    private function backToMenuHint(WhatsAppConversation $c, array $ctx): void
+    /** "Talk to our team" — begin capturing the user's message. */
+    private function startTalk(WhatsAppConversation $c, array $ctx): void
     {
-        $c->step = 'idle';
+        $c->step = 'lead_reason';
         $c->save();
-        $this->wa->sendButtons($c->wa_id, 'Is there anything else I can help you with?', [
-            ['id' => 'menu_back', 'title' => 'Main menu'],
-        ], null, $ctx);
+        $this->wa->sendText($c->wa_id, "*Talk to Our Team* 💬\n\nOf course — I'll connect you with our Customer Care team. Please share your question below, and we'll get back to you shortly.", $ctx);
     }
 
-    /** "Talk to our team" — capture the message as a Contact Enquiry. */
+    /** Save the captured message as a Contact Enquiry, then confirm. */
     private function captureReason(WhatsAppConversation $c, string $text, array $ctx): void
     {
         // Persist as a Contact Enquiry so it appears in the admin panel.
@@ -218,7 +266,24 @@ class WhatsAppBot
         $c->step = 'idle';
         $c->save();
 
-        $this->wa->sendText($c->wa_id, 'Thank you. Your message has been received, and our Customer Care team will contact you shortly.', $ctx);
+        $this->wa->sendText($c->wa_id, "Thank you! Your message has reached our Customer Care team, and they'll get back to you shortly.", $ctx);
         $this->backToMenuHint($c, $ctx);
+    }
+
+    /** Send a titled message with a link, then offer the menu. */
+    private function link(WhatsAppConversation $c, array $ctx, string $intro, string $url): void
+    {
+        $this->wa->sendText($c->wa_id, $intro."\n".$url, $ctx);
+        $this->backToMenuHint($c, $ctx);
+    }
+
+    /** Offer a quick way back to the menu after answering. */
+    private function backToMenuHint(WhatsAppConversation $c, array $ctx): void
+    {
+        $c->step = 'idle';
+        $c->save();
+        $this->wa->sendButtons($c->wa_id, 'Is there anything else I can help you with?', [
+            ['id' => 'menu_back', 'title' => 'Main menu'],
+        ], null, $ctx);
     }
 }

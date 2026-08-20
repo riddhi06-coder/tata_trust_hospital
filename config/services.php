@@ -46,8 +46,10 @@ return [
         'token'           => env('WHATSAPP_TOKEN'),
         // Shared secret we echo back on the webhook verification handshake.
         'verify_token'    => env('WHATSAPP_VERIFY_TOKEN'),
-        // "Book Appointment" sends users straight to the OTP login page (booking is gated).
-        'booking_url'     => env('WHATSAPP_BOOKING_URL', rtrim((string) env('APP_URL'), '/').'/user-login'),
+        // "Book Appointment" sends users to the OTP login page. When unset, the bot
+        // falls back to route('frontend.user_login'), which resolves the correct
+        // domain + subpath from the incoming request.
+        'booking_url'     => env('WHATSAPP_BOOKING_URL'),
     ],
 
     // MessageIndia SMS — used for appointment login OTPs and appointment confirmations.
