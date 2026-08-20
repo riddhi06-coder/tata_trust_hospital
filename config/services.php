@@ -35,6 +35,21 @@ return [
         ],
     ],
 
+    // WhatsApp — Fortius "Omni" panel (waba.fortius.in.net). Fortius is a
+    // transparent proxy in front of Meta's WhatsApp Cloud API, so the send
+    // endpoint and JSON payloads follow Meta's Cloud API format exactly:
+    //   POST {base_url}/{version}/{phone_number_id}/messages   (Bearer token)
+    'whatsapp' => [
+        'base_url'        => env('WHATSAPP_BASE_URL', 'https://waba.fortius.in.net'),
+        'version'         => env('WHATSAPP_API_VERSION', 'v18.0'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'token'           => env('WHATSAPP_TOKEN'),
+        // Shared secret we echo back on the webhook verification handshake.
+        'verify_token'    => env('WHATSAPP_VERIFY_TOKEN'),
+        // "Book Appointment" sends users straight to the OTP login page (booking is gated).
+        'booking_url'     => env('WHATSAPP_BOOKING_URL', rtrim((string) env('APP_URL'), '/').'/user-login'),
+    ],
+
     // MessageIndia SMS — used for appointment login OTPs and appointment confirmations.
     'messageindia' => [
         'username'    => env('MESSAGEINDIA_USERNAME',    'addagatlaji'),

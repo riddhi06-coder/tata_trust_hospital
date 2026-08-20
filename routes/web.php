@@ -46,6 +46,9 @@ use App\Http\Controllers\Backend\MediaController;
 //frontend controller
 use App\Http\Controllers\Frontend\HomeController;
 
+// WhatsApp inbound webhook (Fortius)
+use App\Http\Controllers\WhatsAppWebhookController;
+
 
 
     // ----------------------
@@ -296,4 +299,12 @@ use App\Http\Controllers\Frontend\HomeController;
     Route::get('/join-thank-you', [HomeController::class, 'join_thank_you'])->name('frontend.join_thank_you');    Route::get('/blog', [HomeController::class, 'blogs'])->name('frontend.blogs');
     Route::get('/blog/{slug}', [HomeController::class, 'blog_details'])->name('frontend.blog_details');
     Route::post('/blog/{slug}/comment', [HomeController::class, 'blog_comment_store'])->middleware('throttle:3,10')->name('frontend.blog_comment.store');
+
+
+    // ----------------------
+    // 🔹 WhatsApp Webhook (Fortius → app). Public, CSRF-exempt (see bootstrap/app.php).
+    //    GET  = verification handshake, POST = inbound messages.
+    // ----------------------
+    Route::get('/webhooks/whatsapp',  [WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
+    Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'handle'])->name('whatsapp.webhook.handle');
 
