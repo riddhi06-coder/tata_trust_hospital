@@ -29,6 +29,17 @@ class WhatsAppFortius
         ], 'text', $body, $context);
     }
 
+    /** Image message by public URL (JPEG/PNG only — WhatsApp does not accept webp). */
+    public function sendImage(string $to, string $link, ?string $caption = null, array $context = []): bool
+    {
+        $image = ['link' => $link];
+        if ($caption !== null && $caption !== '') {
+            $image['caption'] = $caption;
+        }
+
+        return $this->send($to, ['type' => 'image', 'image' => $image], 'image', $caption, $context);
+    }
+
     /**
      * Interactive reply buttons (max 3).
      * @param array $buttons e.g. [['id' => 'menu_book', 'title' => 'Book Appointment'], ...]

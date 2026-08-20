@@ -70,6 +70,15 @@ class WhatsAppSimulate extends Command
             return;
         }
 
+        if ($type === 'image') {
+            $img = $b['image'] ?? [];
+            $this->line('<fg=green;options=bold>BOT  ▶</> <fg=magenta>[IMAGE]</> '.($img['link'] ?? ''));
+            if (! empty($img['caption'])) {
+                $this->line('        '.$img['caption']);
+            }
+            return;
+        }
+
         if ($type === 'interactive') {
             $i = $b['interactive'];
             $this->line('<fg=green;options=bold>BOT  ▶</> '.($i['body']['text'] ?? ''));

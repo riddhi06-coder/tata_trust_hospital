@@ -51,7 +51,7 @@ class WhatsAppBot
         $ctx   = ['recipient_name' => $convo->name];
 
         if (in_array($input, $this->resetWords, true)) {
-            $this->sendMenu($convo, $ctx);
+            $this->sendMenu($convo, $ctx, withImage: true);
             return;
         }
 
@@ -88,17 +88,26 @@ class WhatsAppBot
         }
     }
 
-    /** Greeting + the main-menu list (warm, elegant tone). */
-    private function sendMenu(WhatsAppConversation $c, array $ctx): void
+    /** Greeting + the main-menu list (warm, elegant tone). $withImage adds the branded logo on the first greeting. */
+    private function sendMenu(WhatsAppConversation $c, array $ctx, bool $withImage = false): void
     {
         $c->step = 'idle';
         $c->data = null;
         $c->save();
 
-        $greeting = "Hello, and welcome to *Small Animal Hospital Mumbai*. 🐾\n\n"
-            ."I'm here to help you and your pet. How may I assist you today?";
+        $greeting = "Hello, and welcome to *Small Animal Hospital Mumbai*. 🐾\n\nI'm here to help you and your pet.";
 
-        $this->wa->sendList($c->wa_id, $greeting, 'Main Menu', [
+        // Branded welcome image (public JPG/PNG). Only on the first greeting to avoid spam.
+        $image = config('services.whatsapp.welcome_image') ?: asset('frontend/assets/img/logo/tata-trust-logo.png');
+
+        if ($withImage && $image) {
+            $this->wa->sendImage($c->wa_id, $image, $greeting, $ctx);
+            $body = 'How may I assist you today? Please choose an option below:';
+        } else {
+            $body = $greeting."\n\nHow may I assist you today?";
+        }
+
+        $this->wa->sendList($c->wa_id, $body, 'Main Menu', [
             ['id' => 'menu_book',      'title' => 'Book an appointment', 'description' => 'Reserve a visit for your pet'],
             ['id' => 'menu_services',  'title' => 'Our services',        'description' => 'Departments & specialities'],
             ['id' => 'menu_team',      'title' => 'Meet the team',       'description' => 'Our doctors & specialists'],

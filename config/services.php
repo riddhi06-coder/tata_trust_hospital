@@ -50,6 +50,9 @@ return [
         // falls back to route('frontend.user_login'), which resolves the correct
         // domain + subpath from the incoming request.
         'booking_url'     => env('WHATSAPP_BOOKING_URL'),
+        // Image shown in the welcome message. Must be a public JPG/PNG (not webp).
+        // When unset, the bot falls back to the site logo PNG via asset().
+        'welcome_image'   => env('WHATSAPP_WELCOME_IMAGE'),
     ],
 
     // MessageIndia SMS — used for appointment login OTPs and appointment confirmations.
