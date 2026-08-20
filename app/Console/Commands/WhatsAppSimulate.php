@@ -92,6 +92,9 @@ class WhatsAppSimulate extends Command
                 foreach ($i['action']['buttons'] ?? [] as $btn) {
                     $this->line("       <fg=yellow>[</> {$btn['reply']['id']} <fg=yellow>]</> {$btn['reply']['title']}");
                 }
+            } elseif (($i['type'] ?? '') === 'cta_url') {
+                $p = $i['action']['parameters'] ?? [];
+                $this->line("       <fg=blue>[ {$p['display_text']} 🔗 → {$p['url']} ]</>");
             }
         }
     }

@@ -64,6 +64,21 @@ class WhatsAppFortius
         return $this->send($to, ['type' => 'interactive', 'interactive' => $interactive], 'menu', $body, $context);
     }
 
+    /** Interactive call-to-action URL button — a tidy "Visit" button instead of a raw link. */
+    public function sendCtaUrl(string $to, string $body, string $buttonText, string $url, array $context = []): bool
+    {
+        $interactive = [
+            'type'   => 'cta_url',
+            'body'   => ['text' => $body],
+            'action' => [
+                'name'       => 'cta_url',
+                'parameters' => ['display_text' => mb_substr($buttonText, 0, 20), 'url' => $url],
+            ],
+        ];
+
+        return $this->send($to, ['type' => 'interactive', 'interactive' => $interactive], 'cta', $body, $context);
+    }
+
     /**
      * Interactive single-select list (use when there are more than 3 options).
      * @param array $rows e.g. [['id' => 'menu_timings', 'title' => 'Clinic Timings', 'description' => '...'], ...]
