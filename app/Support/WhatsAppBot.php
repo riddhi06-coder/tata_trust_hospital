@@ -16,8 +16,11 @@ use Illuminate\Support\Facades\Log;
  * so NO approved templates are needed.
  *
  * Warm, elegant tone. Services & Team are pulled LIVE from the database; address,
- * emergency number and map link come from ContactDetails. Website links are sent
- * as tidy CTA-URL buttons rather than raw links.
+ * emergency number and map link come from ContactDetails.
+ *
+ * Website links are sent as text with a link preview (WhatsApp renders a preview
+ * card). Fortius does NOT support interactive URL buttons (cta_url), so we use
+ * previewed links instead.
  *
  * "Book an appointment" sends the OTP login link (per instruction).
  */
@@ -87,9 +90,9 @@ class WhatsAppBot
         switch ($input) {
             case 'menu_book':          $this->bookAppointment($c, $ctx); break;
             case 'menu_services':      $this->servicesList($c, $ctx); break;
-            case 'menu_services_all':  $this->wa->sendCtaUrl($c->wa_id, "*Our Services* 🏥\n\nExplore all our departments and specialities on our website.", 'View Services', route('frontend.specialities'), $ctx); $this->backToMenuHint($c, $ctx); break;
+            case 'menu_services_all':  $this->sendLink($c, $ctx, "*Our Services* 🏥\n\nExplore all our departments and specialities on our website:", route('frontend.specialities')); break;
             case 'menu_team':          $this->teamInfo($c, $ctx); break;
-            case 'menu_blog':          $this->wa->sendCtaUrl($c->wa_id, "*Blog & Articles* 📝\n\nExplore pet-care tips, heart-warming stories and updates from our team.", 'Read Our Blog', route('frontend.blogs'), $ctx); $this->backToMenuHint($c, $ctx); break;
+            case 'menu_blog':          $this->sendLink($c, $ctx, "*Blog & Articles* 📝\n\nExplore pet-care tips, heart-warming stories and updates from our team:", route('frontend.blogs')); break;
             case 'menu_timings':       $this->timings($c, $ctx); break;
             case 'menu_emergency':     $this->emergency($c, $ctx); break;
             case 'menu_faq':           $this->faqList($c, $ctx); break;
@@ -98,7 +101,7 @@ class WhatsAppBot
         }
     }
 
-    /** Greeting (warm) + branded favicon image + the main-menu list. Shown every time the menu is requested. */
+    /** Greeting (warm) + branded logo image + the main-menu list. Shown every time the menu is requested. */
     private function sendMenu(WhatsAppConversation $c, array $ctx): void
     {
         $c->step = 'idle';
@@ -129,13 +132,12 @@ class WhatsAppBot
         ], null, $ctx);
     }
 
-    /** Book an appointment → OTP login link, as a tidy CTA button. */
+    /** Book an appointment → OTP login link (previewed). */
     private function bookAppointment(WhatsAppConversation $c, array $ctx): void
     {
         $url  = config('services.whatsapp.booking_url') ?: route('frontend.user_login');
-        $body = "*Book an Appointment* 🐾\n\nWonderful — let's get your pet booked! Tap below to log in and reserve your visit. Our Customer Care team will then call you to confirm the details.";
-        $this->wa->sendCtaUrl($c->wa_id, $body, 'Book Now', $url, $ctx);
-        $this->backToMenuHint($c, $ctx);
+        $body = "*Book an Appointment* 🐾\n\nWonderful — let's get your pet booked! Tap the link below to log in and reserve your visit. Our Customer Care team will then call you to confirm the details.";
+        $this->sendLink($c, $ctx, $body, $url);
     }
 
     /** "Our services" — live list of specialities from the database. */
@@ -144,8 +146,7 @@ class WhatsAppBot
         $items = Specialities::whereNull('deleted_by')->orderBy('id')->limit(9)->get();
 
         if ($items->isEmpty()) {
-            $this->wa->sendCtaUrl($c->wa_id, "*Our Services* 🏥\n\nExplore our departments and specialities on our website.", 'View Services', route('frontend.specialities'), $ctx);
-            $this->backToMenuHint($c, $ctx);
+            $this->sendLink($c, $ctx, "*Our Services* 🏥\n\nExplore our departments and specialities on our website:", route('frontend.specialities'));
             return;
         }
 
@@ -157,7 +158,7 @@ class WhatsAppBot
         $c->save();
     }
 
-    /** One speciality → short intro + CTA button to its website page + next-step buttons. */
+    /** One speciality → short intro + previewed link to its website page. */
     private function serviceDetail(WhatsAppConversation $c, string $input, array $ctx): void
     {
         $id = (int) str_replace('svc_', '', $input);
@@ -168,13 +169,11 @@ class WhatsAppBot
             return;
         }
 
-        // Straight to the service's website page — one tidy tap, no extra menus.
         $url = route('frontend.specialities_details', $s->slug);
-        $this->wa->sendCtaUrl($c->wa_id, "*{$s->speciality}* 🐾\n\nHere's everything about our {$s->speciality} care — tap below to open the full details on our website.", 'View Details', $url, $ctx);
-        $this->backToMenuHint($c, $ctx);
+        $this->sendLink($c, $ctx, "*{$s->speciality}* 🐾\n\nLearn all about our {$s->speciality} care here:", $url);
     }
 
-    /** "Meet the team" — live team list + CTA button to the team page. */
+    /** "Meet the team" — live team list + previewed link to the team page. */
     private function teamInfo(WhatsAppConversation $c, array $ctx): void
     {
         $members = OurTeam::whereNull('deleted_by')
@@ -183,9 +182,10 @@ class WhatsAppBot
             ->limit(8)
             ->get();
 
+        $url = route('frontend.our_team');
+
         if ($members->isEmpty()) {
-            $this->wa->sendCtaUrl($c->wa_id, "*Meet Our Team* 🩺\n\nMeet our wonderful veterinarians and specialists.", 'View Profiles', route('frontend.our_team'), $ctx);
-            $this->backToMenuHint($c, $ctx);
+            $this->sendLink($c, $ctx, "*Meet Our Team* 🩺\n\nMeet our wonderful veterinarians and specialists:", $url);
             return;
         }
 
@@ -199,11 +199,10 @@ class WhatsAppBot
             })
             ->implode("\n");
 
-        $this->wa->sendCtaUrl($c->wa_id, "*Meet Our Team* 🩺\n\nOur experienced veterinarians and specialists:\n\n{$lines}", 'View Full Profiles', route('frontend.our_team'), $ctx);
-        $this->backToMenuHint($c, $ctx);
+        $this->sendLink($c, $ctx, "*Meet Our Team* 🩺\n\nOur experienced veterinarians and specialists:\n\n{$lines}\n\nView full profiles here:", $url);
     }
 
-    /** Timings & location — pulled from ContactDetails, with a Directions button. */
+    /** Timings & location — pulled from ContactDetails, with a previewed Directions link. */
     private function timings(WhatsAppConversation $c, array $ctx): void
     {
         $body = "*Timings & Location* 📍\n\n"
@@ -212,27 +211,28 @@ class WhatsAppBot
             ."📞 ".$this->emergencyNo();
 
         if ($map = $this->mapUrl()) {
-            $this->wa->sendCtaUrl($c->wa_id, $body, 'Get Directions', $map, $ctx);
-        } else {
-            $this->wa->sendText($c->wa_id, $body, $ctx);
+            $body .= "\n\n🗺️ Get directions:\n".$map;
         }
+
+        $this->wa->sendText($c->wa_id, $body, $ctx);
         $this->backToMenuHint($c, $ctx);
     }
 
-    /** Emergency — phone-first, with a Directions button. */
+    /** Emergency — phone-first, with a previewed Directions link. */
     private function emergency(WhatsAppConversation $c, array $ctx): void
     {
         $no   = $this->emergencyNo();
         $body = "*Emergency Help* 🚨\n\nYour pet's wellbeing can't wait — we're here for you. Please contact us right away.\n\n"
             ."📞 Call now: *{$no}*\n\n"
-            ."🏥 Or come straight to the hospital:\n".$this->address()."\n\n"
-            ."If you can, please bring any past reports or the medicine your pet is on.";
+            ."🏥 Or come straight to the hospital:\n".$this->address();
 
         if ($map = $this->mapUrl()) {
-            $this->wa->sendCtaUrl($c->wa_id, $body, 'Get Directions', $map, $ctx);
-        } else {
-            $this->wa->sendText($c->wa_id, $body, $ctx);
+            $body .= "\n\n🗺️ Get directions:\n".$map;
         }
+
+        $body .= "\n\nIf you can, please bring any past reports or the medicine your pet is on.";
+
+        $this->wa->sendText($c->wa_id, $body, $ctx);
         $this->backToMenuHint($c, $ctx);
     }
 
@@ -293,6 +293,13 @@ class WhatsAppBot
         $c->save();
 
         $this->wa->sendText($c->wa_id, "Thank you! Your message has reached our Customer Care team, and they'll get back to you shortly.", $ctx);
+        $this->backToMenuHint($c, $ctx);
+    }
+
+    /** Send an intro + a previewed link, then offer the menu. */
+    private function sendLink(WhatsAppConversation $c, array $ctx, string $intro, string $url): void
+    {
+        $this->wa->sendText($c->wa_id, $intro."\n".$url, $ctx);
         $this->backToMenuHint($c, $ctx);
     }
 
