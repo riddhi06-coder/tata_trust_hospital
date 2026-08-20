@@ -46,6 +46,15 @@ class WhatsAppBot
             $convo->name = $profileName;
         }
         $convo->last_message_at = now();
+
+        // Record activity in the data column (rolling history, capped at 25 entries).
+        $raw  = $interactiveId ?: $text;
+        $data = $convo->data ?? [];
+        $data['history'] = array_slice(array_merge($data['history'] ?? [], [[
+            'at' => now()->toDateTimeString(),
+            'in' => mb_substr((string) $raw, 0, 200),
+        ]]), -25);
+        $convo->data = $data;
         $convo->save();
 
         // An interactive tap (button/list id) wins; otherwise use the lowercased text.
@@ -93,15 +102,14 @@ class WhatsAppBot
     private function sendMenu(WhatsAppConversation $c, array $ctx): void
     {
         $c->step = 'idle';
-        $c->data = null;
         $c->save();
 
-        $greeting = "Hello, and a warm welcome to *Small Animal Hospital Mumbai*! 🐾\n\n"
-            ."We're delighted to have you here. Your pet's health and happiness mean the world to us, and I'm here to help you every step of the way.\n\n"
+        $greeting = "Hello, and a warm welcome to *Small Animal Hospital Mumbai*! 🐾🐶🐱\n\n"
+            ."We're so happy to have you and your companion here. Your pet's health and happiness mean the world to us, and I'm here to help you every step of the way. 🐾\n\n"
             ."How may I assist you and your furry friend today?";
 
-        // Branded welcome image (public JPG/PNG — favicon by default), shown with every menu.
-        $image = config('services.whatsapp.welcome_image') ?: asset('frontend/assets/img/favicon.png');
+        // Branded welcome image (public JPG/PNG — hospital logo by default; override with WHATSAPP_WELCOME_IMAGE).
+        $image = config('services.whatsapp.welcome_image') ?: asset('frontend/assets/img/logo/tata-trust-logo.png');
         if ($image) {
             $this->wa->sendImage($c->wa_id, $image, $greeting, $ctx);
             $body = 'Please choose an option below:';
@@ -160,15 +168,10 @@ class WhatsAppBot
             return;
         }
 
+        // Straight to the service's website page — one tidy tap, no extra menus.
         $url = route('frontend.specialities_details', $s->slug);
-        $this->wa->sendCtaUrl($c->wa_id, "*{$s->speciality}* 🐾\n\nTap below to learn more about our {$s->speciality} care.", 'Learn More', $url, $ctx);
-        $this->wa->sendButtons($c->wa_id, 'Or choose an option:', [
-            ['id' => 'menu_book', 'title' => '📅 Book appointment'],
-            ['id' => 'menu_talk', 'title' => '💬 Talk to our team'],
-            ['id' => 'menu_back', 'title' => '🏠 Main menu'],
-        ], null, $ctx);
-        $c->step = 'idle';
-        $c->save();
+        $this->wa->sendCtaUrl($c->wa_id, "*{$s->speciality}* 🐾\n\nHere's everything about our {$s->speciality} care — tap below to open the full details on our website.", 'View Details', $url, $ctx);
+        $this->backToMenuHint($c, $ctx);
     }
 
     /** "Meet the team" — live team list + CTA button to the team page. */
@@ -282,6 +285,10 @@ class WhatsAppBot
             Log::error('WhatsApp lead save failed: '.$e->getMessage(), ['wa_id' => $c->wa_id]);
         }
 
+        // Also keep the enquiry on the conversation record (data column).
+        $data = $c->data ?? [];
+        $data['enquiries'][] = ['at' => now()->toDateTimeString(), 'message' => trim($text)];
+        $c->data = $data;
         $c->step = 'idle';
         $c->save();
 
