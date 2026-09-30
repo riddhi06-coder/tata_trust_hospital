@@ -2,27 +2,31 @@
 
 namespace App\Support;
 
+use App\Mail\WhatsAppNotificationMail;
 use App\Models\ContactDetails;
-use App\Models\ContactEnquiry;
-use App\Models\OurTeam;
 use App\Models\Specialities;
+use App\Models\WhatsAppBookingRequest;
 use App\Models\WhatsAppConversation;
+use App\Models\WhatsAppTeamQuery;
 use App\Services\WhatsAppFortius;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Reactive WhatsApp chatbot flow for Small Animal Hospital Mumbai.
  * Runs inside the 24-hour window (user messages first → we reply free-form),
  * so NO approved templates are needed.
  *
- * Warm, elegant tone. Services & Team are pulled LIVE from the database; address,
+ * Warm, elegant tone. Services are pulled LIVE from the database; address,
  * emergency number and map link come from ContactDetails.
  *
- * Website links are sent as text with a link preview (WhatsApp renders a preview
- * card). Fortius does NOT support interactive URL buttons (cta_url), so we use
- * previewed links instead.
+ * Booking follows the client-approved flow: a guided New/Existing-client intake
+ * collected step-by-step in chat, ending with the login link and a "Customer
+ * Care will call to confirm" note. The completed intake is stored
+ * (whatsapp_booking_requests) and emailed to Customer Care.
  *
- * "Book an appointment" sends the OTP login link (per instruction).
+ * "Talk to our team" captures the message, stores it (whatsapp_team_queries)
+ * and forwards it to Customer Care by email.
  */
 class WhatsAppBot
 {
@@ -70,8 +74,11 @@ class WhatsAppBot
         }
 
         match ($convo->step) {
-            'lead_reason' => $this->captureReason($convo, $text, $ctx),
-            default       => $this->routeMenu($convo, $input, $ctx),
+            'lead_reason'     => $this->captureReason($convo, $text, $ctx),
+            'book_client_type'=> $this->chooseClientType($convo, $text, $interactiveId, $ctx),
+            'book_flow'       => $this->continueBooking($convo, $text, $interactiveId, $ctx),
+            'book_day_custom' => $this->captureCustomDay($convo, $text, $ctx),
+            default           => $this->routeMenu($convo, $input, $ctx),
         };
     }
 
@@ -91,7 +98,6 @@ class WhatsAppBot
             case 'menu_book':          $this->bookAppointment($c, $ctx); break;
             case 'menu_services':      $this->servicesList($c, $ctx); break;
             case 'menu_services_all':  $this->sendLink($c, $ctx, "*Our Services* 🏥\n\nExplore all our departments and specialities on our website:", route('frontend.specialities')); break;
-            case 'menu_team':          $this->teamInfo($c, $ctx); break;
             case 'menu_blog':          $this->sendLink($c, $ctx, "*Blog & Articles* 📝\n\nExplore pet-care tips, heart-warming stories and updates from our team:", route('frontend.blogs')); break;
             case 'menu_timings':       $this->timings($c, $ctx); break;
             case 'menu_emergency':     $this->emergency($c, $ctx); break;
@@ -105,6 +111,7 @@ class WhatsAppBot
     private function sendMenu(WhatsAppConversation $c, array $ctx): void
     {
         $c->step = 'idle';
+        $this->clearBooking($c);
         $c->save();
 
         $greeting = "Hello, and a warm welcome to *Small Animal Hospital Mumbai*! 🐾🐶🐱\n\n"
@@ -123,7 +130,6 @@ class WhatsAppBot
         $this->wa->sendList($c->wa_id, $body, 'Main Menu', [
             ['id' => 'menu_book',      'title' => '📅 Book appointment', 'description' => 'Reserve a visit for your pet'],
             ['id' => 'menu_services',  'title' => '🏥 Our services',     'description' => 'Departments & specialities'],
-            ['id' => 'menu_team',      'title' => '🩺 Meet the team',    'description' => 'Our doctors & specialists'],
             ['id' => 'menu_timings',   'title' => '📍 Timings & location', 'description' => 'Hours, address & directions'],
             ['id' => 'menu_emergency', 'title' => '🚨 Emergency help',   'description' => 'Urgent care for your pet'],
             ['id' => 'menu_faq',       'title' => '❓ Common questions',  'description' => 'Fees, reports & more'],
@@ -132,13 +138,319 @@ class WhatsAppBot
         ], null, $ctx);
     }
 
-    /** Book an appointment → OTP login link (previewed). */
+    /* -------------------------------------------------------------------- */
+    /* Booking flow — guided New/Existing-client intake                      */
+    /* -------------------------------------------------------------------- */
+
+    /** Book an appointment → ask whether the pet parent is a new or existing client. */
     private function bookAppointment(WhatsAppConversation $c, array $ctx): void
     {
-        $url  = config('services.whatsapp.booking_url') ?: route('frontend.user_login');
-        $body = "*Book an Appointment* 🐾\n\nWonderful — let's get your pet booked! Tap the link below to log in and reserve your visit. Our Customer Care team will then call you to confirm the details.";
-        $this->sendLink($c, $ctx, $body, $url);
+        $c->step = 'book_client_type';
+        $this->clearBooking($c);
+        $c->save();
+
+        $this->wa->sendButtons(
+            $c->wa_id,
+            "*Book an Appointment* 🐾\n\nWonderful — let's get your pet booked! First, are you a new or existing client?",
+            [
+                ['id' => 'client_new',      'title' => '🆕 New client'],
+                ['id' => 'client_existing', 'title' => '👤 Existing client'],
+            ],
+            null,
+            $ctx
+        );
     }
+
+    /** Handle the New/Existing choice and start the intake. */
+    private function chooseClientType(WhatsAppConversation $c, string $text, ?string $interactiveId, array $ctx): void
+    {
+        $sel = $interactiveId ?: strtolower(trim($text));
+        $type = str_contains($sel, 'existing') ? 'existing' : 'new';
+
+        $data = $c->data ?? [];
+        $data['booking'] = ['client_type' => $type, 'cursor' => 0, 'answers' => []];
+        $c->data = $data;
+        $c->step = 'book_flow';
+        $c->save();
+
+        $intro = $type === 'existing'
+            ? "Welcome back! 🐾 Just a few quick details and we'll set up the visit."
+            : "Lovely — welcome to the SAHM family! 🐾 I'll take a few details for your pet's file.";
+        $this->wa->sendText($c->wa_id, $intro, $ctx);
+
+        $this->askStep($c, $this->bookingSteps($type)[0], $ctx);
+    }
+
+    /** Record the current answer and move to the next step (or finalise). */
+    private function continueBooking(WhatsAppConversation $c, string $text, ?string $interactiveId, array $ctx): void
+    {
+        $booking = $c->data['booking'] ?? null;
+        if (! $booking) {
+            $this->sendMenu($c, $ctx);
+            return;
+        }
+
+        $steps  = $this->bookingSteps($booking['client_type']);
+        $cursor = (int) ($booking['cursor'] ?? 0);
+        $step   = $steps[$cursor] ?? null;
+        if (! $step) {
+            $this->finaliseBooking($c, $ctx);
+            return;
+        }
+
+        // For choice steps the webhook passes the tapped label as $text; free text is accepted too.
+        $value = trim($text);
+
+        // "Pick a date" on the day step → branch to a free-text date prompt.
+        if ($step['key'] === 'preferred_day'
+            && ($interactiveId === 'day_pick' || stripos($value, 'pick') !== false)) {
+            $c->step = 'book_day_custom';
+            $c->save();
+            $this->wa->sendText($c->wa_id, "Sure — please *type your preferred date* (e.g. 15 Aug).", $ctx);
+            return;
+        }
+
+        if ($value === '') {
+            // Nothing usable — re-ask the same question.
+            $this->askStep($c, $step, $ctx);
+            return;
+        }
+
+        $this->storeAnswer($c, $step['key'], $value);
+        $this->advanceBooking($c, $ctx);
+    }
+
+    /** Capture a typed custom date, then continue past the day step. */
+    private function captureCustomDay(WhatsAppConversation $c, string $text, array $ctx): void
+    {
+        $value = trim($text);
+        if ($value === '') {
+            $this->wa->sendText($c->wa_id, "Please type your preferred date (e.g. 15 Aug).", $ctx);
+            return;
+        }
+        $c->step = 'book_flow';
+        $c->save();
+        $this->storeAnswer($c, 'preferred_day', $value);
+        $this->advanceBooking($c, $ctx);
+    }
+
+    /** Persist one answer against the booking cursor and bump the cursor. */
+    private function storeAnswer(WhatsAppConversation $c, string $key, string $value): void
+    {
+        $data = $c->data ?? [];
+        $data['booking']['answers'][$key] = mb_substr($value, 0, 500);
+        $data['booking']['cursor'] = (int) ($data['booking']['cursor'] ?? 0) + 1;
+        $c->data = $data;
+        $c->save();
+    }
+
+    /** Send the next question, or finalise when the intake is complete. */
+    private function advanceBooking(WhatsAppConversation $c, array $ctx): void
+    {
+        $booking = $c->data['booking'];
+        $steps   = $this->bookingSteps($booking['client_type']);
+        $cursor  = (int) $booking['cursor'];
+
+        if ($cursor >= count($steps)) {
+            $this->finaliseBooking($c, $ctx);
+            return;
+        }
+        $this->askStep($c, $steps[$cursor], $ctx);
+    }
+
+    /** Render a single intake step (text prompt, buttons, or a list). */
+    private function askStep(WhatsAppConversation $c, array $step, array $ctx): void
+    {
+        if (($step['type'] ?? 'text') === 'choice') {
+            $rows = array_map(fn ($ch) => ['id' => $ch['id'], 'title' => $ch['title']], $step['choices']);
+            if (! empty($step['list']) || count($rows) > 3) {
+                $this->wa->sendList($c->wa_id, $step['q'], 'Choose', $rows, null, $ctx);
+            } else {
+                $this->wa->sendButtons($c->wa_id, $step['q'], $rows, null, $ctx);
+            }
+            return;
+        }
+
+        $this->wa->sendText($c->wa_id, $step['q'], $ctx);
+    }
+
+    /**
+     * Ordered intake steps. New clients give a full pet-file intake; existing
+     * clients give just enough to schedule. Keys map to DB columns.
+     */
+    private function bookingSteps(string $clientType): array
+    {
+        $reason = ['key' => 'reason', 'type' => 'choice', 'list' => true, 'q' => "Got it. What's the visit for?", 'choices' => [
+            ['id' => 'reason_vac', 'title' => '💉 Vaccination'],
+            ['id' => 'reason_gen', 'title' => '🩺 General consultation'],
+            ['id' => 'reason_sur', 'title' => '🔬 Surgery / procedure'],
+            ['id' => 'reason_den', 'title' => '🦷 Dental / other'],
+        ]];
+        $day = ['key' => 'preferred_day', 'type' => 'choice', 'q' => "Which day works best for you?", 'choices' => [
+            ['id' => 'day_today', 'title' => 'Today'],
+            ['id' => 'day_tomorrow', 'title' => 'Tomorrow'],
+            ['id' => 'day_pick', 'title' => '📆 Pick a date'],
+        ]];
+        $time = ['key' => 'preferred_time', 'type' => 'choice', 'q' => "And a preferred time?", 'choices' => [
+            ['id' => 'time_morning', 'title' => '🌅 Morning (9–12)'],
+            ['id' => 'time_afternoon', 'title' => '☀️ Afternoon (12–4)'],
+            ['id' => 'time_evening', 'title' => '🌆 Evening (4–8)'],
+        ]];
+
+        if ($clientType === 'existing') {
+            return [
+                ['key' => 'parent_name', 'type' => 'text', 'q' => "What's the *pet parent's name* on your file?"],
+                ['key' => 'pet_name',    'type' => 'text', 'q' => "And your *pet's name*?"],
+                $reason, $day, $time,
+            ];
+        }
+
+        return [
+            // Pet parent
+            ['key' => 'parent_name', 'type' => 'text', 'q' => "What's the *pet parent's full name*?"],
+            ['key' => 'address',     'type' => 'text', 'q' => "Your *address*?"],
+            ['key' => 'email',       'type' => 'text', 'q' => "Your *email address*?"],
+            ['key' => 'mobile',      'type' => 'text', 'q' => "Best *mobile number* to reach you?"],
+            ['key' => 'pincode',     'type' => 'text', 'q' => "Your *PIN code*?"],
+            // Pet
+            ['key' => 'pet_name',    'type' => 'text', 'q' => "Now your companion 🐾 — what's your *pet's name*?"],
+            ['key' => 'species', 'type' => 'choice', 'q' => "Which pet are we seeing?", 'choices' => [
+                ['id' => 'sp_dog', 'title' => '🐶 Dog'],
+                ['id' => 'sp_cat', 'title' => '🐱 Cat'],
+                ['id' => 'sp_other', 'title' => '🐇 Other'],
+            ]],
+            ['key' => 'sex', 'type' => 'choice', 'q' => "Your pet's *sex*?", 'choices' => [
+                ['id' => 'sex_m', 'title' => '♂️ Male'],
+                ['id' => 'sex_f', 'title' => '♀️ Female'],
+            ]],
+            ['key' => 'breed',   'type' => 'text', 'q' => "*Breed*? (type 'NA' if unsure)"],
+            ['key' => 'colour',  'type' => 'text', 'q' => "*Colour*?"],
+            ['key' => 'dob_age', 'type' => 'text', 'q' => "*Date of birth or age*?"],
+            ['key' => 'weight',  'type' => 'text', 'q' => "*Weight*? (type 'NA' if unsure)"],
+            ['key' => 'neutered', 'type' => 'choice', 'q' => "Is your pet *neutered / spayed*?", 'choices' => [
+                ['id' => 'neu_y', 'title' => 'Yes'],
+                ['id' => 'neu_n', 'title' => 'No'],
+            ]],
+            ['key' => 'complaint',   'type' => 'text', 'q' => "What's the *main concern / reason* for the visit?"],
+            ['key' => 'how_heard',   'type' => 'text', 'q' => "How did you *hear about us*?"],
+            ['key' => 'referred_by', 'type' => 'text', 'q' => "*Referred by*? (type 'NA' if none)"],
+            // Visit scheduling
+            $reason, $day, $time,
+        ];
+    }
+
+    /** Save the completed intake, email Customer Care, confirm with a reference. */
+    private function finaliseBooking(WhatsAppConversation $c, array $ctx): void
+    {
+        $booking = $c->data['booking'] ?? ['client_type' => 'new', 'answers' => []];
+        $a = $booking['answers'] ?? [];
+
+        try {
+            $request = WhatsAppBookingRequest::create(array_merge(
+                ['wa_id' => $c->wa_id, 'client_type' => $booking['client_type'] ?? 'new', 'status' => 'new'],
+                array_intersect_key($a, array_flip([
+                    'parent_name', 'address', 'email', 'mobile', 'pincode',
+                    'pet_name', 'species', 'sex', 'breed', 'colour', 'dob_age', 'weight',
+                    'neutered', 'complaint', 'how_heard', 'referred_by',
+                    'reason', 'preferred_day', 'preferred_time',
+                ]))
+            ));
+            $this->emailBooking($request);
+        } catch (\Throwable $e) {
+            Log::error('WhatsApp booking save failed: '.$e->getMessage(), ['wa_id' => $c->wa_id]);
+            $request = null;
+        }
+
+        // Reset conversation state.
+        $c->step = 'idle';
+        $this->clearBooking($c);
+        $c->save();
+
+        // Confirmation summary + reference number.
+        $ref     = $request ? $request->reference() : null;
+        $petLine = trim(($a['pet_name'] ?? 'your pet').' '.(isset($a['species']) ? '('.$a['species'].')' : ''));
+        $summary = "*Please review your request* 👇\n"
+            ."🐾 {$petLine}\n"
+            .(isset($a['reason']) ? "🩺 {$a['reason']}\n" : '')
+            .(isset($a['preferred_day']) ? "📆 {$a['preferred_day']}".(isset($a['preferred_time']) ? " · {$a['preferred_time']}" : '')."\n" : '')
+            .(isset($a['parent_name']) ? "👤 {$a['parent_name']}\n" : '')
+            ."📱 ".$c->wa_id."\n\n"
+            ."All done".(isset($a['parent_name']) ? ', '.strtok($a['parent_name'], ' ') : '')."! 🎉 This is a *tentative* request — our Customer Care team will call you shortly to confirm the exact time."
+            .($ref ? "\n🔖 Ref: #{$ref}" : '');
+        $this->wa->sendText($c->wa_id, $summary, $ctx);
+
+        // Login/book link.
+        $url = config('services.whatsapp.booking_url') ?: route('frontend.user_login');
+        $this->wa->sendText($c->wa_id, "To complete your booking online, tap here to log in:\n".$url, $ctx);
+
+        $this->backToMenuHint($c, $ctx);
+    }
+
+    /** Email the completed booking intake to Customer Care. */
+    private function emailBooking(WhatsAppBookingRequest $r): void
+    {
+        $adminTo = config('mail.admin_notifications.appointment', config('mail.admin_notification'));
+        if (! $adminTo) {
+            return;
+        }
+
+        $rows = [
+            'Reference'    => '#'.$r->reference(),
+            'Client type'  => ucfirst((string) $r->client_type),
+            'Pet parent'   => $r->parent_name,
+            'Mobile'       => $r->mobile ?: $r->wa_id,
+            'Email'        => $r->email,
+            'Address'      => $r->address,
+            'PIN code'     => $r->pincode,
+            'Pet name'     => $r->pet_name,
+            'Species'      => $r->species,
+            'Sex'          => $r->sex,
+            'Breed'        => $r->breed,
+            'Colour'       => $r->colour,
+            'DOB / Age'    => $r->dob_age,
+            'Weight'       => $r->weight,
+            'Neutered'     => $r->neutered,
+            'Complaint'    => $r->complaint,
+            'How heard'    => $r->how_heard,
+            'Referred by'  => $r->referred_by,
+            'Visit reason' => $r->reason,
+            'Preferred day'=> $r->preferred_day,
+            'Preferred time'=> $r->preferred_time,
+            'WhatsApp'     => $r->wa_id,
+        ];
+
+        try {
+            Mail::to($adminTo)->send(new WhatsAppNotificationMail(
+                'New WhatsApp Booking Request',
+                'A pet parent has requested an appointment via the WhatsApp assistant. Please call to confirm.',
+                $rows,
+                'Tentative request — confirm the exact slot by phone.',
+                file_exists(public_path('frontend/assets/img/logo/tata-trust-logo.webp'))
+            ));
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'wa_booking_admin', 'recipient' => $adminTo,
+                'recipient_name' => $r->parent_name, 'subject' => 'New WhatsApp Booking Request',
+                'message' => 'WhatsApp booking #'.$r->reference().' from '.$r->parent_name, 'status' => 'sent',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('WhatsApp booking mail failed: '.$e->getMessage(), ['booking_id' => $r->id]);
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'wa_booking_admin', 'recipient' => $adminTo,
+                'subject' => 'New WhatsApp Booking Request', 'status' => 'failed', 'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function clearBooking(WhatsAppConversation $c): void
+    {
+        $data = $c->data ?? [];
+        unset($data['booking']);
+        $c->data = $data;
+    }
+
+    /* -------------------------------------------------------------------- */
+    /* Services                                                              */
+    /* -------------------------------------------------------------------- */
 
     /** "Our services" — live list of specialities from the database. */
     private function servicesList(WhatsAppConversation $c, array $ctx): void
@@ -173,34 +485,9 @@ class WhatsAppBot
         $this->sendLink($c, $ctx, "*{$s->speciality}* 🐾\n\nLearn all about our {$s->speciality} care here:", $url);
     }
 
-    /** "Meet the team" — live team list + previewed link to the team page. */
-    private function teamInfo(WhatsAppConversation $c, array $ctx): void
-    {
-        $members = OurTeam::whereNull('deleted_by')
-            ->where('show_on_team_page', true)
-            ->orderBy('name')
-            ->limit(8)
-            ->get();
-
-        $url = route('frontend.our_team');
-
-        if ($members->isEmpty()) {
-            $this->sendLink($c, $ctx, "*Meet Our Team* 🩺\n\nMeet our wonderful veterinarians and specialists:", $url);
-            return;
-        }
-
-        $lines = $members
-            ->map(function ($m) {
-                $desig = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $m->designation))));
-                if (mb_strlen($desig) > 60) {
-                    $desig = mb_substr($desig, 0, 57).'…';
-                }
-                return '• *'.$m->name.'*'.($desig !== '' ? ' — '.$desig : '');
-            })
-            ->implode("\n");
-
-        $this->sendLink($c, $ctx, "*Meet Our Team* 🩺\n\nOur experienced veterinarians and specialists:\n\n{$lines}\n\nView full profiles here:", $url);
-    }
+    /* -------------------------------------------------------------------- */
+    /* Timings / emergency / FAQ                                             */
+    /* -------------------------------------------------------------------- */
 
     /** Timings & location — pulled from ContactDetails, with a previewed Directions link. */
     private function timings(WhatsAppConversation $c, array $ctx): void
@@ -258,6 +545,10 @@ class WhatsAppBot
         $c->save();
     }
 
+    /* -------------------------------------------------------------------- */
+    /* Talk to our team                                                      */
+    /* -------------------------------------------------------------------- */
+
     /** "Talk to our team" — begin capturing the user's message. */
     private function startTalk(WhatsAppConversation $c, array $ctx): void
     {
@@ -266,28 +557,26 @@ class WhatsAppBot
         $this->wa->sendText($c->wa_id, "*Talk to Our Team* 💬\n\nOf course — I'll connect you with our Customer Care team. Please share your question below, and we'll get back to you shortly.", $ctx);
     }
 
-    /** Save the captured message as a Contact Enquiry, then confirm. */
+    /** Save the captured message, forward it to Customer Care by email, then confirm. */
     private function captureReason(WhatsAppConversation $c, string $text, array $ctx): void
     {
-        // Persist as a Contact Enquiry so it appears in the admin panel.
-        // NOTE: WhatsApp gives us no email; contact_enquiries.email is NOT NULL,
-        // so we store an empty placeholder. Revisit if a dedicated WhatsApp-leads
-        // store (or a nullable email) is preferred.
+        $message = trim($text);
+
         try {
-            ContactEnquiry::create([
-                'full_name' => $c->name ?: 'WhatsApp User',
-                'email'     => '',
-                'phone'     => $c->wa_id,
-                'subject'   => 'WhatsApp Chatbot Enquiry',
-                'message'   => trim($text),
+            $query = WhatsAppTeamQuery::create([
+                'wa_id'   => $c->wa_id,
+                'name'    => $c->name,
+                'message' => $message,
+                'status'  => 'new',
             ]);
+            $this->emailTeamQuery($query);
         } catch (\Throwable $e) {
-            Log::error('WhatsApp lead save failed: '.$e->getMessage(), ['wa_id' => $c->wa_id]);
+            Log::error('WhatsApp team query save failed: '.$e->getMessage(), ['wa_id' => $c->wa_id]);
         }
 
         // Also keep the enquiry on the conversation record (data column).
         $data = $c->data ?? [];
-        $data['enquiries'][] = ['at' => now()->toDateTimeString(), 'message' => trim($text)];
+        $data['enquiries'][] = ['at' => now()->toDateTimeString(), 'message' => $message];
         $c->data = $data;
         $c->step = 'idle';
         $c->save();
@@ -295,6 +584,46 @@ class WhatsAppBot
         $this->wa->sendText($c->wa_id, "Thank you! Your message has reached our Customer Care team, and they'll get back to you shortly.", $ctx);
         $this->backToMenuHint($c, $ctx);
     }
+
+    /** Forward a "talk to our team" message to Customer Care by email. */
+    private function emailTeamQuery(WhatsAppTeamQuery $q): void
+    {
+        $adminTo = config('mail.admin_notifications.contact', config('mail.admin_notification'));
+        if (! $adminTo) {
+            return;
+        }
+
+        $rows = [
+            'From'     => $q->name ?: 'WhatsApp User',
+            'WhatsApp' => $q->wa_id,
+            'Message'  => $q->message,
+        ];
+
+        try {
+            Mail::to($adminTo)->send(new WhatsAppNotificationMail(
+                'New WhatsApp Team Query',
+                'A pet parent has asked to speak with the team via the WhatsApp assistant.',
+                $rows,
+                'Please follow up with the pet parent on WhatsApp or by phone.',
+                file_exists(public_path('frontend/assets/img/logo/tata-trust-logo.webp'))
+            ));
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'wa_team_query_admin', 'recipient' => $adminTo,
+                'recipient_name' => $q->name, 'subject' => 'New WhatsApp Team Query',
+                'message' => 'WhatsApp team query from '.($q->name ?: $q->wa_id), 'status' => 'sent',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('WhatsApp team query mail failed: '.$e->getMessage(), ['query_id' => $q->id]);
+            CommunicationLogger::log([
+                'channel' => 'email', 'type' => 'wa_team_query_admin', 'recipient' => $adminTo,
+                'subject' => 'New WhatsApp Team Query', 'status' => 'failed', 'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /* -------------------------------------------------------------------- */
+    /* Shared helpers                                                        */
+    /* -------------------------------------------------------------------- */
 
     /** Send an intro + a previewed link, then offer the menu. */
     private function sendLink(WhatsAppConversation $c, array $ctx, string $intro, string $url): void

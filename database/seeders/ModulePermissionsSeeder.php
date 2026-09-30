@@ -80,6 +80,8 @@ class ModulePermissionsSeeder extends Seeder
                 ['Contact Enquiries',     'contact-enquiries',     ['view'],                             'Form Enquiries'],
                 ['Job Applications',      'job-applications',      ['view'],                             'Form Enquiries'],
                 ['Appointment Enquiries', 'appointment-enquiries', ['view'],                             'Form Enquiries'],
+                ['WhatsApp Bookings',     'whatsapp-bookings',     ['view'],                             'Form Enquiries'],
+                ['WhatsApp Queries',      'whatsapp-queries',      ['view'],                             'Form Enquiries'],
 
                 // Reports (standalone sidebar tab)
                 ['Reports',               'reports',               ['view']],

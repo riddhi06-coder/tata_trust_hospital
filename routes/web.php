@@ -33,6 +33,8 @@ use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
 use App\Http\Controllers\Backend\AppointmentEnquiryController;
+use App\Http\Controllers\Backend\WhatsAppBookingRequestController;
+use App\Http\Controllers\Backend\WhatsAppTeamQueryController;
 use App\Http\Controllers\Backend\AppointmentUserController;
 use App\Http\Controllers\Backend\AppointmentController;
 use App\Http\Controllers\Backend\AppointmentStatusController;
@@ -219,6 +221,15 @@ use App\Http\Controllers\WhatsAppWebhookController;
 
             Route::get('manage-appointment-enquiries',      [AppointmentEnquiryController::class, 'index'])->middleware('permission:appointment-enquiries.view')->name('manage-appointment-enquiries.index');
             Route::get('manage-appointment-enquiries/{id}', [AppointmentEnquiryController::class, 'show'])->middleware('permission:appointment-enquiries.view')->whereNumber('id')->name('manage-appointment-enquiries.show');
+
+            // WhatsApp chatbot leads (read-only; filters are AJAX POST).
+            Route::get('manage-whatsapp-bookings',         [WhatsAppBookingRequestController::class, 'index'])->middleware('permission:whatsapp-bookings.view')->name('manage-whatsapp-bookings.index');
+            Route::post('manage-whatsapp-bookings/filter', [WhatsAppBookingRequestController::class, 'filter'])->middleware('permission:whatsapp-bookings.view')->name('manage-whatsapp-bookings.filter');
+            Route::get('manage-whatsapp-bookings/{id}',    [WhatsAppBookingRequestController::class, 'show'])->middleware('permission:whatsapp-bookings.view')->whereNumber('id')->name('manage-whatsapp-bookings.show');
+
+            Route::get('manage-whatsapp-queries',         [WhatsAppTeamQueryController::class, 'index'])->middleware('permission:whatsapp-queries.view')->name('manage-whatsapp-queries.index');
+            Route::post('manage-whatsapp-queries/filter', [WhatsAppTeamQueryController::class, 'filter'])->middleware('permission:whatsapp-queries.view')->name('manage-whatsapp-queries.filter');
+            Route::get('manage-whatsapp-queries/{id}',    [WhatsAppTeamQueryController::class, 'show'])->middleware('permission:whatsapp-queries.view')->whereNumber('id')->name('manage-whatsapp-queries.show');
 
             // ---- Appointments module ----
             // Appointment Users (clients) — read-only list + full per-client history

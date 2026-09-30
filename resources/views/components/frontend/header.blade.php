@@ -1,3 +1,16 @@
+    <style>
+        .header-chat-btn{
+            display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;
+            font-weight:700;font-size:15px;line-height:1;padding:12px 20px;border-radius:50px;
+            white-space:nowrap;box-shadow:0 4px 12px rgba(37,211,102,.28);
+            transition:background .2s ease,transform .2s ease,box-shadow .2s ease;
+        }
+        .header-chat-btn:hover{background:#1da851;color:#fff;transform:translateY(-1px);box-shadow:0 6px 16px rgba(37,211,102,.35);}
+        .header-chat-btn i{font-size:18px;}
+        .chat-menu-button-custom-sec{display:flex;align-items:center;margin-right:14px;}
+        .header-chat-btn--block{display:flex;justify-content:center;width:100%;margin:16px 0;}
+    </style>
+
     @php
         $headerContact = \App\Models\ContactDetails::whereNull('deleted_by')
             ->with([
@@ -17,6 +30,12 @@
         // Phone display + tel:link helpers used in the mobile menu / offcanvas.
         $phoneDisplay = $headerContact->emergency_no ?? '';
         $phoneTel     = $phoneDisplay ? preg_replace('/[^\d+]/', '', $phoneDisplay) : '';
+
+        // "Chat with us" — opens WhatsApp with a friendly opener that triggers the
+        // chatbot's welcome menu (any inbound message shows the menu).
+        $waNumber  = preg_replace('/\D+/', '', config('services.whatsapp.business_number'));
+        $waOpener  = rawurlencode("Hi 👋 I'd like to chat with Small Animal Hospital Mumbai");
+        $waChatUrl = 'https://wa.me/'.$waNumber.'?text='.$waOpener;
 
         // Header/menu blocks want short plain-text address (rich-text stripped).
         $addressPlain = $headerContact && $headerContact->address
@@ -154,6 +173,13 @@
                                     </ul>
                                 </div>
                                 <div class="tgmenu__action d-none d-md-flex">
+                                    <div class="chat-menu-button-custom-sec">
+                                        <a href="{{ $waChatUrl }}" target="_blank" rel="noopener"
+                                           class="header-chat-btn" title="Chat with us on WhatsApp" aria-label="Chat with us on WhatsApp">
+                                            <i class="fab fa-whatsapp"></i>
+                                            <span>Chat with us</span>
+                                        </a>
+                                    </div>
                                     <div class="emergency-menu-button-custom-sec">
                                         <a href="{{ $phoneTel ? 'tel:'.$phoneTel : '#' }}"
                                            @if($phoneDisplay) title="Emergency: {{ $phoneDisplay }}" aria-label="Call Emergency: {{ $phoneDisplay }}" @endif>
@@ -184,6 +210,13 @@
                                             alt="Tata Trusts Small Animal Hospital Logo"></a>
                                 </div>
                                 <div class="tgmobile__menu-outer">
+                                </div>
+
+                                <div class="tg-mobile-chat-sec">
+                                    <a href="{{ $waChatUrl }}" target="_blank" rel="noopener" class="header-chat-btn header-chat-btn--block">
+                                        <i class="fab fa-whatsapp"></i>
+                                        <span>Chat with us</span>
+                                    </a>
                                 </div>
 
                                 <div class="tg-mobile-custom-book-appoint-sec">
