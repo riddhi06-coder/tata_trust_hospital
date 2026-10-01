@@ -168,6 +168,11 @@
                                                             $oldDoctorIds = old('doctor_ids', []);
                                                             $oldDoctorBios = old('doctor_bio_override', []);
                                                             if (!is_array($oldDoctorIds)) { $oldDoctorIds = []; }
+                                                            // Designation is rich text (HTML) — strip tags + collapse whitespace for the dropdown label.
+                                                            $docLabel = function ($d) {
+                                                                $desig = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $d->designation))));
+                                                                return $d->name . ($desig !== '' ? ' — ' . $desig : '');
+                                                            };
                                                         @endphp
                                                         @foreach($oldDoctorIds as $rIdx => $rDocId)
                                                             <tr class="doctor-row">
@@ -177,7 +182,7 @@
                                                                         <option value="">— Select Doctor —</option>
                                                                         @foreach($doctors as $doc)
                                                                             <option value="{{ $doc->id }}" {{ (string) $rDocId === (string) $doc->id ? 'selected' : '' }}>
-                                                                                {{ $doc->name }}{{ $doc->designation ? ' — '.$doc->designation : '' }}
+                                                                                {{ $docLabel($doc) }}
                                                                             </option>
                                                                         @endforeach
                                                                     </select>
@@ -409,7 +414,7 @@
                 '<td class="text-end"><button type="button" class="btn btn-sm btn-danger remove-service">Remove</button></td>', true);
 
             /* ---------- normal: doctors repeater ---------- */
-            var doctorsList = @json($doctors->map(fn ($d) => ['id' => $d->id, 'label' => $d->name . ($d->designation ? ' — ' . $d->designation : '')])->values());
+            var doctorsList = @json($doctors->map(fn ($d) => ['id' => $d->id, 'label' => $docLabel($d)])->values());
             function doctorOptions() {
                 var html = '<option value="">— Select Doctor —</option>';
                 doctorsList.forEach(function (d) {

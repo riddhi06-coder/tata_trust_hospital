@@ -21162,3 +21162,7 @@ FLOATING SOCIAL MENU
 .gallery__item::before {
   display: none;
 }
+
+.doctor-content.noopur-hei-cust-content-sec {
+  height: 420px;
+}

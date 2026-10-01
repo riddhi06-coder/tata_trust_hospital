@@ -17,5 +17,5 @@
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/jquery-ui.css' ) }}" >
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/aos.css' ) }}" >
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/default.css' ) }}" >
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/main.css' ) }}" >
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/main.css') }}?v={{ @filemtime(public_path('frontend/assets/css/main.css')) ?: time() }}" >
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/custom.css' ) }}" >

@@ -165,6 +165,11 @@
                                                                 $oldDoctorIds  = $detail->doctors->pluck('id')->all();
                                                                 $oldDoctorBios = $detail->doctors->map(fn ($d) => $d->pivot->bio_override)->all();
                                                             }
+                                                            // Designation is rich text (HTML) — strip tags + collapse whitespace for the dropdown label.
+                                                            $docLabel = function ($d) {
+                                                                $desig = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $d->designation))));
+                                                                return $d->name . ($desig !== '' ? ' — ' . $desig : '');
+                                                            };
                                                         @endphp
                                                         @foreach($oldDoctorIds as $rIdx => $rDocId)
                                                             <tr class="doctor-row">
@@ -174,7 +179,7 @@
                                                                         <option value="">— Select Doctor —</option>
                                                                         @foreach($doctors as $doc)
                                                                             <option value="{{ $doc->id }}" {{ (string) $rDocId === (string) $doc->id ? 'selected' : '' }}>
-                                                                                {{ $doc->name }}{{ $doc->designation ? ' — '.$doc->designation : '' }}
+                                                                                {{ $docLabel($doc) }}
                                                                             </option>
                                                                         @endforeach
                                                                     </select>
@@ -420,7 +425,7 @@
                 '<td><textarea class="form-control" name="services[]" rows="2" placeholder="Enter service description"></textarea></td>' +
                 '<td class="text-end"><button type="button" class="btn btn-sm btn-danger remove-service">Remove</button></td>', true);
 
-            var doctorsList = @json($doctors->map(fn ($d) => ['id' => $d->id, 'label' => $d->name . ($d->designation ? ' — ' . $d->designation : '')])->values());
+            var doctorsList = @json($doctors->map(fn ($d) => ['id' => $d->id, 'label' => $docLabel($d)])->values());
             function doctorOptions() {
                 var html = '<option value="">— Select Doctor —</option>';
                 doctorsList.forEach(function (d) {

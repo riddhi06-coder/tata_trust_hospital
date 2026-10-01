@@ -129,10 +129,14 @@
                                     </div>
                                 </div>
                                 <div class="col-md-9 no-gap">
-                                    <div class="doctor-content gau-doc-content-sec">
+                                    <div class="doctor-content gau-doc-content-sec {{ in_array($speciality->slug, ['oncology', 'ophthalmology']) ? 'noopur-hei-cust-content-sec' : '' }}">
                                         <h2>{{ $doctor->name }}</h2>
                                         @if(!empty($doctor->designation))
-                                            <h4>{{ strip_tags($doctor->designation) }}</h4>
+                                            @if(\Illuminate\Support\Str::contains($doctor->designation, '<'))
+                                                <div class="doctor-designation">{!! $doctor->designation !!}</div>
+                                            @else
+                                                <h4>{{ $doctor->designation }}</h4>
+                                            @endif
                                         @endif
                                         @if(!empty($doctorBio))
                                             {!! nl2br(e($doctorBio)) !!}
