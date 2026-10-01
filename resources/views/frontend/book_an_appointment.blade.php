@@ -39,6 +39,7 @@
                 <div class="form-card">
 
                     <form id="apptForm" novalidate>
+                        @php($prefill = $prefill ?? [])
                         @csrf
 
                         <!-- ── OWNER INFO ── -->
@@ -51,7 +52,7 @@
                                 <div class="col-12 col-sm-4">
                                     <label class="form-label">Your Name <span class="req">*</span></label>
                                     <input type="text" name="name" id="apptName" class="form-control"
-                                           value="{{ optional($user)->name }}"
+                                           value="{{ optional($user)->name ?: ($prefill['name'] ?? '') }}"
                                            placeholder="Full name" maxlength="100" />
                                     <small class="error-msg" id="err_name"></small>
                                 </div>
@@ -70,7 +71,7 @@
                                 <div class="col-12 col-sm-4">
                                     <label class="form-label">Email ID <span class="req">*</span></label>
                                     <input type="email" name="email" id="apptEmail" class="form-control"
-                                           value="{{ optional($user)->email }}"
+                                           value="{{ optional($user)->email ?: ($prefill['email'] ?? '') }}"
                                            placeholder="you@example.com" maxlength="150" />
                                     <small class="error-msg" id="err_email"></small>
                                 </div>
@@ -78,7 +79,7 @@
                                 <div class="col-12 col-sm-8">
                                     <label class="form-label">Address <span class="req">*</span></label>
                                     <input type="text" name="address" id="apptAddress" class="form-control"
-                                           value="{{ optional($user)->address }}"
+                                           value="{{ optional($user)->address ?: ($prefill['address'] ?? '') }}"
                                            placeholder="Enter Address" maxlength="255" />
                                     <small class="error-msg" id="err_address"></small>
                                 </div>
@@ -86,7 +87,7 @@
                                 <div class="col-12 col-sm-4">
                                     <label class="form-label">Pin Code <span class="req">*</span></label>
                                     <input type="tel" name="pincode" id="apptPincode" class="form-control"
-                                           value="{{ optional($user)->pincode }}"
+                                           value="{{ optional($user)->pincode ?: ($prefill['pincode'] ?? '') }}"
                                            placeholder="6-digit PIN" maxlength="6" inputmode="numeric"
                                            oninput="this.value=this.value.replace(/\D/g,'').slice(0,6);" />
                                     <small class="error-msg" id="err_pincode"></small>
@@ -104,21 +105,21 @@
 
                                 <div class="col-12 col-sm-6">
                                     <label class="form-label">Pet Name <span class="req">*</span></label>
-                                    <input type="text" name="pet_name" id="apptPetName" class="form-control" placeholder="e.g. Bruno / Mochi" maxlength="100" />
+                                    <input type="text" name="pet_name" id="apptPetName" class="form-control" value="{{ $prefill['pet_name'] ?? '' }}" placeholder="e.g. Bruno / Mochi" maxlength="100" />
                                     <small class="error-msg" id="err_pet_name"></small>
                                 </div>
 
                                 <div class="col-12 col-sm-6">
                                     <label class="form-label">Age / DOB of Pet</label>
-                                    <input type="text" name="pet_age" id="apptPetAge" class="form-control" placeholder="e.g. 2 yrs or 14 Jan 2022" maxlength="60" />
+                                    <input type="text" name="pet_age" id="apptPetAge" class="form-control" value="{{ $prefill['pet_age'] ?? '' }}" placeholder="e.g. 2 yrs or 14 Jan 2022" maxlength="60" />
                                 </div>
 
                                 <div class="col-12 col-sm-6">
                                     <label class="form-label d-block mb-2">My Pet Is <span class="req">*</span></label>
                                     <div class="toggle-group">
-                                        <input type="radio" name="pet_type" id="petDog" value="dog" />
+                                        <input type="radio" name="pet_type" id="petDog" value="dog" @checked(($prefill['pet_type'] ?? '') === 'dog') />
                                         <label for="petDog"><img src="{{ asset('frontend/assets/img/icon/dog-icon.webp') }}" alt=""> Dog</label>
-                                        <input type="radio" name="pet_type" id="petCat" value="cat" />
+                                        <input type="radio" name="pet_type" id="petCat" value="cat" @checked(($prefill['pet_type'] ?? '') === 'cat') />
                                         <label for="petCat"><img src="{{ asset('frontend/assets/img/icon/cat-icon.webp') }}" alt=""> Cat</label>
                                     </div>
                                     <small class="error-msg" id="err_pet_type"></small>
@@ -127,9 +128,9 @@
                                 <div class="col-12 col-sm-6">
                                     <label class="form-label d-block mb-2">Gender <span class="req">*</span></label>
                                     <div class="toggle-group">
-                                        <input type="radio" name="pet_gender" id="genderMale" value="male" />
+                                        <input type="radio" name="pet_gender" id="genderMale" value="male" @checked(($prefill['pet_gender'] ?? '') === 'male') />
                                         <label for="genderMale"><img src="{{ asset('frontend/assets/img/icon/male-icon.webp') }}" alt=""> Male</label>
-                                        <input type="radio" name="pet_gender" id="genderFemale" value="female" />
+                                        <input type="radio" name="pet_gender" id="genderFemale" value="female" @checked(($prefill['pet_gender'] ?? '') === 'female') />
                                         <label for="genderFemale"><img src="{{ asset('frontend/assets/img/icon/female-icon.webp') }}" alt=""> Female</label>
                                     </div>
                                     <small class="error-msg" id="err_pet_gender"></small>
@@ -148,9 +149,9 @@
                                 <div class="col-12">
                                     <label class="form-label d-block mb-2">Type of Consultation <span class="req">*</span></label>
                                     <div class="toggle-group">
-                                        <input type="radio" name="consult_type" id="typeFirst" value="first" />
+                                        <input type="radio" name="consult_type" id="typeFirst" value="first" @checked(($prefill['consult_type'] ?? '') === 'first') />
                                         <label for="typeFirst"><img src="{{ asset('frontend/assets/img/icon/first-time-consultation-icon.webp') }}" alt=""> First-time Consultation</label>
-                                        <input type="radio" name="consult_type" id="typeFollowup" value="followup" />
+                                        <input type="radio" name="consult_type" id="typeFollowup" value="followup" @checked(($prefill['consult_type'] ?? '') === 'followup') />
                                         <label for="typeFollowup"><img src="{{ asset('frontend/assets/img/icon/follow-up--visit-icon-.webp') }}" alt=""> Follow-up Visit</label>
                                     </div>
                                     <small class="error-msg" id="err_consult_type"></small>
@@ -159,13 +160,13 @@
                                 <div class="col-12 col-sm-6">
                                     <label class="form-label">Reason for Consultation <span class="req">*</span></label>
                                     <textarea name="reason" id="apptReason" class="form-control" rows="1"
-                                              placeholder="Describe symptoms, concerns, or reason for the visit…" maxlength="2000"></textarea>
+                                              placeholder="Describe symptoms, concerns, or reason for the visit…" maxlength="2000">{{ $prefill['reason'] ?? '' }}</textarea>
                                     <small class="error-msg" id="err_reason"></small>
                                 </div>
 
                                 <div class="col-12 col-sm-6">
                                     <label class="form-label">Date of Appointment <span class="req">*</span></label>
-                                    <input type="date" name="appointment_date" id="apptDate" class="form-control" min="{{ now()->format('Y-m-d') }}" />
+                                    <input type="date" name="appointment_date" id="apptDate" class="form-control" value="{{ $prefill['appointment_date'] ?? '' }}" min="{{ now()->format('Y-m-d') }}" />
                                     <small class="error-msg" id="err_appointment_date"></small>
                                 </div>
 

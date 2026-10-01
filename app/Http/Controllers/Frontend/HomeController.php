@@ -37,6 +37,7 @@ use App\Models\AppointmentEnquiry;
 use App\Models\AppointmentOtp;
 use App\Models\AppointmentStatus;
 use App\Models\AppointmentUser;
+use App\Models\WhatsAppBookingRequest;
 use App\Models\ContactDetails;
 use App\Models\ContactEnquiry;
 use App\Models\JobApplication;
@@ -759,7 +760,71 @@ class HomeController extends Controller
             ->where('mobile', $mobile)
             ->first();
 
-        return view('frontend.book_an_appointment', compact('mobile', 'user'));
+        // Pre-fill the form from the most recent WhatsApp chatbot booking for this
+        // number (if any), so a user who already answered the bot doesn't retype.
+        $waBooking = WhatsAppBookingRequest::whereNull('deleted_by')
+            ->where(function ($q) use ($mobile) {
+                $q->where('mobile', $mobile)
+                  ->orWhere('wa_id', '91'.$mobile)
+                  ->orWhere('wa_id', $mobile);
+            })
+            ->latest('id')
+            ->first();
+
+        $prefill = $this->buildBookingPrefill($waBooking);
+
+        return view('frontend.book_an_appointment', compact('mobile', 'user', 'prefill'));
+    }
+
+    /** Map a WhatsApp booking request onto the booking-form field names. */
+    private function buildBookingPrefill(?WhatsAppBookingRequest $r): array
+    {
+        if (! $r) {
+            return [];
+        }
+
+        $species = strtolower((string) $r->species);
+        $petType = str_contains($species, 'dog') ? 'dog'
+            : (str_contains($species, 'cat') ? 'cat' : '');
+
+        $sex    = strtolower((string) $r->sex);
+        $gender = str_contains($sex, 'female') ? 'female'
+            : (str_contains($sex, 'male') ? 'male' : '');
+
+        return [
+            'name'             => $r->parent_name,
+            'email'            => $r->email,
+            'address'          => $r->address,
+            'pincode'          => $r->pincode,
+            'pet_name'         => $r->pet_name,
+            'pet_age'          => $r->dob_age,
+            'pet_type'         => $petType,
+            'pet_gender'       => $gender,
+            'consult_type'     => $r->client_type === 'existing' ? 'followup' : 'first',
+            'reason'           => $r->complaint ?: $r->reason,
+            'appointment_date' => $this->normalizeBookingDate($r->preferred_day),
+        ];
+    }
+
+    /** Turn a chatbot "preferred day" (Today/Tomorrow/typed date) into Y-m-d, or null. */
+    private function normalizeBookingDate(?string $day): ?string
+    {
+        $day = strtolower(trim((string) $day));
+        if ($day === '') {
+            return null;
+        }
+        if (str_contains($day, 'today')) {
+            return Carbon::now()->toDateString();
+        }
+        if (str_contains($day, 'tomorrow')) {
+            return Carbon::now()->addDay()->toDateString();
+        }
+        try {
+            $d = Carbon::parse($day);
+            return ($d->isPast() && ! $d->isToday()) ? null : $d->toDateString();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public function appointment_store(Request $request, MessageIndiaSms $sms)

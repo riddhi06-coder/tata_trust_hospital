@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Mail\WhatsAppNotificationMail;
+use App\Models\AppointmentUser;
 use App\Models\ContactDetails;
 use App\Models\Specialities;
 use App\Models\WhatsAppBookingRequest;
@@ -164,8 +165,17 @@ class WhatsAppBot
     /** Handle the New/Existing choice and start the intake. */
     private function chooseClientType(WhatsAppConversation $c, string $text, ?string $interactiveId, array $ctx): void
     {
-        $sel = $interactiveId ?: strtolower(trim($text));
+        $sel  = $interactiveId ?: strtolower(trim($text));
         $type = str_contains($sel, 'existing') ? 'existing' : 'new';
+
+        // If they claim to be an existing client but we have no record for this
+        // number, there's nothing on file to pre-fill later — so set them up with
+        // the full new-client intake instead of the short one.
+        $downgraded = false;
+        if ($type === 'existing' && ! $this->findAppointmentUser($c->wa_id)) {
+            $type = 'new';
+            $downgraded = true;
+        }
 
         $data = $c->data ?? [];
         $data['booking'] = ['client_type' => $type, 'cursor' => 0, 'answers' => []];
@@ -173,12 +183,26 @@ class WhatsAppBot
         $c->step = 'book_flow';
         $c->save();
 
-        $intro = $type === 'existing'
-            ? "Welcome back! 🐾 Just a few quick details and we'll set up the visit."
-            : "Lovely — welcome to the SAHM family! 🐾 I'll take a few details for your pet's file.";
+        if ($downgraded) {
+            $intro = "Hmm, I couldn't find an existing record for this number — no worries! Let's quickly set you up. 🐾 I'll take a few details for your pet's file.";
+        } elseif ($type === 'existing') {
+            $intro = "Welcome back! 🐾 Just a few quick details and we'll set up the visit.";
+        } else {
+            $intro = "Lovely — welcome to the SAHM family! 🐾 I'll take a few details for your pet's file.";
+        }
         $this->wa->sendText($c->wa_id, $intro, $ctx);
 
         $this->askStep($c, $this->bookingSteps($type)[0], $ctx);
+    }
+
+    /** Look up an existing client by the WhatsApp number (match last 10 digits). */
+    private function findAppointmentUser(string $waId): ?AppointmentUser
+    {
+        $mobile = substr(preg_replace('/\D+/', '', $waId), -10);
+        if (strlen($mobile) < 10) {
+            return null;
+        }
+        return AppointmentUser::whereNull('deleted_by')->where('mobile', $mobile)->first();
     }
 
     /** Record the current answer and move to the next step (or finalise). */
