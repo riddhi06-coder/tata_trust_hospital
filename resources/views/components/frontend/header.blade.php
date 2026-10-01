@@ -8,7 +8,9 @@
         .header-chat-btn:hover{background:#1da851;color:#fff;transform:translateY(-1px);box-shadow:0 6px 16px rgba(37,211,102,.35);}
         .header-chat-btn i{font-size:18px;}
         .chat-menu-button-custom-sec{display:flex;align-items:center;margin-right:14px;}
-        .header-chat-btn--block{display:flex;justify-content:center;width:100%;margin:16px 0;}
+        /* Mobile menu version — match the inset size of the book-appointment cards
+           (20px side margins, 10px radius) instead of going edge-to-edge. */
+        .header-chat-btn--block{display:flex;justify-content:center;margin:20px;border-radius:10px;padding:12px;font-size:16px;}
     </style>
 
     @php
@@ -33,8 +35,10 @@
 
         // "Chat with us" — points to the Meta TEST number the chatbot runs on
         // (+1 555 971 0179) so the button reaches the working bot for testing.
+        // Pre-fills "Hi" so the user just taps SEND once and the bot replies with
+        // the welcome menu (WhatsApp forbids the business sending the first msg).
         // Switch to the real business number once it's connected to the WABA.
-        $waChatUrl = 'https://wa.me/15559710179';
+        $waChatUrl = 'https://wa.me/15559710179?text='.rawurlencode('Hi');
 
         // Header/menu blocks want short plain-text address (rich-text stripped).
         $addressPlain = $headerContact && $headerContact->address
