@@ -53,9 +53,6 @@ return [
         // Image shown in the welcome message. Must be a public JPG/PNG (not webp).
         // When unset, the bot falls back to the site logo PNG via asset().
         'welcome_image'   => env('WHATSAPP_WELCOME_IMAGE'),
-        // Public-facing WhatsApp business number (digits, country code, no '+').
-        // Used to build the "Chat with us" wa.me link in the website header.
-        'business_number' => env('WHATSAPP_BUSINESS_NUMBER', '917021850400'),
     ],
 
     // MessageIndia SMS — used for appointment login OTPs and appointment confirmations.

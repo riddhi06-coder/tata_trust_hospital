@@ -31,11 +31,10 @@
         $phoneDisplay = $headerContact->emergency_no ?? '';
         $phoneTel     = $phoneDisplay ? preg_replace('/[^\d+]/', '', $phoneDisplay) : '';
 
-        // "Chat with us" — opens WhatsApp with a friendly opener that triggers the
-        // chatbot's welcome menu (any inbound message shows the menu).
-        $waNumber  = preg_replace('/\D+/', '', config('services.whatsapp.business_number'));
-        $waOpener  = rawurlencode("Hi 👋 I'd like to chat with Small Animal Hospital Mumbai");
-        $waChatUrl = 'https://wa.me/'.$waNumber.'?text='.$waOpener;
+        // "Chat with us" — points to the Meta TEST number the chatbot runs on
+        // (+1 555 971 0179) so the button reaches the working bot for testing.
+        // Switch to the real business number once it's connected to the WABA.
+        $waChatUrl = 'https://wa.me/15559710179';
 
         // Header/menu blocks want short plain-text address (rich-text stripped).
         $addressPlain = $headerContact && $headerContact->address
