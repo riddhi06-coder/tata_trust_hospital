@@ -32,7 +32,6 @@ use App\Http\Controllers\Backend\PrivacyPolicyController;
 use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
-use App\Http\Controllers\Backend\AppointmentEnquiryController;
 use App\Http\Controllers\Backend\WhatsAppTeamQueryController;
 use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\AppointmentUserController;
@@ -227,8 +226,8 @@ use App\Http\Controllers\WhatsAppWebhookController;
             Route::get('manage-job-applications',       [JobApplicationController::class, 'index'])->middleware('permission:job-applications.view')->name('manage-job-applications.index');
             Route::get('manage-job-applications/{id}',  [JobApplicationController::class, 'show'])->middleware('permission:job-applications.view')->whereNumber('id')->name('manage-job-applications.show');
 
-            Route::get('manage-appointment-enquiries',      [AppointmentEnquiryController::class, 'index'])->middleware('permission:appointment-enquiries.view')->name('manage-appointment-enquiries.index');
-            Route::get('manage-appointment-enquiries/{id}', [AppointmentEnquiryController::class, 'show'])->middleware('permission:appointment-enquiries.view')->whereNumber('id')->name('manage-appointment-enquiries.show');
+            // (Appointment Enquiries listing removed — appointments live in the
+            // Appointments / WhatsApp Appointments tabs with full management.)
 
             // WhatsApp "Talk to our team" queries (read-only; filters are AJAX POST).
             // (WhatsApp appointment bookings become real appointments via the web form,

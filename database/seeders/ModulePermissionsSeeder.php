@@ -80,7 +80,6 @@ class ModulePermissionsSeeder extends Seeder
                 // Form Enquiries -> "Form Enquiries" card
                 ['Contact Enquiries',     'contact-enquiries',     ['view'],                             'Form Enquiries'],
                 ['Job Applications',      'job-applications',      ['view'],                             'Form Enquiries'],
-                ['Appointment Enquiries', 'appointment-enquiries', ['view'],                             'Form Enquiries'],
                 ['WhatsApp Queries',      'whatsapp-queries',      ['view'],                             'Form Enquiries'],
 
                 // Reports (standalone sidebar tab)

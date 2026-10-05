@@ -166,6 +166,20 @@ class WhatsAppBot
         $sel  = $interactiveId ?: strtolower(trim($text));
         $type = str_contains($sel, 'existing') ? 'existing' : 'new';
 
+        // If they pick NEW but this number is already registered with us, they
+        // must use "Existing client" (prevents duplicate accounts). Account +
+        // OTP login are keyed by mobile, so the WhatsApp number is the signal.
+        if ($type === 'new' && $this->findAppointmentUser($c->wa_id)) {
+            $this->wa->sendButtons(
+                $c->wa_id,
+                "Good news — this number is *already registered* with us! 🐾\n\nPlease choose *Existing client* so we can pull up your details instead of creating a duplicate.",
+                [['id' => 'client_existing', 'title' => '👤 Existing client']],
+                null,
+                $ctx
+            );
+            return; // stay on book_client_type until they pick Existing
+        }
+
         // If they claim to be an existing client but we have no record for this
         // number, there's nothing on file to pre-fill later — so set them up with
         // the full new-client intake instead of the short one.

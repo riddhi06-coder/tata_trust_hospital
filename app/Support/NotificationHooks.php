@@ -39,7 +39,7 @@ class NotificationHooks
                 'source'  => 'website',
                 'title'   => 'New Appointment Booking',
                 'body'    => trim(($m->owner_name ?: 'A pet parent').($m->pet_name ? ' booked for '.$m->pet_name : ' booked a visit').$when),
-                'url'     => route('manage-appointment-enquiries.show', $m->id),
+                'url'     => route('manage-appointments.show', $m->id),
                 'icon'    => 'calendar',
                 'color'   => 'success',
                 'related_type' => AppointmentEnquiry::class,

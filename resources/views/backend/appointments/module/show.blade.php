@@ -51,7 +51,33 @@
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Consultation</small>{{ $appointment->consult_type === 'first' ? 'First-time Consultation' : 'Follow-up Visit' }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Preferred Date</small>{{ optional($appointment->appointment_date)->format('d M Y') }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Submitted</small>{{ optional($appointment->created_at)->format('d M Y, h:i A') }}</div>
-                                <div class="col-12"><small class="text-muted d-block">Reason</small>{{ $appointment->reason }}</div>
+                                @php
+                                    // WhatsApp bookings fold extra intake details into the reason as a
+                                    // "— WhatsApp intake —" block; split it out so it renders as fields.
+                                    $rawReason = (string) $appointment->reason;
+                                    $waIntake  = [];
+                                    $cleanReason = trim($rawReason);
+                                    if (str_contains($rawReason, 'WhatsApp intake')) {
+                                        $parts       = preg_split('/\R?\s*—+\s*WhatsApp intake\s*—+\s*\R?/u', $rawReason, 2);
+                                        $cleanReason = trim($parts[0] ?? '');
+                                        foreach (preg_split('/\R/u', trim($parts[1] ?? '')) as $line) {
+                                            if (str_contains($line, ':')) {
+                                                [$k, $v] = array_pad(explode(':', $line, 2), 2, '');
+                                                $k = trim($k); $v = trim($v);
+                                                if ($k !== '' && $v !== '') { $waIntake[$k] = $v; }
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <div class="col-12 mb-3"><small class="text-muted d-block">Reason</small>{{ $cleanReason ?: '—' }}</div>
+
+                                @if($waIntake)
+                                    <hr>
+                                    <div class="col-12 mb-2"><small class="text-muted d-block fw-bold text-uppercase" style="letter-spacing:.04em;">WhatsApp Intake Details</small></div>
+                                    @foreach($waIntake as $label => $value)
+                                        <div class="col-md-6 mb-3"><small class="text-muted d-block">{{ $label }}</small>{{ $value }}</div>
+                                    @endforeach
+                                @endif
                             </div>
                             @if($appointment->appointmentUser)
                                 <a href="{{ route('manage-appointment-users.show', $appointment->appointmentUser->id) }}" class="btn btn-sm btn-outline-primary mt-2">View Full Client History</a>
