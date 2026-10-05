@@ -31,6 +31,19 @@
                   </a>
                 </li>
 
+                <li class="sidebar-list {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"> </i>
+                  <a class="sidebar-link sidebar-title link-nav" href="{{ route('admin.notifications.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-email') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-email') }}"></use>
+                    </svg>
+                    <span class="lan-3">Notifications</span>
+                  </a>
+                </li>
+
 
                 @php
                     $authUser = auth()->user();

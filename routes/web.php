@@ -35,6 +35,7 @@ use App\Http\Controllers\Backend\BlogCategoryController;
 use App\Http\Controllers\Backend\AppointmentEnquiryController;
 use App\Http\Controllers\Backend\WhatsAppBookingRequestController;
 use App\Http\Controllers\Backend\WhatsAppTeamQueryController;
+use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\AppointmentUserController;
 use App\Http\Controllers\Backend\AppointmentController;
 use App\Http\Controllers\Backend\AppointmentStatusController;
@@ -88,6 +89,14 @@ use App\Http\Controllers\WhatsAppWebhookController;
         Route::post('/update-password', [LoginController::class, 'updatePassword'])->name('admin.updatepassword');
 
         Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('admin.logout');
+
+        // Activity notifications (available to every admin; live polling + shared inbox).
+        Route::get('notifications',            [NotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::post('notifications/filter',    [NotificationController::class, 'filter'])->name('admin.notifications.filter');
+        Route::get('notifications/poll',       [NotificationController::class, 'poll'])->name('admin.notifications.poll');
+        Route::post('notifications/read-all',  [NotificationController::class, 'readAll'])->name('admin.notifications.read-all');
+        Route::post('notifications/{id}/read', [NotificationController::class, 'read'])->whereNumber('id')->name('admin.notifications.read');
+        Route::get('notifications/{id}/go',    [NotificationController::class, 'go'])->whereNumber('id')->name('admin.notifications.go');
 
         // ---- Roles ----
         Route::get('roles',                [RoleController::class, 'index'])->middleware('permission:roles.view')->name('admin.roles.index');

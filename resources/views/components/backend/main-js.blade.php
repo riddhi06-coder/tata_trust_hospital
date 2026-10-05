@@ -147,4 +147,148 @@
     </script>
 @endif
 
+{{-- Live activity notifications (header bell) --}}
+@auth
+<script>
+(function ($) {
+    "use strict";
+    var $bell = $('#anBellToggle');
+    if (!$bell.length) return;
+
+    var POLL_URL   = "{{ route('admin.notifications.poll') }}";
+    var READALL_URL= "{{ route('admin.notifications.read-all') }}";
+    var INDEX_URL  = "{{ route('admin.notifications.index') }}";
+    var TOKEN      = $('meta[name=csrf-token]').attr('content') || '';
+    var POLL_MS    = 20000;      // live refresh every 20s
+    var REMIND_MS  = 300000;     // in-app nudge every 5 min while unread remain
+
+    var $badge = $('#anBadge'), $list = $('#anList'), $dd = $('#anDropdown');
+    var lastMaxId = 0, firstPoll = true, lastRemind = 0;
+
+    function esc(s){ return $('<div>').text(s == null ? '' : s).html(); }
+
+    // Clean custom toast (white card, accent bar, icon, title + detail, close).
+    var $toastWrap = $('<div class="an-toast-wrap"></div>').appendTo('body');
+    var TOAST_MS = 7000;
+    var TOAST_ICONS = { success: 'bell', warning: 'clock', info: 'info', theme: 'bell' };
+
+    function toast(o){
+        var type = o.type || 'info';
+        var $t = $(
+            '<div class="an-toast an-toast--' + type + '">' +
+              '<span class="an-toast__ic"><i data-feather="' + (TOAST_ICONS[type] || 'bell') + '"></i></span>' +
+              '<div class="an-toast__body">' +
+                '<div class="an-toast__title">' + o.title + '</div>' +
+                (o.body ? '<div class="an-toast__sub">' + esc(o.body) + '</div>' : '') +
+              '</div>' +
+              '<button type="button" class="an-toast__close" aria-label="Dismiss">&times;</button>' +
+              '<span class="an-toast__bar" style="animation:anBar ' + TOAST_MS + 'ms linear forwards;"></span>' +
+            '</div>'
+        );
+        $toastWrap.append($t);
+        if (window.feather) feather.replace();
+        requestAnimationFrame(function(){ $t.addClass('in'); });
+
+        var timer = setTimeout(remove, TOAST_MS);
+        function remove(){ clearTimeout(timer); $t.addClass('out'); setTimeout(function(){ $t.remove(); }, 420); }
+
+        $t.on('click', function(){ if (o.url) window.location.href = o.url; });
+        $t.find('.an-toast__close').on('click', function(e){ e.stopPropagation(); remove(); });
+    }
+
+    // One shared audio context, unlocked on the first user gesture (browsers
+    // block audio until the user interacts with the page).
+    var audioCtx = null;
+    function getCtx(){
+        try { if (!audioCtx){ var C = window.AudioContext || window.webkitAudioContext; if (C) audioCtx = new C(); } } catch (e) {}
+        return audioCtx;
+    }
+    function unlockAudio(){
+        var c = getCtx();
+        if (c && c.state === 'suspended') c.resume();
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('keydown', unlockAudio);
+    }
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('keydown', unlockAudio);
+
+    function chime(){
+        try {
+            var c = getCtx(); if (!c) return;
+            if (c.state === 'suspended') c.resume();
+            var t = c.currentTime;
+            [[880, 0], [1174.7, 0.13]].forEach(function (n){        // two-note "ding-dong"
+                var o = c.createOscillator(), g = c.createGain();
+                o.connect(g); g.connect(c.destination); o.type = 'sine'; o.frequency.value = n[0];
+                g.gain.setValueAtTime(0.0001, t + n[1]);
+                g.gain.exponentialRampToValueAtTime(0.12, t + n[1] + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + n[1] + 0.35);
+                o.start(t + n[1]); o.stop(t + n[1] + 0.36);
+            });
+        } catch (e) {}
+    }
+
+    function render(items){
+        if (!items.length) { $list.html('<div class="an-empty">No notifications yet.</div>'); return; }
+        var html = '';
+        items.forEach(function (n){
+            html += '<a class="an-item ' + (n.unread ? 'unread' : '') + '" href="' + n.url + '">'
+                 +    '<span class="an-ic ' + esc(n.color) + '"><i data-feather="' + esc(n.icon || 'bell') + '"></i></span>'
+                 +    '<span class="an-it-body">'
+                 +      '<span class="an-it-title">' + esc(n.title) + '</span>'
+                 +      '<span class="an-it-sub">' + esc(n.body) + '</span>'
+                 +      '<span class="an-it-ago">' + esc(n.ago) + '</span>'
+                 +    '</span>'
+                 +  '</a>';
+        });
+        $list.html(html);
+        if (window.feather) feather.replace();
+    }
+
+    function setBadge(n){
+        if (n > 0){ $badge.text(n > 99 ? '99+' : n).show(); $bell.addClass('has-unread'); }
+        else { $badge.hide(); $bell.removeClass('has-unread'); }
+    }
+
+    function poll(){
+        $.ajax({ url: POLL_URL, method: 'GET', dataType: 'json' }).done(function (res){
+            setBadge(res.unread);
+            render(res.items);
+
+            var maxId = res.items.reduce(function (m, n){ return Math.max(m, n.id); }, 0);
+            if (!firstPoll && maxId > lastMaxId){
+                var fresh = res.items.filter(function (n){ return n.id > lastMaxId; });
+                if (fresh.length === 1) toast({ title: '<b>' + esc(fresh[0].title) + '</b>', body: fresh[0].body, type: 'success', url: fresh[0].url });
+                else if (fresh.length > 1) toast({ title: '<b>' + fresh.length + ' new notifications</b>', body: 'Click to view them all', type: 'success', url: INDEX_URL });
+                chime();
+            }
+            lastMaxId = Math.max(lastMaxId, maxId);
+            firstPoll = false;
+
+            // Periodic in-app reminder while unread remain (click to open the list).
+            var now = Date.now();
+            if (res.unread > 0 && (now - lastRemind) > REMIND_MS){
+                lastRemind = now;
+                toast({ title: '<b>' + res.unread + '</b> unread notification' + (res.unread > 1 ? 's' : ''), body: 'Click to review them', type: 'warning', url: INDEX_URL });
+            }
+        });
+    }
+
+    $bell.on('click', function (e){ e.stopPropagation(); $dd.toggleClass('show'); });
+    $(document).on('click', function (e){ if (!$(e.target).closest('.an-notif-wrap').length) $dd.removeClass('show'); });
+
+    $('#anMarkAll').on('click', function (e){
+        e.preventDefault(); e.stopPropagation();
+        $.ajax({ url: READALL_URL, method: 'POST', headers: { 'X-CSRF-TOKEN': TOKEN } }).done(function (){
+            setBadge(0);
+            $list.find('.an-item').removeClass('unread');
+        });
+    });
+
+    poll();
+    setInterval(poll, POLL_MS);
+})(jQuery);
+</script>
+@endauth
+
 

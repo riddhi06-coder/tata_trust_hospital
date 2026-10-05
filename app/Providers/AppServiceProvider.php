@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Observers\AuditObserver;
 use App\Support\ActivityLogger;
+use App\Support\NotificationHooks;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
@@ -59,6 +60,9 @@ class AppServiceProvider extends ServiceProvider
         foreach ($this->auditedModels as $model) {
             $model::observe(AuditObserver::class);
         }
+
+        // Raise backend notifications for new enquiries / queries / appointments.
+        NotificationHooks::register();
 
         // Authentication activity.
         Event::listen(Login::class, function (Login $event) {
