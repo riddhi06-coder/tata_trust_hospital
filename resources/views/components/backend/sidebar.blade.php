@@ -40,7 +40,7 @@
                     <svg class="fill-icon">
                       <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-email') }}"></use>
                     </svg>
-                    <span class="lan-3">Notifications</span>
+                    <span>Notifications</span>
                   </a>
                 </li>
 
