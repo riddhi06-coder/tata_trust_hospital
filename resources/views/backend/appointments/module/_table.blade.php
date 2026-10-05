@@ -20,7 +20,7 @@
         <tbody>
             @forelse($appointments as $appt)
                 <tr>
-                    <td>#{{ str_pad($appt->id, 4, '0', STR_PAD_LEFT) }}</td>
+                    <td>#{{ $appt->reference() }}</td>
                     <td>{{ optional($appt->appointment_date)->format('d M Y') }}</td>
                     <td>{{ $appt->owner_name }}</td>
                     <td>+91 {{ $appt->mobile }}</td>
@@ -35,7 +35,7 @@
                     <td class="text-end text-nowrap">
                         <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 js-update-status"
                                 data-id="{{ $appt->id }}"
-                                data-ref="#{{ str_pad($appt->id, 4, '0', STR_PAD_LEFT) }}"
+                                data-ref="#{{ $appt->reference() }}"
                                 data-owner="{{ $appt->owner_name }}"
                                 data-status="{{ $appt->appointment_status_id }}"
                                 data-bs-toggle="modal" data-bs-target="#statusModal">

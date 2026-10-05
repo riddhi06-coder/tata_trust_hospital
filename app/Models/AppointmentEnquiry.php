@@ -30,6 +30,7 @@ class AppointmentEnquiry extends Model
         'appointment_date',
         'appointment_status_id',
         'source',
+        'ref_no',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -38,6 +39,17 @@ class AppointmentEnquiry extends Model
     protected $casts = [
         'appointment_date' => 'date',
     ];
+
+    /**
+     * Per-tab display reference: website = A-0001, whatsapp = WA-0001.
+     * Each source numbers independently (ref_no); falls back to id if unset.
+     */
+    public function reference(): string
+    {
+        $prefix = $this->source === 'whatsapp' ? 'WA-' : 'A-';
+
+        return $prefix.str_pad((string) ($this->ref_no ?: $this->id), 4, '0', STR_PAD_LEFT);
+    }
 
     public function appointmentUser(): BelongsTo
     {

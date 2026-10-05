@@ -38,6 +38,13 @@
 
                 <div class="form-card">
 
+                    @if(!empty($bookingNotice))
+                        <div class="booking-notice" style="background:#fff8e6;border:1px solid #f3d27a;border-left:4px solid #e0a800;border-radius:10px;padding:14px 16px;margin-bottom:20px;color:#7a5b00;font-size:14.5px;line-height:1.5;">
+                            <strong>Your earlier WhatsApp booking is already confirmed.</strong><br>
+                            That booking link has been used. You can make a <strong>new booking</strong> below as a fresh request.
+                        </div>
+                    @endif
+
                     <form id="apptForm" novalidate>
                         @php($prefill = $prefill ?? [])
                         <input type="hidden" name="booking_source" value="{{ $bookingSource ?? 'website' }}">

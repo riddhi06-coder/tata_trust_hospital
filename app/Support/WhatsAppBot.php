@@ -79,6 +79,8 @@ class WhatsAppBot
             'book_client_type'=> $this->chooseClientType($convo, $text, $interactiveId, $ctx),
             'book_flow'       => $this->continueBooking($convo, $text, $interactiveId, $ctx),
             'book_day_custom' => $this->captureCustomDay($convo, $text, $ctx),
+            'book_review'     => $this->reviewRouter($convo, $text, $interactiveId, $ctx),
+            'book_edit'       => $this->captureEdit($convo, $text, $interactiveId, $ctx),
             default           => $this->routeMenu($convo, $input, $ctx),
         };
     }
@@ -108,7 +110,7 @@ class WhatsAppBot
         }
     }
 
-    /** Greeting (warm) + branded logo image + the main-menu list. Shown every time the menu is requested. */
+    /** Warm greeting (always first) + the main-menu list. Shown every time the menu is requested. */
     private function sendMenu(WhatsAppConversation $c, array $ctx): void
     {
         $c->step = 'idle';
@@ -119,16 +121,12 @@ class WhatsAppBot
             ."We're so happy to have you and your companion here. Your pet's health and happiness mean the world to us, and I'm here to help you every step of the way. 🐾\n\n"
             ."How may I assist you and your furry friend today?";
 
-        // Branded welcome image (public JPG/PNG — hospital logo by default; override with WHATSAPP_WELCOME_IMAGE).
-        $image = config('services.whatsapp.welcome_image') ?: asset('frontend/assets/img/logo/tata-trust-logo.png');
-        if ($image) {
-            $this->wa->sendImage($c->wa_id, $image, $greeting, $ctx);
-            $body = 'Please choose an option below:';
-        } else {
-            $body = $greeting;
-        }
+        // Intro ALWAYS first: send the greeting as a plain text message (delivered
+        // instantly), then the menu. (An image greeting loads slower and would
+        // otherwise arrive AFTER the menu.) The logo is the WhatsApp profile picture.
+        $this->wa->sendText($c->wa_id, $greeting, $ctx);
 
-        $this->wa->sendList($c->wa_id, $body, 'Main Menu', [
+        $this->wa->sendList($c->wa_id, 'Please choose an option below:', 'Main Menu', [
             ['id' => 'menu_book',      'title' => '📅 Book appointment', 'description' => 'Reserve a visit for your pet'],
             ['id' => 'menu_services',  'title' => '🏥 Our services',     'description' => 'Departments & specialities'],
             ['id' => 'menu_timings',   'title' => '📍 Timings & location', 'description' => 'Hours, address & directions'],
@@ -268,7 +266,7 @@ class WhatsAppBot
         $c->save();
     }
 
-    /** Send the next question, or finalise when the intake is complete. */
+    /** Send the next question, or show the review summary when the intake is complete. */
     private function advanceBooking(WhatsAppConversation $c, array $ctx): void
     {
         $booking = $c->data['booking'];
@@ -276,10 +274,154 @@ class WhatsAppBot
         $cursor  = (int) $booking['cursor'];
 
         if ($cursor >= count($steps)) {
-            $this->finaliseBooking($c, $ctx);
+            $this->sendReview($c, $ctx);
             return;
         }
         $this->askStep($c, $steps[$cursor], $ctx);
+    }
+
+    /* -------------------------------------------------------------------- */
+    /* Review + edit (so users can fix a typo before confirming)            */
+    /* -------------------------------------------------------------------- */
+
+    /** Show a summary of everything entered + a Confirm button. */
+    private function sendReview(WhatsAppConversation $c, array $ctx): void
+    {
+        $c->step = 'book_review';
+        $c->save();
+
+        $booking = $c->data['booking'];
+        $a       = $booking['answers'] ?? [];
+        $labels  = $this->fieldLabels();
+
+        $lines = '';
+        foreach ($this->bookingSteps($booking['client_type']) as $step) {
+            $k = $step['key'];
+            if (isset($a[$k]) && $a[$k] !== '') {
+                $lines .= '• *'.($labels[$k] ?? ucfirst($k)).'*: '.$a[$k]."\n";
+            }
+        }
+
+        $body = "*Please review your details* 📋\n\n".$lines
+            ."\nIf everything looks good, tap *Confirm & book*.\nTo change something, just type the field name — e.g. *email*, *pet name* or *day*.";
+
+        $this->wa->sendButtons($c->wa_id, $body, [
+            ['id' => 'book_confirm', 'title' => '✅ Confirm & book'],
+        ], null, $ctx);
+    }
+
+    /** Handle the review step: confirm → finalise; otherwise treat input as a field to edit. */
+    private function reviewRouter(WhatsAppConversation $c, string $text, ?string $interactiveId, array $ctx): void
+    {
+        $sel = $interactiveId ?: strtolower(trim($text));
+        if ($sel === 'book_confirm' || in_array($sel, ['confirm', 'book', 'yes', 'done', 'ok'], true)) {
+            $this->finaliseBooking($c, $ctx);
+            return;
+        }
+
+        $key = $this->matchEditField(strtolower(trim($text)), $c->data['booking']['client_type']);
+        if (! $key || ! isset($c->data['booking']['answers'][$key])) {
+            $this->wa->sendText($c->wa_id, "Sorry, I didn't catch which detail to change. Please type a field name like *email*, *pet name* or *day* — or tap *Confirm & book*.", $ctx);
+            return;
+        }
+
+        // Begin editing that single field.
+        $data = $c->data;
+        $data['booking']['editing'] = $key;
+        $c->data = $data;
+        $c->step = 'book_edit';
+        $c->save();
+
+        $this->wa->sendText($c->wa_id, 'Sure — let\'s update that. 🐾', $ctx);
+        $this->askStep($c, $this->stepByKey($data['booking']['client_type'], $key), $ctx);
+    }
+
+    /** Capture the edited field's new value, then return to the review. */
+    private function captureEdit(WhatsAppConversation $c, string $text, ?string $interactiveId, array $ctx): void
+    {
+        $key = $c->data['booking']['editing'] ?? null;
+        if (! $key) {
+            $this->sendReview($c, $ctx);
+            return;
+        }
+
+        $value = trim($text);
+
+        // "Pick a date" while editing the day → ask for the typed date (stay editing).
+        if ($key === 'preferred_day' && ($interactiveId === 'day_pick' || stripos($value, 'pick') !== false)) {
+            $this->wa->sendText($c->wa_id, "Please *type your preferred date* (e.g. 15 Aug).", $ctx);
+            return;
+        }
+
+        if ($value === '') {
+            $this->askStep($c, $this->stepByKey($c->data['booking']['client_type'], $key), $ctx);
+            return;
+        }
+
+        $data = $c->data;
+        $data['booking']['answers'][$key] = mb_substr($value, 0, 500);
+        unset($data['booking']['editing']);
+        $c->data = $data;
+        $c->save();
+
+        $this->sendReview($c, $ctx);
+    }
+
+    /** Friendly labels for the review summary / edit matching. */
+    private function fieldLabels(): array
+    {
+        return [
+            'parent_name' => 'Name', 'address' => 'Address', 'email' => 'Email', 'mobile' => 'Mobile',
+            'pincode' => 'PIN code', 'pet_name' => 'Pet name', 'species' => 'Species', 'sex' => 'Sex',
+            'breed' => 'Breed', 'colour' => 'Colour', 'dob_age' => 'Age / DOB', 'weight' => 'Weight',
+            'neutered' => 'Neutered', 'complaint' => 'Concern', 'how_heard' => 'How heard', 'referred_by' => 'Referred by',
+            'reason' => 'Visit reason', 'preferred_day' => 'Day', 'preferred_time' => 'Time',
+        ];
+    }
+
+    /** Find a booking step by its key (for re-asking on edit). */
+    private function stepByKey(string $clientType, string $key): array
+    {
+        foreach ($this->bookingSteps($clientType) as $step) {
+            if ($step['key'] === $key) {
+                return $step;
+            }
+        }
+        return ['key' => $key, 'type' => 'text', 'q' => 'Please enter the new value:'];
+    }
+
+    /** Map a typed field name to its key (most-specific phrases first). */
+    private function matchEditField(string $text, string $clientType): ?string
+    {
+        $map = [
+            'pet_name'       => ['pet name', 'petname', 'pet\'s name'],
+            'species'        => ['species', 'pet type', 'dog', 'cat'],
+            'sex'            => ['sex', 'gender'],
+            'breed'          => ['breed'],
+            'colour'         => ['colour', 'color'],
+            'dob_age'        => ['age', 'dob', 'birth'],
+            'weight'         => ['weight'],
+            'neutered'       => ['neuter', 'spay'],
+            'complaint'      => ['concern', 'complaint', 'symptom', 'reason'],
+            'how_heard'      => ['how heard', 'heard', 'hear'],
+            'referred_by'    => ['refer'],
+            'preferred_day'  => ['day', 'date'],
+            'preferred_time' => ['time', 'slot'],
+            'email'          => ['email', 'mail'],
+            'address'        => ['address'],
+            'pincode'        => ['pincode', 'pin code', 'pin', 'zip'],
+            'mobile'         => ['mobile', 'phone', 'contact number'],
+            'parent_name'    => ['name', 'owner'],
+        ];
+
+        foreach ($map as $key => $keywords) {
+            foreach ($keywords as $kw) {
+                if (str_contains($text, $kw)) {
+                    return $key;
+                }
+            }
+        }
+        return null;
     }
 
     /** Render a single intake step (text prompt, buttons, or a list). */
@@ -341,7 +483,6 @@ class WhatsAppBot
             ['key' => 'species', 'type' => 'choice', 'q' => "Which pet are we seeing?", 'choices' => [
                 ['id' => 'sp_dog', 'title' => '🐶 Dog'],
                 ['id' => 'sp_cat', 'title' => '🐱 Cat'],
-                ['id' => 'sp_other', 'title' => '🐇 Other'],
             ]],
             ['key' => 'sex', 'type' => 'choice', 'q' => "Your pet's *sex*?", 'choices' => [
                 ['id' => 'sex_m', 'title' => '♂️ Male'],
@@ -390,24 +531,37 @@ class WhatsAppBot
         $this->clearBooking($c);
         $c->save();
 
-        // Confirmation summary + reference number.
+        // Confirmation message + reference number (details were already reviewed).
         $ref     = $request ? $request->reference() : null;
         $petLine = trim(($a['pet_name'] ?? 'your pet').' '.(isset($a['species']) ? '('.$a['species'].')' : ''));
-        $summary = "*Please review your request* 👇\n"
+        $summary = "*Booking request received* 🎉\n\n"
             ."🐾 {$petLine}\n"
             .(isset($a['reason']) ? "🩺 {$a['reason']}\n" : '')
             .(isset($a['preferred_day']) ? "📆 {$a['preferred_day']}".(isset($a['preferred_time']) ? " · {$a['preferred_time']}" : '')."\n" : '')
             .(isset($a['parent_name']) ? "👤 {$a['parent_name']}\n" : '')
             ."📱 ".$c->wa_id."\n\n"
-            ."All done".(isset($a['parent_name']) ? ', '.strtok($a['parent_name'], ' ') : '')."! 🎉 This is a *tentative* request — our Customer Care team will call you shortly to confirm the exact time."
+            ."Thank you".(isset($a['parent_name']) ? ', '.strtok($a['parent_name'], ' ') : '')."! This is a *tentative* request — our Customer Care team will call you shortly to confirm the exact time."
             .($ref ? "\n🔖 Ref: #{$ref}" : '');
         $this->wa->sendText($c->wa_id, $summary, $ctx);
 
         // Login/book link.
         $url = config('services.whatsapp.booking_url') ?: route('frontend.user_login');
-        $this->wa->sendText($c->wa_id, "To complete your booking online, tap here to log in:\n".$url, $ctx);
+        $this->wa->sendText($c->wa_id, "To confirm your booking online, tap here to log in:\n".$url, $ctx);
 
-        $this->backToMenuHint($c, $ctx);
+        // Re-show the main menu a little later (not immediately) so the links land
+        // first. Needs a queue worker for the real delay; with sync it sends now.
+        try {
+            \App\Jobs\SendWhatsAppMainMenu::dispatch($c->wa_id)->delay(now()->addSeconds(30));
+        } catch (\Throwable $e) {
+            Log::error('WhatsApp delayed menu dispatch failed: '.$e->getMessage());
+        }
+    }
+
+    /** Public entry for the delayed-menu job: re-show the welcome + main menu. */
+    public function sendMainMenu(string $waId): void
+    {
+        $convo = WhatsAppConversation::firstOrNew(['wa_id' => $waId]);
+        $this->sendMenu($convo, ['recipient_name' => $convo->name]);
     }
 
     /** Email the completed booking intake to Customer Care. */

@@ -13,11 +13,11 @@
         <div class="container-fluid">
             <div class="page-title">
                 <div class="row">
-                    <div class="col-6"><h4>Appointment #{{ str_pad($appointment->id, 4, '0', STR_PAD_LEFT) }}</h4></div>
+                    <div class="col-6"><h4>Appointment #{{ $appointment->reference() }}</h4></div>
                     <div class="col-6">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ route($routePrefix.'.index') }}">{{ ($scope ?? 'website') === 'whatsapp' ? 'WhatsApp Appointments' : 'Appointments' }}</a></li>
-                            <li class="breadcrumb-item active">#{{ $appointment->id }}</li>
+                            <li class="breadcrumb-item active">#{{ $appointment->reference() }}</li>
                         </ol>
                     </div>
                 </div>

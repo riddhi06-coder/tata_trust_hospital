@@ -206,7 +206,7 @@ class AppointmentController extends Controller
 
             foreach ($appointments as $a) {
                 fputcsv($out, [
-                    '#'.str_pad($a->id, 4, '0', STR_PAD_LEFT),
+                    '#'.$a->reference(),
                     optional($a->created_at)->format('d M Y, h:i A'),
                     optional($a->appointment_date)->format('d M Y'),
                     $a->status->name ?? 'Pending',

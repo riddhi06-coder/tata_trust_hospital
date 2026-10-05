@@ -760,22 +760,31 @@ class HomeController extends Controller
             ->where('mobile', $mobile)
             ->first();
 
-        // Pre-fill the form from the most recent WhatsApp chatbot booking for this
-        // number (if any), so a user who already answered the bot doesn't retype.
+        // Pre-fill the form from the most recent UNCONVERTED WhatsApp chatbot
+        // booking for this number, so a user who answered the bot doesn't retype.
+        $mobileMatch = fn ($q) => $q->where('mobile', $mobile)->orWhere('wa_id', '91'.$mobile)->orWhere('wa_id', $mobile);
+
         $waBooking = WhatsAppBookingRequest::whereNull('deleted_by')
-            ->where(function ($q) use ($mobile) {
-                $q->where('mobile', $mobile)
-                  ->orWhere('wa_id', '91'.$mobile)
-                  ->orWhere('wa_id', $mobile);
-            })
+            ->whereNull('converted_at')
+            ->where($mobileMatch)
             ->latest('id')
             ->first();
+
+        // If there's no open request but a previous one was already completed,
+        // flag it so the page shows a "already booked — start fresh" notice.
+        $bookingNotice = false;
+        if (! $waBooking) {
+            $bookingNotice = WhatsAppBookingRequest::whereNull('deleted_by')
+                ->whereNotNull('converted_at')
+                ->where($mobileMatch)
+                ->exists();
+        }
 
         $prefill = $this->buildBookingPrefill($waBooking);
         // Tag the resulting appointment's origin so it lands in the right admin tab.
         $bookingSource = $waBooking ? 'whatsapp' : 'website';
 
-        return view('frontend.book_an_appointment', compact('mobile', 'user', 'prefill', 'bookingSource'));
+        return view('frontend.book_an_appointment', compact('mobile', 'user', 'prefill', 'bookingSource', 'bookingNotice'));
     }
 
     /** Map a WhatsApp booking request onto the booking-form field names. */
@@ -893,6 +902,43 @@ class HomeController extends Controller
             ->where('is_default', true)
             ->value('id');
 
+        $source = $request->input('booking_source') === 'whatsapp' ? 'whatsapp' : 'website';
+        $reason = $request->reason;
+
+        // For WhatsApp bookings, fold the extra chat-intake details (not on the
+        // web form) into the appointment reason so nothing collected is lost.
+        $waReq = null;
+        if ($source === 'whatsapp') {
+            $waReq = WhatsAppBookingRequest::whereNull('deleted_by')
+                ->whereNull('converted_at')
+                ->where(fn ($q) => $q->where('mobile', $mobile)->orWhere('wa_id', '91'.$mobile)->orWhere('wa_id', $mobile))
+                ->latest('id')
+                ->first();
+
+            if ($waReq) {
+                $extras = array_filter([
+                    'Breed'          => $waReq->breed,
+                    'Colour'         => $waReq->colour,
+                    'Weight'         => $waReq->weight,
+                    'Neutered'       => $waReq->neutered,
+                    'How heard'      => $waReq->how_heard,
+                    'Referred by'    => $waReq->referred_by,
+                    'Preferred time' => $waReq->preferred_time,
+                ]);
+                if ($extras) {
+                    $reason .= "\n\n— WhatsApp intake —\n".collect($extras)->map(fn ($v, $k) => "{$k}: {$v}")->implode("\n");
+                }
+            }
+        }
+
+        // Per-source running reference number (website A-0001…, whatsapp WA-0001…).
+        $refNo = (int) AppointmentEnquiry::where(function ($q) use ($source) {
+            $q->where('source', $source);
+            if ($source === 'website') {
+                $q->orWhereNull('source');
+            }
+        })->max('ref_no') + 1;
+
         $enquiry = AppointmentEnquiry::create([
             'appointment_user_id' => $user->id,
             'owner_name'          => $request->name,
@@ -905,11 +951,17 @@ class HomeController extends Controller
             'pet_type'            => $request->pet_type,
             'pet_gender'          => $request->pet_gender,
             'consult_type'        => $request->consult_type,
-            'reason'              => $request->reason,
+            'reason'              => $reason,
             'appointment_date'    => $request->appointment_date,
             'appointment_status_id' => $defaultStatusId,
-            'source'              => $request->input('booking_source') === 'whatsapp' ? 'whatsapp' : 'website',
+            'source'              => $source,
+            'ref_no'              => $refNo,
         ]);
+
+        // Mark the WhatsApp booking request as converted so its link can't be reused.
+        if ($waReq) {
+            $waReq->update(['converted_at' => now(), 'status' => 'converted']);
+        }
 
         // Fire SMS + emails. Failures are logged but never block the response.
         $this->sendAppointmentNotifications($enquiry, $sms);

@@ -17,7 +17,11 @@ class WhatsAppBookingRequest extends Model
         'pet_name', 'species', 'sex', 'breed', 'colour', 'dob_age', 'weight',
         'neutered', 'complaint', 'how_heard', 'referred_by',
         'reason', 'preferred_day', 'preferred_time',
-        'status',
+        'status', 'converted_at',
+    ];
+
+    protected $casts = [
+        'converted_at' => 'datetime',
     ];
 
     /** Public-facing reference, e.g. #B-0042. */
