@@ -40,8 +40,8 @@ return [
     // endpoint and JSON payloads follow Meta's Cloud API format exactly:
     //   POST {base_url}/{version}/{phone_number_id}/messages   (Bearer token)
     'whatsapp' => [
-        'base_url'        => env('WHATSAPP_BASE_URL', 'https://waba.fortius.in.net'),
-        'version'         => env('WHATSAPP_API_VERSION', 'v18.0'),
+        'base_url'        => env('WHATSAPP_BASE_URL'),
+        'version'         => env('WHATSAPP_API_VERSION'),
         'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
         'token'           => env('WHATSAPP_TOKEN'),
         // Shared secret we echo back on the webhook verification handshake.
@@ -56,15 +56,16 @@ return [
     ],
 
     // MessageIndia SMS — used for appointment login OTPs and appointment confirmations.
+    // All values come from .env (no hardcoded fallbacks).
     'messageindia' => [
-        'username'    => env('MESSAGEINDIA_USERNAME',    'addagatlaji'),
-        'api_key'     => env('MESSAGEINDIA_API_KEY',     'ff5f3185-18fc-43fb-956d-35b239e5a2ed'),
-        'sender_name' => env('MESSAGEINDIA_SENDER_NAME', 'SAHMUM'),
-        'template_id' => env('MESSAGEINDIA_TEMPLATE_ID', '1707172283887917938'),
-        'appointment_template_id' => env('MESSAGEINDIA_APPOINTMENT_TEMPLATE_ID', '1707177744709776264'),
-        'cancellation_template_id' => env('MESSAGEINDIA_CANCELLATION_TEMPLATE_ID', '1707172283922616212'),
-        'reschedule_template_id'   => env('MESSAGEINDIA_RESCHEDULE_TEMPLATE_ID',   '1707172283932407122'),
-        'pe_id'       => env('MESSAGEINDIA_PE_ID',       '1701172050186152725'),
+        'username'    => env('MESSAGEINDIA_USERNAME'),
+        'api_key'     => env('MESSAGEINDIA_API_KEY'),
+        'sender_name' => env('MESSAGEINDIA_SENDER_NAME'),
+        'template_id' => env('MESSAGEINDIA_TEMPLATE_ID'),
+        'appointment_template_id'  => env('MESSAGEINDIA_APPOINTMENT_TEMPLATE_ID'),
+        'cancellation_template_id' => env('MESSAGEINDIA_CANCELLATION_TEMPLATE_ID'),
+        'reschedule_template_id'   => env('MESSAGEINDIA_RESCHEDULE_TEMPLATE_ID'),
+        'pe_id'       => env('MESSAGEINDIA_PE_ID'),
     ],
 
 ];

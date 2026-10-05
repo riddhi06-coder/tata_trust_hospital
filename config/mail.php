@@ -23,21 +23,17 @@ return [
     |
     | Each frontend form (contact enquiry, career application, blog comment,
     | appointment, etc.) fans its admin notification to its own recipient.
-    | Every key defaults to riddhi@matrixbricks.com — override any of them per
-    | environment via .env without touching code.
-    |
-    | Fallback: 'admin_notification' (single-value legacy key) is kept so the
-    | old contact-enquiry code path keeps working even before it's updated to
-    | use the array below.
+    | All recipients come from .env (no hardcoded fallbacks). A per-form key
+    | falls back to the global MAIL_ADMIN_NOTIFICATION when its own key is unset.
     |
     */
 
-    'admin_notification' => env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com'),
+    'admin_notification' => env('MAIL_ADMIN_NOTIFICATION'),
 
     'admin_notifications' => [
-        'contact'     => env('MAIL_ADMIN_CONTACT',     env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
-        'career'      => env('MAIL_ADMIN_CAREER',      env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
-        'appointment' => env('MAIL_ADMIN_APPOINTMENT', env('MAIL_ADMIN_NOTIFICATION', 'riddhi@matrixbricks.com')),
+        'contact'     => env('MAIL_ADMIN_CONTACT',     env('MAIL_ADMIN_NOTIFICATION')),
+        'career'      => env('MAIL_ADMIN_CAREER',      env('MAIL_ADMIN_NOTIFICATION')),
+        'appointment' => env('MAIL_ADMIN_APPOINTMENT', env('MAIL_ADMIN_NOTIFICATION')),
         // add one key per form you build later (blog_comment, donation, etc.)
     ],
 
