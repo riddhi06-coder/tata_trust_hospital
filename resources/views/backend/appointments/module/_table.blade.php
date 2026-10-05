@@ -1,4 +1,5 @@
 {{-- AJAX-swappable results: count + table + pagination. --}}
+@php($routePrefix = $routePrefix ?? 'manage-appointments')
 <div class="d-flex align-items-center mb-2">
     <span class="badge bg-primary">{{ $appointments->total() }} Appointment(s)</span>
 </div>
@@ -40,7 +41,7 @@
                                 data-bs-toggle="modal" data-bs-target="#statusModal">
                             Status
                         </button>
-                        <a href="{{ route('manage-appointments.show', $appt->id) }}" class="btn btn-sm btn-primary py-1 px-2">View</a>
+                        <a href="{{ route($routePrefix.'.show', $appt->id) }}" class="btn btn-sm btn-primary py-1 px-2">View</a>
                     </td>
                 </tr>
             @empty

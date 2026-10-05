@@ -6,7 +6,6 @@ use App\Models\AdminNotification;
 use App\Models\AppointmentEnquiry;
 use App\Models\ContactEnquiry;
 use App\Models\JobApplication;
-use App\Models\WhatsAppBookingRequest;
 use App\Models\WhatsAppTeamQuery;
 use Illuminate\Support\Str;
 
@@ -62,19 +61,9 @@ class NotificationHooks
             ]);
         });
 
-        WhatsAppBookingRequest::created(function (WhatsAppBookingRequest $m) {
-            AdminNotification::raise([
-                'type'    => 'whatsapp_booking',
-                'source'  => 'whatsapp',
-                'title'   => 'New WhatsApp Booking',
-                'body'    => trim(($m->parent_name ?: 'A pet parent').($m->pet_name ? ' — '.$m->pet_name : '').' requested an appointment'),
-                'url'     => route('manage-whatsapp-bookings.show', $m->id),
-                'icon'    => 'message-circle',
-                'color'   => 'success',
-                'related_type' => WhatsAppBookingRequest::class,
-                'related_id'   => $m->id,
-            ]);
-        });
+        // NOTE: WhatsApp appointment bookings are NOT notified here — they become
+        // real appointments when the user submits the web form, which fires the
+        // AppointmentEnquiry notification above (same as website bookings).
 
         WhatsAppTeamQuery::created(function (WhatsAppTeamQuery $m) {
             AdminNotification::raise([

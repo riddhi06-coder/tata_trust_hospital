@@ -772,8 +772,10 @@ class HomeController extends Controller
             ->first();
 
         $prefill = $this->buildBookingPrefill($waBooking);
+        // Tag the resulting appointment's origin so it lands in the right admin tab.
+        $bookingSource = $waBooking ? 'whatsapp' : 'website';
 
-        return view('frontend.book_an_appointment', compact('mobile', 'user', 'prefill'));
+        return view('frontend.book_an_appointment', compact('mobile', 'user', 'prefill', 'bookingSource'));
     }
 
     /** Map a WhatsApp booking request onto the booking-form field names. */
@@ -906,6 +908,7 @@ class HomeController extends Controller
             'reason'              => $request->reason,
             'appointment_date'    => $request->appointment_date,
             'appointment_status_id' => $defaultStatusId,
+            'source'              => $request->input('booking_source') === 'whatsapp' ? 'whatsapp' : 'website',
         ]);
 
         // Fire SMS + emails. Failures are logged but never block the response.

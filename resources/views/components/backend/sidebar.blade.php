@@ -95,8 +95,8 @@
                 </li>
 
                 <!-- Form Enquiries -->
-                @if($can('contact-enquiries.view') || $can('job-applications.view') || $can('appointment-enquiries.view') || $can('whatsapp-bookings.view') || $can('whatsapp-queries.view'))
-                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*', 'manage-appointment-enquiries.*', 'manage-whatsapp-bookings.*', 'manage-whatsapp-queries.*') ? 'active' : '' }}">
+                @if($can('contact-enquiries.view') || $can('job-applications.view') || $can('appointment-enquiries.view') || $can('whatsapp-queries.view'))
+                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*', 'manage-appointment-enquiries.*', 'manage-whatsapp-queries.*') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -117,9 +117,6 @@
                     @if($can('appointment-enquiries.view'))
                         <li><a href="{{ route('manage-appointment-enquiries.index') }}" class="{{ request()->routeIs('manage-appointment-enquiries.*') ? 'active' : '' }}">Appointment Enquiries</a></li>
                     @endif
-                    @if($can('whatsapp-bookings.view'))
-                        <li><a href="{{ route('manage-whatsapp-bookings.index') }}" class="{{ request()->routeIs('manage-whatsapp-bookings.*') ? 'active' : '' }}">WhatsApp Bookings</a></li>
-                    @endif
                     @if($can('whatsapp-queries.view'))
                         <li><a href="{{ route('manage-whatsapp-queries.index') }}" class="{{ request()->routeIs('manage-whatsapp-queries.*') ? 'active' : '' }}">WhatsApp Queries</a></li>
                     @endif
@@ -128,8 +125,8 @@
                 @endif
 
                 <!-- Appointments -->
-                @if($can('appointment-users.view') || $can('appointments.view') || $can('appointment-statuses.view'))
-                <li class="sidebar-list {{ request()->routeIs('manage-appointment-users.*', 'manage-appointments.*', 'manage-appointment-statuses.*') ? 'active' : '' }}">
+                @if($can('appointment-users.view') || $can('appointments.view') || $can('whatsapp-appointments.view') || $can('appointment-statuses.view'))
+                <li class="sidebar-list {{ request()->routeIs('manage-appointment-users.*', 'manage-appointments.*', 'manage-whatsapp-appointments.*', 'manage-appointment-statuses.*') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -141,14 +138,17 @@
                     <span>Appointments</span>
                   </a>
                   <ul class="sidebar-submenu">
+                    @if($can('appointment-statuses.view'))
+                        <li><a href="{{ route('manage-appointment-statuses.index') }}" class="{{ request()->routeIs('manage-appointment-statuses.*') ? 'active' : '' }}">Manage Statuses</a></li>
+                    @endif
                     @if($can('appointment-users.view'))
                         <li><a href="{{ route('manage-appointment-users.index') }}" class="{{ request()->routeIs('manage-appointment-users.*') ? 'active' : '' }}">Appointment Users</a></li>
                     @endif
                     @if($can('appointments.view'))
                         <li><a href="{{ route('manage-appointments.index') }}" class="{{ request()->routeIs('manage-appointments.*') ? 'active' : '' }}">Appointments</a></li>
                     @endif
-                    @if($can('appointment-statuses.view'))
-                        <li><a href="{{ route('manage-appointment-statuses.index') }}" class="{{ request()->routeIs('manage-appointment-statuses.*') ? 'active' : '' }}">Manage Statuses</a></li>
+                    @if($can('whatsapp-appointments.view'))
+                        <li><a href="{{ route('manage-whatsapp-appointments.index') }}" class="{{ request()->routeIs('manage-whatsapp-appointments.*') ? 'active' : '' }}">WhatsApp Appointments</a></li>
                     @endif
                   </ul>
                 </li>

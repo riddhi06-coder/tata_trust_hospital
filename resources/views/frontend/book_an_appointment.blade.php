@@ -40,6 +40,8 @@
 
                     <form id="apptForm" novalidate>
                         @php($prefill = $prefill ?? [])
+                        <input type="hidden" name="booking_source" value="{{ $bookingSource ?? 'website' }}">
+
                         @csrf
 
                         <!-- ── OWNER INFO ── -->

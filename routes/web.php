@@ -33,7 +33,6 @@ use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
 use App\Http\Controllers\Backend\AppointmentEnquiryController;
-use App\Http\Controllers\Backend\WhatsAppBookingRequestController;
 use App\Http\Controllers\Backend\WhatsAppTeamQueryController;
 use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\AppointmentUserController;
@@ -231,11 +230,9 @@ use App\Http\Controllers\WhatsAppWebhookController;
             Route::get('manage-appointment-enquiries',      [AppointmentEnquiryController::class, 'index'])->middleware('permission:appointment-enquiries.view')->name('manage-appointment-enquiries.index');
             Route::get('manage-appointment-enquiries/{id}', [AppointmentEnquiryController::class, 'show'])->middleware('permission:appointment-enquiries.view')->whereNumber('id')->name('manage-appointment-enquiries.show');
 
-            // WhatsApp chatbot leads (read-only; filters are AJAX POST).
-            Route::get('manage-whatsapp-bookings',         [WhatsAppBookingRequestController::class, 'index'])->middleware('permission:whatsapp-bookings.view')->name('manage-whatsapp-bookings.index');
-            Route::post('manage-whatsapp-bookings/filter', [WhatsAppBookingRequestController::class, 'filter'])->middleware('permission:whatsapp-bookings.view')->name('manage-whatsapp-bookings.filter');
-            Route::get('manage-whatsapp-bookings/{id}',    [WhatsAppBookingRequestController::class, 'show'])->middleware('permission:whatsapp-bookings.view')->whereNumber('id')->name('manage-whatsapp-bookings.show');
-
+            // WhatsApp "Talk to our team" queries (read-only; filters are AJAX POST).
+            // (WhatsApp appointment bookings become real appointments via the web form,
+            // so they live in the Appointments tab — no separate listing here.)
             Route::get('manage-whatsapp-queries',         [WhatsAppTeamQueryController::class, 'index'])->middleware('permission:whatsapp-queries.view')->name('manage-whatsapp-queries.index');
             Route::post('manage-whatsapp-queries/filter', [WhatsAppTeamQueryController::class, 'filter'])->middleware('permission:whatsapp-queries.view')->name('manage-whatsapp-queries.filter');
             Route::get('manage-whatsapp-queries/{id}',    [WhatsAppTeamQueryController::class, 'show'])->middleware('permission:whatsapp-queries.view')->whereNumber('id')->name('manage-whatsapp-queries.show');
@@ -251,6 +248,14 @@ use App\Http\Controllers\WhatsAppWebhookController;
             Route::get('manage-appointments/export',          [AppointmentController::class, 'export'])->middleware('permission:appointments.view')->name('manage-appointments.export');
             Route::get('manage-appointments/{id}',            [AppointmentController::class, 'show'])->middleware('permission:appointments.view')->whereNumber('id')->name('manage-appointments.show');
             Route::post('manage-appointments/{id}/status',    [AppointmentController::class, 'updateStatus'])->middleware('permission:appointments.edit')->whereNumber('id')->name('manage-appointments.update-status');
+
+            // WhatsApp Appointments — SAME controller/views as above, scoped to
+            // source=whatsapp (defaults('scope','whatsapp')). Identical functionality.
+            Route::get('manage-whatsapp-appointments',              [AppointmentController::class, 'index'])->defaults('scope', 'whatsapp')->middleware('permission:whatsapp-appointments.view')->name('manage-whatsapp-appointments.index');
+            Route::post('manage-whatsapp-appointments/filter',      [AppointmentController::class, 'filter'])->defaults('scope', 'whatsapp')->middleware('permission:whatsapp-appointments.view')->name('manage-whatsapp-appointments.filter');
+            Route::get('manage-whatsapp-appointments/export',       [AppointmentController::class, 'export'])->defaults('scope', 'whatsapp')->middleware('permission:whatsapp-appointments.view')->name('manage-whatsapp-appointments.export');
+            Route::get('manage-whatsapp-appointments/{id}',         [AppointmentController::class, 'show'])->defaults('scope', 'whatsapp')->middleware('permission:whatsapp-appointments.view')->whereNumber('id')->name('manage-whatsapp-appointments.show');
+            Route::post('manage-whatsapp-appointments/{id}/status', [AppointmentController::class, 'updateStatus'])->defaults('scope', 'whatsapp')->middleware('permission:whatsapp-appointments.edit')->whereNumber('id')->name('manage-whatsapp-appointments.update-status');
 
             // Appointment Status master (dropdown source)
             $crud('manage-appointment-statuses', AppointmentStatusController::class, 'appointment-statuses');

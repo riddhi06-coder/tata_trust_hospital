@@ -5,6 +5,9 @@
     @include('components.backend.appointment-styles')
 </head>
 <body>
+    @php($routePrefix = $routePrefix ?? 'manage-appointments')
+    @php($pageTitle = $pageTitle ?? 'Appointments')
+    @php($scope = $scope ?? 'website')
     @include('components.backend.header')
     @include('components.backend.sidebar')
 
@@ -12,7 +15,7 @@
         <div class="container-fluid">
             <div class="page-title">
                 <div class="row">
-                    <div class="col-6"><h4>Appointments</h4></div>
+                    <div class="col-6"><h4>{{ $pageTitle }}</h4></div>
                     <div class="col-6">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item">
@@ -21,7 +24,7 @@
                                 </a>
                             </li>
                             <li class="breadcrumb-item">Appointments</li>
-                            <li class="breadcrumb-item active">Appointments</li>
+                            <li class="breadcrumb-item active">{{ $pageTitle }}</li>
                         </ol>
                     </div>
                 </div>
@@ -34,8 +37,8 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                                <h5 class="mb-0">All Appointments</h5>
-                                <a href="{{ route('manage-appointments.export') }}" id="exportBtn" class="btn btn-success btn-sm">
+                                <h5 class="mb-0">{{ $scope === 'whatsapp' ? 'WhatsApp Appointments' : 'All Appointments' }}</h5>
+                                <a href="{{ route($routePrefix.'.export') }}" id="exportBtn" class="btn btn-success btn-sm">
                                     <i class="fa fa-download"></i> Download CSV
                                 </a>
                             </div>
@@ -161,8 +164,8 @@
         (function ($) {
             var $form    = $('#filterForm');
             var $results = $('#apptResults');
-            var filterUrl = "{{ route('manage-appointments.filter') }}";
-            var exportUrl = "{{ route('manage-appointments.export') }}";
+            var filterUrl = "{{ route($routePrefix.'.filter') }}";
+            var exportUrl = "{{ route($routePrefix.'.export') }}";
 
             // Keep the CSV link in sync with the active filters.
             function syncExport() {
@@ -215,7 +218,7 @@
             syncExport();
 
             /* ---- Status update modal (delegated so AJAX-added rows work) ---- */
-            var base = "{{ url('manage-appointments') }}";
+            var base = "{{ url($routePrefix) }}";
 
             // Show/require the new-date field only for reschedule-type statuses.
             function toggleRescheduleDate() {

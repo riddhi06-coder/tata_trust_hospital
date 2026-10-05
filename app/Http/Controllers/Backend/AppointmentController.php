@@ -21,7 +21,11 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        $appointments = $this->paginatedResults($request);
+        $scope       = $this->scope($request);
+        $routePrefix = $this->routePrefix($scope);
+        $pageTitle   = $scope === 'whatsapp' ? 'WhatsApp Appointments' : 'Appointments';
+
+        $appointments = $this->paginatedResults($request, $scope);
 
         $statuses = AppointmentStatus::whereNull('deleted_by')
             ->orderBy('sort_order')->orderBy('name')
@@ -29,7 +33,7 @@ class AppointmentController extends Controller
 
         $filters = $this->currentFilters($request);
 
-        return view('backend.appointments.module.index', compact('appointments', 'statuses', 'filters'));
+        return view('backend.appointments.module.index', compact('appointments', 'statuses', 'filters', 'scope', 'routePrefix', 'pageTitle'));
     }
 
     /**
@@ -38,16 +42,21 @@ class AppointmentController extends Controller
      */
     public function filter(Request $request)
     {
-        $appointments = $this->paginatedResults($request);
+        $scope        = $this->scope($request);
+        $routePrefix  = $this->routePrefix($scope);
+        $appointments = $this->paginatedResults($request, $scope);
 
-        return view('backend.appointments.module._table', compact('appointments'))->render();
+        return view('backend.appointments.module._table', compact('appointments', 'routePrefix'))->render();
     }
 
     /**
      * Single appointment — details + full status-change timeline.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $scope       = $this->scope($request);
+        $routePrefix = $this->routePrefix($scope);
+
         $appointment = AppointmentEnquiry::whereNull('deleted_by')
             ->with([
                 'status',
@@ -61,7 +70,7 @@ class AppointmentController extends Controller
             ->orderBy('sort_order')->orderBy('name')
             ->get();
 
-        return view('backend.appointments.module.show', compact('appointment', 'statuses'));
+        return view('backend.appointments.module.show', compact('appointment', 'statuses', 'scope', 'routePrefix'));
     }
 
     /**
@@ -169,13 +178,15 @@ class AppointmentController extends Controller
      */
     public function export(Request $request): StreamedResponse
     {
-        $appointments = $this->filteredQuery($request)
+        $scope = $this->scope($request);
+
+        $appointments = $this->filteredQuery($request, $scope)
             ->with(['status'])
             ->orderByDesc('appointment_date')
             ->orderByDesc('id')
             ->get();
 
-        $filename = 'appointments-'.now()->format('Y-m-d-His').'.csv';
+        $filename = ($scope === 'whatsapp' ? 'whatsapp-appointments-' : 'appointments-').now()->format('Y-m-d-His').'.csv';
 
         $headers = [
             'Content-Type'        => 'text/csv',
@@ -223,23 +234,40 @@ class AppointmentController extends Controller
     /* Filtering helpers (shared by index + export)                          */
     /* --------------------------------------------------------------------- */
 
-    /** Paginated, filtered result set shared by the full page and the AJAX partial. */
-    private function paginatedResults(Request $request)
+    /** Resolve the current scope ('website' or 'whatsapp') from the route defaults. */
+    private function scope(Request $request): string
     {
-        return $this->filteredQuery($request)
+        return $request->route('scope') === 'whatsapp' ? 'whatsapp' : 'website';
+    }
+
+    /** The route-name prefix for the current scope (so views link to the right tab). */
+    private function routePrefix(string $scope): string
+    {
+        return $scope === 'whatsapp' ? 'manage-whatsapp-appointments' : 'manage-appointments';
+    }
+
+    /** Paginated, filtered result set shared by the full page and the AJAX partial. */
+    private function paginatedResults(Request $request, string $scope = 'website')
+    {
+        return $this->filteredQuery($request, $scope)
             ->with(['status', 'appointmentUser'])
             ->orderByDesc('appointment_date')
             ->orderByDesc('id')
             ->paginate(20)
-            ->withPath(route('manage-appointments.index'))
+            ->withPath(route($this->routePrefix($scope).'.index'))
             ->withQueryString();
     }
 
-    private function filteredQuery(Request $request)
+    private function filteredQuery(Request $request, string $scope = 'website')
     {
         $f = $this->currentFilters($request);
 
         return AppointmentEnquiry::whereNull('deleted_by')
+            // Scope by origin: WhatsApp tab shows whatsapp bookings; the normal
+            // tab shows website bookings (legacy NULLs count as website).
+            ->when($scope === 'whatsapp',
+                fn ($q) => $q->where('source', 'whatsapp'),
+                fn ($q) => $q->where(fn ($w) => $w->where('source', 'website')->orWhereNull('source')))
             ->when($f['status'] !== '', fn ($q) => $q->where('appointment_status_id', $f['status']))
             ->when($f['pet_type'] !== '', fn ($q) => $q->where('pet_type', $f['pet_type']))
             ->when($f['consult_type'] !== '', fn ($q) => $q->where('consult_type', $f['consult_type']))

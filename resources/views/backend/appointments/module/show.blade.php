@@ -5,6 +5,7 @@
     @include('components.backend.appointment-styles')
 </head>
 <body>
+    @php($routePrefix = $routePrefix ?? 'manage-appointments')
     @include('components.backend.header')
     @include('components.backend.sidebar')
 
@@ -15,7 +16,7 @@
                     <div class="col-6"><h4>Appointment #{{ str_pad($appointment->id, 4, '0', STR_PAD_LEFT) }}</h4></div>
                     <div class="col-6">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('manage-appointments.index') }}">Appointments</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route($routePrefix.'.index') }}">{{ ($scope ?? 'website') === 'whatsapp' ? 'WhatsApp Appointments' : 'Appointments' }}</a></li>
                             <li class="breadcrumb-item active">#{{ $appointment->id }}</li>
                         </ol>
                     </div>
@@ -96,7 +97,7 @@
                     <div class="card">
                         <div class="card-header"><h5 class="mb-0">Update Status</h5></div>
                         <div class="card-body">
-                            <form method="POST" action="{{ route('manage-appointments.update-status', $appointment->id) }}">
+                            <form method="POST" action="{{ route($routePrefix.'.update-status', $appointment->id) }}">
                                 @csrf
                                 <div class="mb-3">
                                     <label class="form-label">New Status <span class="text-danger">*</span></label>
@@ -125,7 +126,7 @@
                         <div class="card-body d-grid gap-2">
                             <a href="tel:+91{{ $appointment->mobile }}" class="btn btn-outline-primary">Call Owner</a>
                             <a href="mailto:{{ $appointment->email }}" class="btn btn-outline-secondary">Email Owner</a>
-                            <a href="{{ route('manage-appointments.index') }}" class="btn btn-outline-secondary">Back to List</a>
+                            <a href="{{ route($routePrefix.'.index') }}" class="btn btn-outline-secondary">Back to List</a>
                         </div>
                     </div>
                 </div>

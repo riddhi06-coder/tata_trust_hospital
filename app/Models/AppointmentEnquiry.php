@@ -29,6 +29,7 @@ class AppointmentEnquiry extends Model
         'reason',
         'appointment_date',
         'appointment_status_id',
+        'source',
         'created_by',
         'updated_by',
         'deleted_by',
