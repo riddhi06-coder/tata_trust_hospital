@@ -44,15 +44,22 @@
                                 <span class="badge bg-primary">{{ $users->total() }} Total Clients</span>
                             </div>
 
-                            {{-- Search --}}
+                            {{-- Search + medium filter --}}
                             <form method="GET" action="{{ route('manage-appointment-users.index') }}" class="row g-2 mb-3 justify-content-end">
+                                <div class="col-md-3 col-sm-6">
+                                    <select name="medium" class="form-select" onchange="this.form.submit()">
+                                        <option value="">All mediums</option>
+                                        <option value="website"  {{ $medium === 'website' ? 'selected' : '' }}>Website</option>
+                                        <option value="whatsapp" {{ $medium === 'whatsapp' ? 'selected' : '' }}>WhatsApp</option>
+                                    </select>
+                                </div>
                                 <div class="col-md-4 col-sm-8">
                                     <input type="text" name="search" value="{{ $search }}" class="form-control"
                                            placeholder="Search by name, mobile or email…">
                                 </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn btn-primary">Search</button>
-                                    @if($search !== '')
+                                    @if($search !== '' || $medium !== '')
                                         <a href="{{ route('manage-appointment-users.index') }}" class="btn btn-outline-secondary">Reset</a>
                                     @endif
                                 </div>
@@ -66,6 +73,7 @@
                                             <th>Name</th>
                                             <th>Mobile</th>
                                             <th>Email</th>
+                                            <th>Medium</th>
                                             <th>Appointments</th>
                                             <th>Last Verified</th>
                                             <th class="text-end appt-actions-col">Actions</th>
@@ -78,6 +86,13 @@
                                                 <td>{{ $user->name ?: '—' }}</td>
                                                 <td>+91 {{ $user->mobile }}</td>
                                                 <td>{{ $user->email ?: '—' }}</td>
+                                                <td>
+                                                    @if($user->whatsapp_count > 0)
+                                                        <span class="badge bg-success">WhatsApp</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">Website</span>
+                                                    @endif
+                                                </td>
                                                 <td><span class="badge bg-info">{{ $user->appointments_count }}</span></td>
                                                 <td>{{ optional($user->last_verified_at)->format('d M Y, h:i A') ?: '—' }}</td>
                                                 <td class="text-end">
@@ -85,7 +100,7 @@
                                                 </td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="7" class="text-center text-muted py-4">No appointment users found.</td></tr>
+                                            <tr><td colspan="8" class="text-center text-muted py-4">No appointment users found.</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
