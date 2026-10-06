@@ -46,7 +46,7 @@
                     @endif
 
                     <form id="apptForm" novalidate>
-                        @php($prefill = $prefill ?? [])
+                        @php $prefill = $prefill ?? []; @endphp
                         <input type="hidden" name="booking_source" value="{{ $bookingSource ?? 'website' }}">
 
                         @csrf

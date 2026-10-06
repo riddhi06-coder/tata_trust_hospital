@@ -5,9 +5,11 @@
     @include('components.backend.appointment-styles')
 </head>
 <body>
-    @php($routePrefix = $routePrefix ?? 'manage-appointments')
-    @php($pageTitle = $pageTitle ?? 'Appointments')
-    @php($scope = $scope ?? 'website')
+    @php
+        $routePrefix = $routePrefix ?? 'manage-appointments';
+        $pageTitle   = $pageTitle ?? 'Appointments';
+        $scope       = $scope ?? 'website';
+    @endphp
     @include('components.backend.header')
     @include('components.backend.sidebar')
 

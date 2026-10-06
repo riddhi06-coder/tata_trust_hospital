@@ -926,7 +926,7 @@ class HomeController extends Controller
                     'Preferred time' => $waReq->preferred_time,
                 ]);
                 if ($extras) {
-                    $reason .= "\n\n— WhatsApp intake —\n".collect($extras)->map(fn ($v, $k) => "{$k}: {$v}")->implode("\n");
+                    $reason .= "\n\n-- WhatsApp intake --\n".collect($extras)->map(fn ($v, $k) => "{$k}: {$v}")->implode("\n");
                 }
             }
         }

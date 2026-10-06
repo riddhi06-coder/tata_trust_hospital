@@ -1,5 +1,5 @@
 {{-- AJAX-swappable results: count + table + pagination. --}}
-@php($routePrefix = $routePrefix ?? 'manage-appointments')
+@php $routePrefix = $routePrefix ?? 'manage-appointments'; @endphp
 <div class="d-flex align-items-center mb-2">
     <span class="badge bg-primary">{{ $appointments->total() }} Appointment(s)</span>
 </div>

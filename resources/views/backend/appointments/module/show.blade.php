@@ -5,7 +5,9 @@
     @include('components.backend.appointment-styles')
 </head>
 <body>
-    @php($routePrefix = $routePrefix ?? 'manage-appointments')
+    @php
+        $routePrefix = $routePrefix ?? 'manage-appointments';
+    @endphp
     @include('components.backend.header')
     @include('components.backend.sidebar')
 
@@ -52,24 +54,25 @@
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Preferred Date</small>{{ optional($appointment->appointment_date)->format('d M Y') }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Submitted</small>{{ optional($appointment->created_at)->format('d M Y, h:i A') }}</div>
                                 @php
-                                    // WhatsApp bookings fold extra intake details into the reason as a
-                                    // "— WhatsApp intake —" block; split it out so it renders as fields.
-                                    $rawReason = (string) $appointment->reason;
-                                    $waIntake  = [];
+                                    // WhatsApp bookings fold extra intake details into the reason under a
+                                    // "WhatsApp intake" marker; split it out so it renders as fields.
+                                    $rawReason   = (string) $appointment->reason;
+                                    $waIntake    = [];
                                     $cleanReason = trim($rawReason);
                                     if (str_contains($rawReason, 'WhatsApp intake')) {
-                                        $parts       = preg_split('/\R?\s*—+\s*WhatsApp intake\s*—+\s*\R?/u', $rawReason, 2);
+                                        $parts       = preg_split('/[\x{2013}\x{2014}\-]*\s*WhatsApp intake\s*[\x{2013}\x{2014}\-]*/u', $rawReason, 2);
                                         $cleanReason = trim($parts[0] ?? '');
-                                        foreach (preg_split('/\R/u', trim($parts[1] ?? '')) as $line) {
+                                        foreach (preg_split('/\r\n|\r|\n/', (string) ($parts[1] ?? '')) as $line) {
                                             if (str_contains($line, ':')) {
                                                 [$k, $v] = array_pad(explode(':', $line, 2), 2, '');
-                                                $k = trim($k); $v = trim($v);
+                                                $k = trim($k);
+                                                $v = trim($v);
                                                 if ($k !== '' && $v !== '') { $waIntake[$k] = $v; }
                                             }
                                         }
                                     }
                                 @endphp
-                                <div class="col-12 mb-3"><small class="text-muted d-block">Reason</small>{{ $cleanReason ?: '—' }}</div>
+                                <div class="col-12 mb-3"><small class="text-muted d-block">Reason</small>{{ $cleanReason ?: '-' }}</div>
 
                                 @if($waIntake)
                                     <hr>
