@@ -81,6 +81,7 @@
                 </li>
                 @endif
 
+                @if($can('flyer.view'))
                 <li class="sidebar-list {{ request()->routeIs('manage-flyer.index') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link" href="{{ route('manage-flyer.index') }}">
@@ -93,6 +94,7 @@
                     <span>Flyer</span>
                   </a>
                 </li>
+                @endif
 
                 <!-- Form Enquiries -->
                 @if($can('contact-enquiries.view') || $can('job-applications.view') || $can('whatsapp-queries.view'))

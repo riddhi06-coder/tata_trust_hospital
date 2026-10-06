@@ -69,16 +69,23 @@
                     </div>
                 </div>
                 @php
-                    // Distribute items column-first across 3 columns so vertical reading
-                    // order matches the order the admin entered them.
+                    // Distribute items column-first across 3 BALANCED columns (earlier
+                    // columns take the extra when it doesn't divide evenly), e.g. 10
+                    // items => 4/3/3. Keeps vertical reading order and matches the
+                    // live site's layout.
                     $servicesList = array_values($detail->services);
                     $numColumns   = 3;
                     $totalItems   = count($servicesList);
-                    $rowsPerCol   = (int) ceil($totalItems / $numColumns);
+                    $base         = intdiv($totalItems, $numColumns);
+                    $remainder    = $totalItems % $numColumns;
                     $serviceCols  = [];
-                    foreach ($servicesList as $i => $svc) {
-                        $col = intdiv($i, $rowsPerCol);
-                        $serviceCols[$col][] = $svc;
+                    $idx          = 0;
+                    for ($c = 0; $c < $numColumns; $c++) {
+                        $count = $base + ($c < $remainder ? 1 : 0);
+                        if ($count > 0) {
+                            $serviceCols[$c] = array_slice($servicesList, $idx, $count);
+                            $idx += $count;
+                        }
                     }
                 @endphp
 

@@ -54,6 +54,7 @@ class ModulePermissionsSeeder extends Seeder
 
                 // Standalone content tabs
                 ['About Us',              'about-us',              ['view', 'create', 'edit', 'delete']],
+                ['Flyer',                 'flyer',                 ['view', 'create', 'edit', 'delete']],
                 ['Gallery',               'gallery',               ['view', 'create', 'edit', 'delete']],
                 ['Events',                'events',                ['view', 'create', 'edit', 'delete']],
                 ['Media',                 'media',                 ['view', 'create', 'edit', 'delete']],
