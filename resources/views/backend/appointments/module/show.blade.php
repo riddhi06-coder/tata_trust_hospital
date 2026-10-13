@@ -48,7 +48,7 @@
                                 <div class="col-12 mb-3"><small class="text-muted d-block">Address</small>{{ $appointment->address }}</div>
                                 <hr>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Pet Name</small>{{ $appointment->pet_name }}</div>
-                                <div class="col-md-6 mb-3"><small class="text-muted d-block">Pet Type / Gender</small>{{ ucfirst($appointment->pet_type) }} · {{ ucfirst($appointment->pet_gender) }}</div>
+                                <div class="col-md-6 mb-3"><small class="text-muted d-block">Pet Type / Gender</small>{{ trim(ucfirst($appointment->pet_type).($appointment->pet_gender ? ' · '.ucfirst($appointment->pet_gender) : ''), ' ·') ?: '—' }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Pet Age</small>{{ $appointment->pet_age ?: '—' }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Consultation</small>{{ $appointment->consult_type === 'first' ? 'First-time Consultation' : 'Follow-up Visit' }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Preferred Date</small>{{ optional($appointment->appointment_date)->format('d M Y') ?: '—' }}</div>

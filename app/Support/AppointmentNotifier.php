@@ -32,10 +32,16 @@ class AppointmentNotifier
             'appointment_user_id' => $enquiry->appointment_user_id,
         ];
 
-        // Tentative-booking SMS to the owner (needs a mobile + a date).
-        if ($enquiry->mobile && $formattedDate) {
+        // Tentative-booking SMS to the owner. Website bookings always carry a date;
+        // WhatsApp bookings may not (the team confirms it on the call), so fall back
+        // to a date-agnostic phrase rather than skipping the SMS entirely.
+        if ($enquiry->mobile) {
             try {
-                $sms->sendAppointmentConfirmation($enquiry->mobile, $formattedDate, $smsContext);
+                $sms->sendAppointmentConfirmation(
+                    $enquiry->mobile,
+                    $formattedDate ?: 'a date our team will confirm shortly',
+                    $smsContext
+                );
             } catch (\Throwable $e) {
                 Log::error('Appointment SMS failed: '.$e->getMessage(), ['enquiry_id' => $enquiry->id]);
             }

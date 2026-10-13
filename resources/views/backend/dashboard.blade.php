@@ -93,7 +93,7 @@
                                             <tr>
                                                 <td>{{ $a->owner_name }}</td>
                                                 <td>+91 {{ $a->mobile }}</td>
-                                                <td>{{ $a->pet_name }} <span class="text-muted">({{ ucfirst($a->pet_type) }})</span></td>
+                                                <td>{{ $a->pet_name }} @if($a->pet_type)<span class="text-muted">({{ ucfirst($a->pet_type) }})</span>@endif</td>
                                                 <td>{{ $a->consult_type === 'first' ? 'First-time' : 'Follow-up' }}</td>
                                                 <td>
                                                     @if($a->status)
@@ -160,7 +160,7 @@
                                     <div class="dash-list-item">
                                         <div>
                                             <div class="dash-list-item__title">{{ $a->owner_name }}</div>
-                                            <div class="dash-list-item__sub">{{ $a->pet_name }} ({{ ucfirst($a->pet_type) }}) · +91 {{ $a->mobile }}</div>
+                                            <div class="dash-list-item__sub">{{ $a->pet_name }}@if($a->pet_type) ({{ ucfirst($a->pet_type) }})@endif · +91 {{ $a->mobile }}</div>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
                                             @if($a->status)

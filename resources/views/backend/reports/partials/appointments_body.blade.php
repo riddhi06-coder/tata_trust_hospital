@@ -19,7 +19,7 @@
                             <td class="text-nowrap">{{ optional($a->appointment_date)->format('d M Y') }}</td>
                             <td>{{ $a->owner_name }}</td>
                             <td class="text-nowrap">+91 {{ $a->mobile }}</td>
-                            <td>{{ $a->pet_name }} <span class="text-muted">({{ ucfirst($a->pet_type) }})</span></td>
+                            <td>{{ $a->pet_name }} @if($a->pet_type)<span class="text-muted">({{ ucfirst($a->pet_type) }})</span>@endif</td>
                             <td>{{ $a->consult_type === 'first' ? 'First-time' : 'Follow-up' }}</td>
                             <td class="text-nowrap">{{ $a->preferred_doctor ?: '—' }}</td>
                             <td>
