@@ -9,7 +9,7 @@
                 <thead>
                     <tr>
                         <th>Ref</th><th>Appt. Date</th><th>Owner</th><th>Mobile</th>
-                        <th>Pet</th><th>Consultation</th><th>Status</th><th>Submitted</th>
+                        <th>Pet</th><th>Consultation</th><th>Doctor</th><th>Status</th><th>Submitted</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -21,6 +21,7 @@
                             <td class="text-nowrap">+91 {{ $a->mobile }}</td>
                             <td>{{ $a->pet_name }} <span class="text-muted">({{ ucfirst($a->pet_type) }})</span></td>
                             <td>{{ $a->consult_type === 'first' ? 'First-time' : 'Follow-up' }}</td>
+                            <td class="text-nowrap">{{ $a->preferred_doctor ?: '—' }}</td>
                             <td>
                                 @if($a->status)<span class="status-badge" style="background:{{ $a->status->color }};">{{ $a->status->name }}</span>
                                 @else <span class="status-badge status-badge--muted">Pending</span>@endif
@@ -28,7 +29,7 @@
                             <td class="text-nowrap">{{ optional($a->created_at)->format('d M Y') }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="text-center text-muted py-4">No appointments match these filters.</td></tr>
+                        <tr><td colspan="9" class="text-center text-muted py-4">No appointments match these filters.</td></tr>
                     @endforelse
                 </tbody>
             </table>

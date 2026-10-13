@@ -43,6 +43,7 @@ class MasterOurTeamController extends Controller
             'social_media_link' => 'nullable|url|max:1000',
             'image'             => 'required|file|image|mimes:jpg,jpeg,png,webp|max:2048',
             'show_on_team_page' => 'nullable|boolean',
+            'bookable_on_whatsapp' => 'nullable|boolean',
         ];
 
         if ($showBanner) {
@@ -75,6 +76,7 @@ class MasterOurTeamController extends Controller
             'social_media_link' => $request->social_media_link,
             'image'             => $fileName,
             'show_on_team_page' => (bool) $request->boolean('show_on_team_page'),
+            'bookable_on_whatsapp' => (bool) $request->boolean('bookable_on_whatsapp'),
             'created_by'        => Auth::id(),
             'created_at'        => Carbon::now(),
         ]);
@@ -109,6 +111,7 @@ class MasterOurTeamController extends Controller
             'social_media_link' => 'nullable|url|max:1000',
             'image'             => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:2048',
             'show_on_team_page' => 'nullable|boolean',
+            'bookable_on_whatsapp' => 'nullable|boolean',
         ];
 
         if ($showBanner) {
@@ -158,6 +161,7 @@ class MasterOurTeamController extends Controller
             'social_media_link' => $request->social_media_link,
             'image'             => $fileName,
             'show_on_team_page' => (bool) $request->boolean('show_on_team_page'),
+            'bookable_on_whatsapp' => (bool) $request->boolean('bookable_on_whatsapp'),
             'updated_by'        => Auth::id(),
             'updated_at'        => Carbon::now(),
         ]);

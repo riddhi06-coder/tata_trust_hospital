@@ -979,6 +979,13 @@ class HomeController extends Controller
 
     private function sendAppointmentNotifications(AppointmentEnquiry $enquiry, MessageIndiaSms $sms): void
     {
+        // Delegates to the shared notifier (also used by the WhatsApp chatbot).
+        \App\Support\AppointmentNotifier::notifyNewBooking($enquiry, $sms);
+    }
+
+    /** @deprecated kept for reference — logic moved to App\Support\AppointmentNotifier */
+    private function sendAppointmentNotificationsLegacy(AppointmentEnquiry $enquiry, MessageIndiaSms $sms): void
+    {
         $formattedDate = $enquiry->appointment_date->format('d M Y');
 
         $smsContext = [

@@ -97,8 +97,8 @@
                 @endif
 
                 <!-- Form Enquiries -->
-                @if($can('contact-enquiries.view') || $can('job-applications.view') || $can('whatsapp-queries.view'))
-                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*', 'manage-whatsapp-queries.*') ? 'active' : '' }}">
+                @if($can('contact-enquiries.view') || $can('job-applications.view') || $can('whatsapp-queries.view') || $can('medical-reports.view'))
+                <li class="sidebar-list {{ request()->routeIs('manage-contact-enquiries.*', 'manage-job-applications.*', 'manage-whatsapp-queries.*', 'manage-medical-reports.*') ? 'active' : '' }}">
                   <i class="fa fa-thumb-tack"></i>
                   <a class="sidebar-link sidebar-title" href="#">
                     <svg class="stroke-icon">
@@ -118,6 +118,9 @@
                     @endif
                     @if($can('whatsapp-queries.view'))
                         <li><a href="{{ route('manage-whatsapp-queries.index') }}" class="{{ request()->routeIs('manage-whatsapp-queries.*') ? 'active' : '' }}">WhatsApp Queries</a></li>
+                    @endif
+                    @if($can('medical-reports.view'))
+                        <li><a href="{{ route('manage-medical-reports.index') }}" class="{{ request()->routeIs('manage-medical-reports.*') ? 'active' : '' }}">Medical Report Requests</a></li>
                     @endif
                   </ul>
                 </li>
@@ -150,6 +153,22 @@
                         <li><a href="{{ route('manage-whatsapp-appointments.index') }}" class="{{ request()->routeIs('manage-whatsapp-appointments.*') ? 'active' : '' }}">WhatsApp Appointments</a></li>
                     @endif
                   </ul>
+                </li>
+                @endif
+
+                <!-- Chatbot Management -->
+                @if($can('chatbot-management.view'))
+                <li class="sidebar-list {{ request()->routeIs('manage-chatbot.*') ? 'active' : '' }}">
+                  <i class="fa fa-thumb-tack"></i>
+                  <a class="sidebar-link sidebar-title" href="{{ route('manage-chatbot.index') }}">
+                    <svg class="stroke-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#stroke-chat') }}"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="{{ asset('admin/assets/svg/icon-sprite.svg#fill-chat') }}"></use>
+                    </svg>
+                    <span>Chatbot Mgmt</span>
+                  </a>
                 </li>
                 @endif
 

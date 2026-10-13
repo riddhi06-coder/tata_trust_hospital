@@ -23,14 +23,16 @@ class OurTeam extends Model
         'social_media_link',
         'show_on_home',
         'show_on_team_page',
+        'bookable_on_whatsapp',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
 
     protected $casts = [
-        'show_on_home'      => 'boolean',
-        'show_on_team_page' => 'boolean',
+        'show_on_home'         => 'boolean',
+        'show_on_team_page'    => 'boolean',
+        'bookable_on_whatsapp' => 'boolean',
     ];
 
     public function specialityDetails(): BelongsToMany

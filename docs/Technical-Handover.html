@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Handover — Small Animal Hospital Mumbai</title>
+<style>
+    :root{ --ink:#1f2430; --muted:#5b6473; --line:#e3e7ee; --teal:#0b6b5b; --coral:#dc746c; --bg-soft:#f6f8fa; }
+    *{ box-sizing:border-box; }
+    html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    body{ font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); line-height:1.55; font-size:13px; margin:0; background:#fff; }
+    .page{ max-width:900px; margin:0 auto; padding:32px 40px; }
+    h1,h2,h3,h4{ color:var(--ink); line-height:1.25; }
+    h2{ font-size:19px; border-bottom:2px solid var(--teal); padding-bottom:6px; margin:34px 0 14px; }
+    h3{ font-size:15px; color:var(--teal); margin:20px 0 8px; }
+    h4{ font-size:13.5px; margin:14px 0 6px; }
+    p{ margin:7px 0; }
+    code{ background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-family:Consolas,Monaco,monospace; font-size:12px; color:#b4345a; }
+    table{ width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:12px; }
+    th,td{ border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top; }
+    th{ background:var(--bg-soft); font-weight:600; }
+    ul,ol{ margin:7px 0 7px 2px; padding-left:20px; }
+    li{ margin:3px 0; }
+    .muted{ color:var(--muted); }
+    .tag{ display:inline-block; background:#e7f7ee; color:var(--teal); border-radius:20px; padding:2px 10px; font-size:11px; font-weight:600; margin:2px 3px 2px 0; }
+    .tag.c{ background:#fdeceb; color:var(--coral); }
+    .callout{ background:var(--bg-soft); border-left:4px solid var(--teal); border-radius:6px; padding:10px 14px; margin:12px 0; }
+    .callout.warn{ border-left-color:#e0a800; background:#fff8e6; }
+    .toc li{ margin:4px 0; }
+    .cover{ min-height:92vh; display:flex; flex-direction:column; justify-content:center; text-align:center; }
+    .cover .eyebrow{ letter-spacing:.14em; text-transform:uppercase; color:var(--coral); font-weight:700; font-size:12px; }
+    .cover h1{ font-size:34px; margin:12px 0 6px; }
+    .cover .sub{ font-size:16px; color:var(--muted); }
+    .cover .meta{ margin-top:36px; font-size:12.5px; color:var(--muted); }
+    .cover .rule{ width:70px; height:4px; background:var(--teal); margin:22px auto; border-radius:2px; }
+    .kv{ display:grid; grid-template-columns:200px 1fr; gap:4px 14px; font-size:12.5px; }
+    .kv dt{ color:var(--muted); } .kv dd{ margin:0; }
+    @page{ size:A4; margin:16mm 14mm; }
+    @media print{
+        .page{ padding:0; max-width:none; }
+        .page-break{ page-break-before:always; }
+        h2{ page-break-after:avoid; } h3{ page-break-after:avoid; }
+        table,li{ page-break-inside:avoid; }
+        a{ color:inherit; text-decoration:none; }
+    }
+</style>
+</head>
+<body>
+<div class="page">
+
+    <!-- ============ COVER ============ -->
+    <section class="cover">
+        <div class="eyebrow">Technical Handover Document</div>
+        <h1>Tata Trusts — Small Animal Hospital Mumbai</h1>
+        <div class="rule"></div>
+        <div class="sub">Website, Admin Panel &amp; WhatsApp Chatbot Platform</div>
+        <div class="meta">
+            Laravel&nbsp;12 &middot; PHP&nbsp;8.2+ &middot; MySQL<br>
+            Prepared for project handover &middot; Confidential
+        </div>
+    </section>
+
+    <!-- ============ TOC ============ -->
+    <div class="page-break"></div>
+    <h2>Contents</h2>
+    <ol class="toc">
+        <li>Project Overview</li>
+        <li>Technology Stack</li>
+        <li>System Architecture</li>
+        <li>Environments &amp; Deployment</li>
+        <li>Configuration (<code>.env</code>)</li>
+        <li>Frontend (Public Website)</li>
+        <li>Backend (Admin Panel) &amp; Modules</li>
+        <li>Appointment System</li>
+        <li>WhatsApp Chatbot</li>
+        <li>Notifications Module</li>
+        <li>Third-Party Integrations</li>
+        <li>Roles &amp; Permissions (RBAC)</li>
+        <li>Database Overview</li>
+        <li>Scheduled Tasks &amp; Queue</li>
+        <li>Logging &amp; Auditing</li>
+        <li>Operational / Maintenance Notes</li>
+        <li>Known Constraints &amp; Pending Items</li>
+    </ol>
+
+    <!-- ============ 1. OVERVIEW ============ -->
+    <div class="page-break"></div>
+    <h2>1. Project Overview</h2>
+    <p>A full web platform for <strong>Small Animal Hospital Mumbai</strong> (Tata Trusts), comprising a public marketing/informational website, a content-managed admin panel, an OTP-based online appointment booking system, and a reactive <strong>WhatsApp chatbot</strong> for pet parents.</p>
+    <dl class="kv">
+        <dt>Public website</dt><dd>Hospital info, specialities, team, facilities, events, blog, media, careers, contact &amp; online appointment booking.</dd>
+        <dt>Admin panel</dt><dd>Role-based CMS to manage all website content, appointments, enquiries, notifications &amp; reports.</dd>
+        <dt>Appointments</dt><dd>Mobile-OTP login → booking form → status workflow with SMS triggers.</dd>
+        <dt>WhatsApp bot</dt><dd>Menu-driven assistant: services, timings, emergency, FAQs, guided appointment booking, "talk to our team".</dd>
+        <dt>Live/reference site</dt><dd>sahmumbai.com (existing production reference). This build deploys to a UAT environment.</dd>
+    </dl>
+
+    <!-- ============ 2. STACK ============ -->
+    <h2>2. Technology Stack</h2>
+    <table>
+        <tr><th>Layer</th><th>Technology</th></tr>
+        <tr><td>Framework</td><td>Laravel 12 (PHP <code>^8.2</code>; UAT runs PHP 8.4)</td></tr>
+        <tr><td>Language</td><td>PHP 8.2+</td></tr>
+        <tr><td>Database</td><td>MySQL / MariaDB (charset <code>utf8mb4</code>, collation <code>utf8mb4_unicode_ci</code>)</td></tr>
+        <tr><td>Templating</td><td>Blade</td></tr>
+        <tr><td>Admin theme</td><td>"Riho" Bootstrap 5 admin template (jQuery, Feather icons, DataTables, Summernote/CKEditor, bootstrap-notify)</td></tr>
+        <tr><td>Frontend theme</td><td>Custom responsive theme (Bootstrap, jQuery, AOS, Slick)</td></tr>
+        <tr><td>Auth</td><td>Laravel session auth (admin) + custom mobile-OTP (appointment users)</td></tr>
+        <tr><td>HTTP client</td><td>Laravel HTTP (Guzzle) — used for SMS &amp; WhatsApp APIs</td></tr>
+        <tr><td>Dev tooling</td><td>Tinker, Pint, Pail, Sail (dev only)</td></tr>
+    </table>
+    <p class="muted">Scale: ~57 Eloquent models, ~87 migrations, ~40 backend controllers.</p>
+
+    <!-- ============ 3. ARCHITECTURE ============ -->
+    <h2>3. System Architecture</h2>
+    <p>A conventional monolithic Laravel MVC application serving two surfaces from one codebase:</p>
+    <ul>
+        <li><strong>Frontend</strong> — public routes (<code>routes/web.php</code>), <code>App\Http\Controllers\Frontend\*</code>, Blade views under <code>resources/views/frontend</code> + shared <code>components/frontend</code>.</li>
+        <li><strong>Backend</strong> — admin routes behind <code>auth</code> middleware, <code>App\Http\Controllers\Backend\*</code>, views under <code>resources/views/backend</code> + <code>components/backend</code>. Every module is gated by a <code>permission:</code> middleware alias.</li>
+        <li><strong>Webhook</strong> — <code>WhatsAppWebhookController</code> at <code>/webhooks/whatsapp</code> (public, CSRF-exempt) for inbound WhatsApp messages.</li>
+    </ul>
+    <h4>Key cross-cutting pieces</h4>
+    <ul>
+        <li><code>App\Support\WhatsAppBot</code> — the chatbot conversation engine.</li>
+        <li><code>App\Services\WhatsAppFortius</code> / <code>App\Services\MessageIndiaSms</code> — outbound API clients.</li>
+        <li><code>App\Support\CommunicationLogger</code> / <code>ActivityLogger</code> — central logging helpers.</li>
+        <li><code>App\Support\NotificationHooks</code> — raises in-app admin notifications on model events.</li>
+        <li><code>App\Http\Middleware\CheckPermission</code> — RBAC enforcement (alias <code>permission</code>).</li>
+    </ul>
+
+    <!-- ============ 4. ENVIRONMENTS ============ -->
+    <h2>4. Environments &amp; Deployment</h2>
+    <table>
+        <tr><th>Environment</th><th>Details</th></tr>
+        <tr><td>Local (dev)</td><td>XAMPP, <code>http://127.0.0.1:8000</code> (artisan serve) or <code>localhost</code>. PHP 8.2.</td></tr>
+        <tr><td>UAT</td><td>Hosted at <code>anvayafoundation.com/tata_trusts_hospital</code>. PHP 8.4. Deployed via Git pull.</td></tr>
+        <tr><td>Repository</td><td>GitHub — branch <code>feature/whatsapp-chatbot</code> (active), <code>main</code>.</td></tr>
+    </table>
+    <h4>Deploy procedure (UAT)</h4>
+    <ol>
+        <li><code>git pull origin feature/whatsapp-chatbot</code> (code + committed images).</li>
+        <li><code>php artisan migrate</code> (schema changes).</li>
+        <li><code>php artisan db:seed --class=ModulePermissionsSeeder</code> (permissions &amp; role sync).</li>
+        <li><code>php artisan config:clear &amp;&amp; php artisan view:clear</code>.</li>
+        <li>For a queue worker (delayed WhatsApp menu): run <code>php artisan queue:work</code> or a cron/supervisor equivalent.</li>
+    </ol>
+    <div class="callout warn"><strong>Important — data vs code.</strong> Website <em>content</em> (doctor bios, page text, team members, speciality details) and <em>permission assignments</em> live in the <strong>database</strong>, not in Git. These do not transfer via <code>git pull</code> — they must be entered in the admin panel or applied via SQL on each environment. Uploaded images live in <code>public/</code> and are committed to Git.</div>
+
+    <!-- ============ 5. CONFIG ============ -->
+    <h2>5. Configuration (<code>.env</code>)</h2>
+    <p>All credentials are sourced from <code>.env</code> (no hardcoded fallbacks in config). Keys are documented in <code>.env.example</code>. <strong>Actual secret values are intentionally omitted from this document.</strong></p>
+    <table>
+        <tr><th>Group</th><th>Keys</th><th>Purpose</th></tr>
+        <tr><td>App</td><td><code>APP_ENV</code>, <code>APP_DEBUG</code>, <code>APP_URL</code>, <code>APP_KEY</code></td><td>Set <code>APP_ENV=production</code>, <code>APP_DEBUG=false</code>, correct <code>APP_URL</code> on live.</td></tr>
+        <tr><td>Database</td><td><code>DB_*</code></td><td>MySQL connection.</td></tr>
+        <tr><td>Mail (SMTP)</td><td><code>MAIL_HOST/PORT/USERNAME/PASSWORD/ENCRYPTION/FROM_*</code></td><td>Transactional email (SMTP).</td></tr>
+        <tr><td>Admin recipients</td><td><code>MAIL_ADMIN_NOTIFICATION / _CONTACT / _CAREER / _APPOINTMENT</code></td><td>Where each website form notification is sent. Set to the hospital's real inboxes in production.</td></tr>
+        <tr><td>SMS (MessageIndia)</td><td><code>MESSAGEINDIA_USERNAME / _API_KEY / _SENDER_NAME / _PE_ID</code> + template IDs</td><td>OTP + appointment status SMS.</td></tr>
+        <tr><td>WhatsApp (Fortius)</td><td><code>WHATSAPP_BASE_URL / _API_VERSION / _PHONE_NUMBER_ID / _TOKEN / _VERIFY_TOKEN</code>, optional <code>_BOOKING_URL / _WELCOME_IMAGE</code></td><td>WhatsApp Cloud API via Fortius proxy.</td></tr>
+    </table>
+    <div class="callout warn">Because config has no fallbacks, a missing key makes that feature silently return <code>null</code>. Every environment's <code>.env</code> must set all required keys. Run <code>php artisan config:clear</code> after edits.</div>
+
+    <!-- ============ 6. FRONTEND ============ -->
+    <div class="page-break"></div>
+    <h2>6. Frontend (Public Website)</h2>
+    <table>
+        <tr><th>Page</th><th>Route name</th></tr>
+        <tr><td>Home</td><td><code>frontend.index</code></td></tr>
+        <tr><td>Specialities (list + detail)</td><td><code>frontend.specialities</code>, <code>frontend.specialities_details</code></td></tr>
+        <tr><td>Our Facilities</td><td><code>frontend.our_facilities</code></td></tr>
+        <tr><td>Our Team</td><td><code>frontend.our_team</code></td></tr>
+        <tr><td>About Us</td><td><code>frontend.about_us</code></td></tr>
+        <tr><td>Events</td><td><code>frontend.events</code></td></tr>
+        <tr><td>Blog (list + detail)</td><td><code>frontend.blogs</code>, <code>frontend.blog_details</code></td></tr>
+        <tr><td>Media &amp; Gallery</td><td><code>frontend.media</code>, <code>frontend.gallery</code></td></tr>
+        <tr><td>FAQs</td><td><code>frontend.faqs</code></td></tr>
+        <tr><td>Join Us (Careers)</td><td><code>frontend.join_us</code></td></tr>
+        <tr><td>Contact Us</td><td><code>frontend.contact_us</code></td></tr>
+        <tr><td>Appointment login / booking</td><td><code>frontend.user_login</code> → <code>frontend.book_an_appointment</code></td></tr>
+    </table>
+    <p>Public forms (Contact, Careers/Job Application, Appointment) persist to the database, email the configured admin recipient, and send a user acknowledgement where applicable. A floating "Chat with us" WhatsApp button links to the hospital's WhatsApp number.</p>
+
+    <!-- ============ 7. BACKEND MODULES ============ -->
+    <h2>7. Backend (Admin Panel) &amp; Modules</h2>
+    <p>Login at <code>/login</code>. The sidebar is permission-driven — each admin sees only the modules their role allows.</p>
+    <table>
+        <tr><th>Group</th><th>Modules</th></tr>
+        <tr><td>Dashboard</td><td>Overview tiles, today's appointments, status summary.</td></tr>
+        <tr><td>Notifications</td><td>Live activity bell + full notifications page (see §10).</td></tr>
+        <tr><td>Home</td><td>Banners, Short Introduction, Services, Facilities, Team, Testimonials, Board, Follow Us (8 home sections).</td></tr>
+        <tr><td>Specialities</td><td>Listing + Details (section content, services list, attached doctors; supports a "preventive care" layout variant).</td></tr>
+        <tr><td>Masters</td><td>Our Team, Testimonials, Our Facilities.</td></tr>
+        <tr><td>Content</td><td>About Us, Gallery, Events, Media, FAQs, Flyer, Contact Details, Privacy Policy.</td></tr>
+        <tr><td>Join Us</td><td>Join page content + Job Postings.</td></tr>
+        <tr><td>Blog</td><td>Categories, Listings, Details, Comments (moderation).</td></tr>
+        <tr><td>Appointments</td><td>Appointment Users, Appointments, WhatsApp Appointments, Manage Statuses (see §8).</td></tr>
+        <tr><td>Form Enquiries</td><td>Contact Enquiries, Job Applications, WhatsApp Queries.</td></tr>
+        <tr><td>Reports</td><td>Appointments &amp; communication reports with CSV export.</td></tr>
+        <tr><td>Logs</td><td>Activity Log, Communication Logs (Super Admin only).</td></tr>
+        <tr><td>User</td><td>Roles, Users, Permissions (RBAC admin — see §12).</td></tr>
+    </table>
+    <p class="muted">Admin list filters follow a project convention: AJAX POST, auto-apply on change, no full-page reload, with a results partial + loader. Most content modules follow a standard CRUD pattern (list / create / edit / delete) with image upload and rich-text where relevant.</p>
+
+    <h3>7.1 Dashboard</h3>
+    <ul>
+        <li>At-a-glance tiles: <strong>Today's Appointments</strong>, <strong>Next 2 Days</strong>, <strong>Pending Appointments</strong>, <strong>Total Clients</strong>.</li>
+        <li>Today's appointment list and an appointment <strong>status overview</strong> summary.</li>
+        <li>"View All Appointments" shortcut; live notification bell in the header.</li>
+    </ul>
+
+    <h3>7.2 Home Page Management</h3>
+    <p>Controls every section of the public home page. Each is independently editable:</p>
+    <ul>
+        <li><strong>Banner Details</strong> — hero slides/banner content (image, heading, text, call-to-action).</li>
+        <li><strong>Short Introduction</strong> — the intro block below the banner.</li>
+        <li><strong>Services</strong> — featured specialities/services shown on the home page.</li>
+        <li><strong>Facilities</strong> — featured facilities block.</li>
+        <li><strong>Our Team</strong> — selected doctors featured on home (toggle which appear).</li>
+        <li><strong>Testimonials</strong> — client testimonials carousel.</li>
+        <li><strong>Our Board</strong> — board/leadership block.</li>
+        <li><strong>Follow Us</strong> — social / follow-us section.</li>
+    </ul>
+
+    <h3>7.3 Specialities</h3>
+    <ul>
+        <li><strong>Listing</strong> — create/edit each speciality (name, slug, image). Drives the Specialities menu &amp; cards.</li>
+        <li><strong>Details</strong> — the full speciality page: banner image, section image, section heading &amp; description, a <strong>services list</strong>, and <strong>attached doctors</strong> (picked from Our Team, with an optional per-speciality bio override). Services render in balanced columns.</li>
+        <li>Supports a <strong>"Preventive Care" layout variant</strong> — a speciality flagged as preventive reveals dedicated preventive sections, plan categories and disclaimer fields instead of the standard layout.</li>
+    </ul>
+
+    <h3>7.4 Masters (reusable content)</h3>
+    <ul>
+        <li><strong>Our Team</strong> — master directory of doctors/staff: name, designation (rich text), bio, photo, "show on team page" and "show on home" toggles. <em>Reused across the Team page and every speciality page</em> a doctor is attached to.</li>
+        <li><strong>Testimonials</strong> — master testimonials pool.</li>
+        <li><strong>Our Facilities</strong> — master facilities pool.</li>
+    </ul>
+
+    <h3>7.5 Content Pages</h3>
+    <ul>
+        <li><strong>About Us</strong> — about page content blocks.</li>
+        <li><strong>Gallery</strong> — galleries with multiple images; "show on home" toggle.</li>
+        <li><strong>Events</strong> — events CRUD; "show on home" toggle.</li>
+        <li><strong>Media</strong> — media / press items.</li>
+        <li><strong>FAQs</strong> — question &amp; answer entries for the FAQ page.</li>
+        <li><strong>Flyer</strong> — promotional flyer / pop-up management.</li>
+        <li><strong>Contact Details</strong> — address, phone, emergency number, map URL, email(s), social links &amp; the top ribbon items used across the site header/footer.</li>
+        <li><strong>Privacy Policy</strong> — policy documents/pages.</li>
+    </ul>
+
+    <h3>7.6 Join Us (Careers)</h3>
+    <ul>
+        <li><strong>Page Details</strong> — careers landing content.</li>
+        <li><strong>Job Postings</strong> — job roles CRUD (shown publicly on Join Us).</li>
+        <li>Submitted applications appear under Form Enquiries → Job Applications (read-only, with résumé).</li>
+    </ul>
+
+    <h3>7.7 Blog</h3>
+    <ul>
+        <li><strong>Category</strong>, <strong>Listing</strong>, <strong>Details</strong> — full blog CRUD with categories, tags &amp; rich content.</li>
+        <li><strong>Comments</strong> — moderation: approve/unapprove (toggle active) and delete user comments.</li>
+    </ul>
+
+    <h3>7.8 Form Enquiries (read-only inboxes)</h3>
+    <ul>
+        <li><strong>Contact Enquiries</strong> — website Contact-Us submissions (name, email, phone, subject, message) with detail view + reply shortcuts.</li>
+        <li><strong>Job Applications</strong> — career submissions with applicant details &amp; résumé download.</li>
+        <li><strong>WhatsApp Queries</strong> — "Talk to our team" messages captured by the chatbot, with a "reply on WhatsApp" shortcut.</li>
+    </ul>
+
+    <h3>7.9 Reports</h3>
+    <ul>
+        <li><strong>Appointments report</strong> and <strong>Communication report</strong> with AJAX filters and <strong>CSV export</strong> of the filtered set.</li>
+    </ul>
+
+    <h3>7.10 Users, Roles &amp; Permissions</h3>
+    <ul>
+        <li><strong>Users</strong> — create/manage admin accounts and assign a role.</li>
+        <li><strong>Roles</strong> — create roles and assign permissions via a matrix.</li>
+        <li><strong>Permissions</strong> — the permission catalogue (see §12).</li>
+    </ul>
+    <p class="muted">Appointments, WhatsApp Appointments, Notifications, Activity Log &amp; Communication Logs are detailed in §8–§10 and §15.</p>
+
+    <!-- ============ 8. APPOINTMENTS ============ -->
+    <div class="page-break"></div>
+    <h2>8. Appointment System</h2>
+    <h3>Booking flow (website)</h3>
+    <ol>
+        <li>User enters mobile on <code>/user-login</code> → OTP sent via SMS (MessageIndia).</li>
+        <li>OTP verified → an <code>AppointmentUser</code> (keyed by mobile) is found/created; session established.</li>
+        <li>Booking form submitted → an <code>AppointmentEnquiry</code> is created with a default status; confirmation SMS + emails fire.</li>
+    </ol>
+    <h3>Admin management</h3>
+    <ul>
+        <li><strong>Appointments</strong> — filterable list, per-appointment status change (recorded in an immutable <code>AppointmentStatusHistory</code>), CSV export.</li>
+        <li><strong>Status triggers</strong> — statuses can be flagged to fire transactional SMS (e.g. reschedule, cancellation). "Reschedule" statuses require a new future date.</li>
+        <li><strong>Appointment Users</strong> — client directory with appointment counts and a <strong>Medium</strong> indicator/filter (Website vs WhatsApp).</li>
+        <li><strong>Manage Statuses</strong> — master list of statuses (name, colour, default/active flags, SMS trigger, requires-date flag).</li>
+    </ul>
+    <h3>Website vs WhatsApp appointments</h3>
+    <p>Each appointment carries a <code>source</code> (<code>website</code> / <code>whatsapp</code>) and a per-source reference number (<code>A-0001</code> for website, <code>WA-0001</code> for WhatsApp). The same controller/views power two scoped tabs — <strong>Appointments</strong> (website) and <strong>WhatsApp Appointments</strong> — with identical functionality. A WhatsApp booking becomes a real appointment when the user completes the pre-filled web form; extra chat-intake fields are folded into the appointment's reason.</p>
+
+    <!-- ============ 9. WHATSAPP ============ -->
+    <h2>9. WhatsApp Chatbot</h2>
+    <p><strong>Provider:</strong> Fortius (<code>waba.fortius.in.net</code>) — a transparent proxy over Meta's WhatsApp Cloud API, so payloads follow Meta's format exactly. The chatbot runs <em>inside the 24-hour customer-service window</em> (user messages first), so no approved templates are needed for replies.</p>
+    <h3>Components</h3>
+    <ul>
+        <li><code>WhatsAppWebhookController</code> — inbound webhook at <code>/webhooks/whatsapp</code> (GET = verify handshake, POST = messages). Requires a public HTTPS URL (UAT/production only).</li>
+        <li><code>App\Support\WhatsAppBot</code> — conversation engine: greeting + tappable list menu, services (live from DB), timings/emergency (from Contact Details), FAQs, blog, booking, "talk to our team". Per-user state in <code>whatsapp_conversations</code>.</li>
+        <li><code>App\Services\WhatsAppFortius</code> — sends text / image / interactive buttons / lists; normalises numbers; logs every send.</li>
+        <li><code>php artisan whatsapp:simulate</code> — local tester that drives the bot and prints replies (no credentials needed).</li>
+    </ul>
+    <h3>Guided booking flow</h3>
+    <ol>
+        <li>New / Existing client branch. Existing clients are verified against <code>AppointmentUser</code> by number; an already-registered number is prevented from registering again.</li>
+        <li>Step-by-step intake (parent &amp; pet details), reason, preferred day/time.</li>
+        <li><strong>Review step</strong> — a summary with a Confirm button; the user can type a field name (e.g. "email") to correct a single answer.</li>
+        <li>On confirm → a <code>WhatsAppBookingRequest</code> is saved + Customer Care emailed, and the user receives a confirmation + a login link to complete the booking online (the booking becomes a real appointment on web-form submit). Re-using a completed link shows an "already booked — start fresh" notice.</li>
+        <li>The main menu is re-sent ~30s later via a queued job (<code>SendWhatsAppMainMenu</code>).</li>
+    </ol>
+    <h3>"Talk to our team"</h3>
+    <p>Captured messages are saved to <code>whatsapp_team_queries</code>, emailed to Customer Care, and listed under Form Enquiries → WhatsApp Queries.</p>
+    <div class="callout warn"><strong>Delivery constraints:</strong> the sending number is a Meta <em>test</em> number — it only delivers to <em>allow-listed</em> recipients, and free-form replies require an open 24-hour session (the user must message first). A verified business number removes these limits. Business-initiated messages (e.g. reminders) require approved Meta templates (planned, not built).</p>
+
+    <!-- ============ 10. NOTIFICATIONS ============ -->
+    <div class="page-break"></div>
+    <h2>10. Notifications Module</h2>
+    <p>A shared-inbox admin notification system that alerts staff to new activity in real time.</p>
+    <ul>
+        <li><strong>Sources</strong> — model <code>created</code> events (via <code>NotificationHooks</code>) on Contact Enquiries, Appointments, Job Applications and WhatsApp Queries raise an <code>AdminNotification</code>.</li>
+        <li><strong>Live bell</strong> — header bell with unread badge; AJAX <strong>polling every ~20s</strong> (no WebSockets — a deliberate choice for shared hosting), so new items appear without reloading.</li>
+        <li><strong>Toasts + chime</strong> — a clean toast and a soft sound on new activity; a periodic in-app reminder re-surfaces unread items.</li>
+        <li><strong>Notifications page</strong> — full list with summary tiles, filters, mark-all-read.</li>
+    </ul>
+    <p class="muted">Available to every admin (not permission-gated, like the Dashboard). Reminders are in-panel only (no email reminders).</p>
+
+    <!-- ============ 11. INTEGRATIONS ============ -->
+    <h2>11. Third-Party Integrations</h2>
+    <table>
+        <tr><th>Integration</th><th>Used for</th><th>Notes</th></tr>
+        <tr><td>MessageIndia SMS</td><td>Login OTPs; appointment confirmation / reschedule / cancellation SMS</td><td>DLT-registered templates (PE ID + template IDs in <code>.env</code>).</td></tr>
+        <tr><td>SMTP email</td><td>Form notifications to admin + user acknowledgements</td><td>Branded HTML mailables.</td></tr>
+        <tr><td>WhatsApp (Fortius / Meta Cloud API)</td><td>Chatbot send + inbound webhook</td><td>See §9.</td></tr>
+    </table>
+    <p>Every outbound SMS, email and WhatsApp message is recorded in <code>communication_logs</code> (channel, type, recipient, status, provider response, error), viewable under Communication Logs and Reports.</p>
+
+    <!-- ============ 12. RBAC ============ -->
+    <h2>12. Roles &amp; Permissions (RBAC)</h2>
+    <p>Permissions are defined per module as <code>{slug}.{view|create|edit|delete}</code> in <code>ModulePermissionsSeeder</code>, enforced in three coordinated places: the seeder catalogue, route <code>permission:</code> middleware, and sidebar <code>$can()</code> gates.</p>
+    <table>
+        <tr><th>Role</th><th>Access</th></tr>
+        <tr><td>Super Admin</td><td>All permissions (also short-circuits to allow everything). Only role with Activity Log, Communication Logs, and delete actions.</td></tr>
+        <tr><td>Admin</td><td>View / create / edit on every module (no delete).</td></tr>
+        <tr><td>Front Office</td><td>Appointments, Appointment Users, Statuses, Contact Enquiries, Reports, Dashboard + WhatsApp Appointments (view/edit) &amp; WhatsApp Queries (view).</td></tr>
+        <tr><td>Career Admin</td><td>Job Applications, Job Roles, Join Page.</td></tr>
+        <tr><td>User (standard)</td><td>Dashboard only.</td></tr>
+    </table>
+    <div class="callout"><strong>When adding a module:</strong> add it to <code>ModulePermissionsSeeder</code> (<code>$modules</code>), gate its routes with <code>permission:{slug}.{action}</code>, add a sidebar <code>$can()</code> gate, then re-run the seeder. Custom roles (Front Office, Career Admin) are <em>not</em> auto-synced by the seeder — grant new permissions to them manually.</div>
+    <p class="muted">Permissions table + role assignments are database rows (<code>permissions</code>, <code>roles</code>, <code>permission_role</code>). Run the seeder on each environment; grant custom-role permissions via admin UI or SQL.</p>
+
+    <!-- ============ 13. DATABASE ============ -->
+    <div class="page-break"></div>
+    <h2>13. Database Overview</h2>
+    <p>~87 migrations. Key tables by area:</p>
+    <table>
+        <tr><th>Area</th><th>Tables</th></tr>
+        <tr><td>Access control</td><td><code>users</code>, <code>roles</code>, <code>permissions</code>, <code>permission_role</code> (+ role↔user)</td></tr>
+        <tr><td>Appointments</td><td><code>appointment_users</code>, <code>appointment_enquiries</code>, <code>appointment_statuses</code>, <code>appointment_status_histories</code>, <code>appointment_otps</code></td></tr>
+        <tr><td>WhatsApp</td><td><code>whatsapp_conversations</code>, <code>whatsapp_booking_requests</code>, <code>whatsapp_team_queries</code></td></tr>
+        <tr><td>Notifications &amp; logs</td><td><code>admin_notifications</code>, <code>communication_logs</code>, <code>activity_logs</code></td></tr>
+        <tr><td>Enquiries</td><td><code>contact_enquiries</code>, <code>job_applications</code></td></tr>
+        <tr><td>Content / CMS</td><td><code>specialities</code>, <code>speciality_details</code>, <code>our_teams</code>, <code>home_*</code>, <code>blog_*</code>, <code>events</code>, <code>galleries</code>, <code>media</code>, <code>faqs</code>, <code>about_us</code>, <code>flyers</code>, <code>contact_details</code>, <code>privacy_policies</code>, <code>join_page*</code>, <code>testimonials</code>, <code>master_facilities</code> …</td></tr>
+    </table>
+    <p class="muted">Most content tables use a soft-delete convention via a <code>deleted_by</code> column (queries filter <code>whereNull('deleted_by')</code>); some models also use Laravel <code>SoftDeletes</code>.</p>
+
+    <!-- ============ 14. SCHEDULE/QUEUE ============ -->
+    <h2>14. Scheduled Tasks &amp; Queue</h2>
+    <ul>
+        <li><strong>Queue</strong> — the delayed WhatsApp main-menu uses a queued job (<code>SendWhatsAppMainMenu</code>, 30s delay). With the <code>sync</code> driver it sends immediately; a real delay needs <code>QUEUE_CONNECTION=database</code> (or redis) + a running worker (<code>php artisan queue:work</code> via supervisor/cron).</li>
+        <li><strong>Scheduler</strong> — defined in <code>routes/console.php</code>. If scheduled tasks are used, add a server cron: <code>* * * * * php artisan schedule:run</code>.</li>
+    </ul>
+
+    <!-- ============ 15. LOGGING ============ -->
+    <h2>15. Logging &amp; Auditing</h2>
+    <ul>
+        <li><strong>Activity Log</strong> — audit trail of admin create/update/delete across tracked models, plus login / logout / failed-login events (Super Admin view).</li>
+        <li><strong>Communication Logs</strong> — every SMS / email / WhatsApp send attempt with status, error and provider response (Super Admin view).</li>
+        <li><strong>Application logs</strong> — standard Laravel logs under <code>storage/logs</code>.</li>
+    </ul>
+
+    <!-- ============ 16. OPS ============ -->
+    <h2>16. Operational / Maintenance Notes</h2>
+    <ul>
+        <li><strong>Production checklist:</strong> <code>APP_ENV=production</code>, <code>APP_DEBUG=false</code>, correct <code>APP_URL</code> (affects OTP/booking links &amp; assets), real <code>MAIL_ADMIN_*</code> inboxes, verified WhatsApp business number.</li>
+        <li><strong>After <code>.env</code> or route changes:</strong> <code>php artisan config:clear</code> (and <code>route:clear</code> / <code>view:clear</code> as needed).</li>
+        <li><strong>WhatsApp webhook</strong> must be registered in the Fortius panel to the deployed HTTPS URL with the matching verify token, and "Wrapper Client" enabled so inbound is forwarded to the app.</li>
+        <li><strong>Content &amp; permissions are data</strong> — manage via the admin panel (or SQL), per environment; they are not carried by Git.</li>
+        <li><strong>Image assets</strong> are stored under <code>public/</code> (e.g. <code>public/our-team</code>, <code>public/home/*</code>) and are committed to Git.</li>
+    </ul>
+
+    <!-- ============ 17. PENDING ============ -->
+    <h2>17. Known Constraints &amp; Pending Items</h2>
+    <ul>
+        <li><strong>WhatsApp test number</strong> — deliver only to allow-listed recipients; move to a verified business number for general availability.</li>
+        <li><strong>Outbound WhatsApp templates</strong> — appointment status notifications over WhatsApp (confirmed / rescheduled / cancelled) require approved Meta templates — planned, not yet built (SMS equivalents exist).</li>
+        <li><strong>Queue worker</strong> — required for the true 30-second delayed menu; otherwise it sends immediately.</li>
+        <li><strong>Content parity</strong> — doctor bios / speciality text / images are synced per environment as data; keep in mind when promoting UAT → production.</li>
+    </ul>
+
+    <p class="muted" style="margin-top:34px;border-top:1px solid var(--line);padding-top:10px;">
+        End of document &middot; Confidential — Small Animal Hospital Mumbai technical handover.
+    </p>
+
+</div>
+</body>
+</html>

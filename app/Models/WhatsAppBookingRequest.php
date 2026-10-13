@@ -13,7 +13,7 @@ class WhatsAppBookingRequest extends Model
 
     protected $fillable = [
         'wa_id', 'client_type',
-        'parent_name', 'address', 'email', 'mobile', 'pincode',
+        'parent_name', 'address', 'email', 'mobile', 'pincode', 'patient_uid',
         'pet_name', 'species', 'sex', 'breed', 'colour', 'dob_age', 'weight',
         'neutered', 'complaint', 'how_heard', 'referred_by',
         'reason', 'preferred_day', 'preferred_time',

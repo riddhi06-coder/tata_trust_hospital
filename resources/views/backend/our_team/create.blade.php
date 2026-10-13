@@ -238,6 +238,19 @@
                                     <small class="text-muted ms-3">Uncheck for guest specialists you only want to feature on speciality pages.</small>
                                 </div>
 
+                                <!-- Bookable on WhatsApp -->
+                                <div class="col-md-12 d-flex align-items-center">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="bookable_on_whatsapp"
+                                            name="bookable_on_whatsapp" value="1"
+                                            {{ old('bookable_on_whatsapp', true) ? 'checked' : '' }}>
+                                        <label class="form-check-label ms-2" for="bookable_on_whatsapp">
+                                            Selectable in WhatsApp booking
+                                        </label>
+                                    </div>
+                                    <small class="text-muted ms-3">Uncheck to hide this doctor from the WhatsApp chatbot's doctor list.</small>
+                                </div>
+
                                 <!-- Form Actions -->
                                 <div class="col-12 text-end">
                                     <a href="{{ route('manage-our-team.index') }}" class="btn btn-danger px-4">Cancel</a>

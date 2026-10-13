@@ -33,6 +33,8 @@ use App\Http\Controllers\Backend\BlogListingController;
 use App\Http\Controllers\Backend\BlogDetailsController;
 use App\Http\Controllers\Backend\BlogCategoryController;
 use App\Http\Controllers\Backend\WhatsAppTeamQueryController;
+use App\Http\Controllers\Backend\MedicalReportRequestController;
+use App\Http\Controllers\Backend\ChatbotContentController;
 use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\AppointmentUserController;
 use App\Http\Controllers\Backend\AppointmentController;
@@ -235,6 +237,19 @@ use App\Http\Controllers\WhatsAppWebhookController;
             Route::get('manage-whatsapp-queries',         [WhatsAppTeamQueryController::class, 'index'])->middleware('permission:whatsapp-queries.view')->name('manage-whatsapp-queries.index');
             Route::post('manage-whatsapp-queries/filter', [WhatsAppTeamQueryController::class, 'filter'])->middleware('permission:whatsapp-queries.view')->name('manage-whatsapp-queries.filter');
             Route::get('manage-whatsapp-queries/{id}',    [WhatsAppTeamQueryController::class, 'show'])->middleware('permission:whatsapp-queries.view')->whereNumber('id')->name('manage-whatsapp-queries.show');
+
+            // Medical report requests captured via the WhatsApp chatbot (read-only list).
+            Route::get('manage-medical-reports',         [MedicalReportRequestController::class, 'index'])->middleware('permission:medical-reports.view')->name('manage-medical-reports.index');
+            Route::post('manage-medical-reports/filter', [MedicalReportRequestController::class, 'filter'])->middleware('permission:medical-reports.view')->name('manage-medical-reports.filter');
+            Route::get('manage-medical-reports/{id}',    [MedicalReportRequestController::class, 'show'])->middleware('permission:medical-reports.view')->whereNumber('id')->name('manage-medical-reports.show');
+
+            // ---- Chatbot Management (editable WhatsApp bot content) ----
+            Route::get('manage-chatbot',             [ChatbotContentController::class, 'index'])->middleware('permission:chatbot-management.view')->name('manage-chatbot.index');
+            Route::get('manage-chatbot/create',      [ChatbotContentController::class, 'create'])->middleware('permission:chatbot-management.edit')->name('manage-chatbot.create');
+            Route::post('manage-chatbot',            [ChatbotContentController::class, 'store'])->middleware('permission:chatbot-management.edit')->name('manage-chatbot.store');
+            Route::get('manage-chatbot/{id}/edit',   [ChatbotContentController::class, 'edit'])->middleware('permission:chatbot-management.edit')->whereNumber('id')->name('manage-chatbot.edit');
+            Route::put('manage-chatbot/{id}',        [ChatbotContentController::class, 'update'])->middleware('permission:chatbot-management.edit')->whereNumber('id')->name('manage-chatbot.update');
+            Route::delete('manage-chatbot/{id}',     [ChatbotContentController::class, 'destroy'])->middleware('permission:chatbot-management.edit')->whereNumber('id')->name('manage-chatbot.destroy');
 
             // ---- Appointments module ----
             // Appointment Users (clients) — read-only list + full per-client history

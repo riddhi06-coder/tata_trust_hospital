@@ -51,7 +51,13 @@
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Pet Type / Gender</small>{{ ucfirst($appointment->pet_type) }} · {{ ucfirst($appointment->pet_gender) }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Pet Age</small>{{ $appointment->pet_age ?: '—' }}</div>
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Consultation</small>{{ $appointment->consult_type === 'first' ? 'First-time Consultation' : 'Follow-up Visit' }}</div>
-                                <div class="col-md-6 mb-3"><small class="text-muted d-block">Preferred Date</small>{{ optional($appointment->appointment_date)->format('d M Y') }}</div>
+                                <div class="col-md-6 mb-3"><small class="text-muted d-block">Preferred Date</small>{{ optional($appointment->appointment_date)->format('d M Y') ?: '—' }}</div>
+                                @if($appointment->speciality)
+                                <div class="col-md-6 mb-3"><small class="text-muted d-block">Speciality</small>{{ $appointment->speciality }}</div>
+                                @endif
+                                @if($appointment->preferred_doctor)
+                                <div class="col-md-6 mb-3"><small class="text-muted d-block">Preferred Doctor</small>{{ $appointment->preferred_doctor }}</div>
+                                @endif
                                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Submitted</small>{{ optional($appointment->created_at)->format('d M Y, h:i A') }}</div>
                                 @php
                                     // WhatsApp bookings fold extra intake details into the reason under a

@@ -27,6 +27,8 @@ class AppointmentEnquiry extends Model
         'pet_gender',
         'consult_type',
         'reason',
+        'speciality',
+        'preferred_doctor',
         'appointment_date',
         'appointment_status_id',
         'source',

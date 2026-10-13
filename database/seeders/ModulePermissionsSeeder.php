@@ -82,9 +82,13 @@ class ModulePermissionsSeeder extends Seeder
                 ['Contact Enquiries',     'contact-enquiries',     ['view'],                             'Form Enquiries'],
                 ['Job Applications',      'job-applications',      ['view'],                             'Form Enquiries'],
                 ['WhatsApp Queries',      'whatsapp-queries',      ['view'],                             'Form Enquiries'],
+                ['Medical Report Requests', 'medical-reports',     ['view'],                             'Form Enquiries'],
 
                 // Reports (standalone sidebar tab)
                 ['Reports',               'reports',               ['view']],
+
+                // Chatbot Management (standalone sidebar tab)
+                ['Chatbot Management',    'chatbot-management',    ['view', 'edit']],
             ];
 
             $actionLabels = [

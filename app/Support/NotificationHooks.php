@@ -6,6 +6,7 @@ use App\Models\AdminNotification;
 use App\Models\AppointmentEnquiry;
 use App\Models\ContactEnquiry;
 use App\Models\JobApplication;
+use App\Models\MedicalReportRequest;
 use App\Models\WhatsAppTeamQuery;
 use Illuminate\Support\Str;
 
@@ -34,12 +35,13 @@ class NotificationHooks
 
         AppointmentEnquiry::created(function (AppointmentEnquiry $m) {
             $when = $m->appointment_date ? ' on '.\Illuminate\Support\Carbon::parse($m->appointment_date)->format('d M Y') : '';
+            $isWa = $m->source === 'whatsapp';
             AdminNotification::raise([
                 'type'    => 'appointment_enquiry',
-                'source'  => 'website',
-                'title'   => 'New Appointment Booking',
+                'source'  => $isWa ? 'whatsapp' : 'website',
+                'title'   => $isWa ? 'New WhatsApp Appointment' : 'New Appointment Booking',
                 'body'    => trim(($m->owner_name ?: 'A pet parent').($m->pet_name ? ' booked for '.$m->pet_name : ' booked a visit').$when),
-                'url'     => route('manage-appointments.show', $m->id),
+                'url'     => $isWa ? route('manage-whatsapp-appointments.show', $m->id) : route('manage-appointments.show', $m->id),
                 'icon'    => 'calendar',
                 'color'   => 'success',
                 'related_type' => AppointmentEnquiry::class,
@@ -61,9 +63,23 @@ class NotificationHooks
             ]);
         });
 
-        // NOTE: WhatsApp appointment bookings are NOT notified here — they become
-        // real appointments when the user submits the web form, which fires the
-        // AppointmentEnquiry notification above (same as website bookings).
+        // NOTE: WhatsApp appointment bookings ARE notified via the AppointmentEnquiry
+        // hook above — the chatbot now creates the appointment directly (source=whatsapp),
+        // which fires that listener (branched to the WhatsApp title + URL).
+
+        MedicalReportRequest::created(function (MedicalReportRequest $m) {
+            AdminNotification::raise([
+                'type'    => 'medical_report',
+                'source'  => 'whatsapp',
+                'title'   => 'New Medical Report Request',
+                'body'    => trim(($m->client_name ?: 'A pet parent').($m->report_name ? ' — '.Str::limit($m->report_name, 60) : '')),
+                'url'     => route('manage-medical-reports.show', $m->id),
+                'icon'    => 'file-text',
+                'color'   => 'info',
+                'related_type' => MedicalReportRequest::class,
+                'related_id'   => $m->id,
+            ]);
+        });
 
         WhatsAppTeamQuery::created(function (WhatsAppTeamQuery $m) {
             AdminNotification::raise([
