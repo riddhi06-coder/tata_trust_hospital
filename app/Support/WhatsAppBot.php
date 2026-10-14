@@ -97,6 +97,12 @@ class WhatsAppBot
     /** Router for the main menu and its sub-selections (step = idle). */
     private function routeMenu(WhatsAppConversation $c, string $input, array $ctx): void
     {
+        // A thank-you / goodbye ends the chat warmly instead of re-showing the menu.
+        if ($input === 'chat_end' || $this->isClosing($input)) {
+            $this->endChat($c, $ctx);
+            return;
+        }
+
         if (str_starts_with($input, 'svc_')) {
             $this->serviceDetail($c, $input, $ctx);
             return;
@@ -1102,7 +1108,7 @@ class WhatsAppBot
         }
         $this->wa->sendText($c->wa_id, $answer."\n\nWas this helpful?", $ctx);
         $this->wa->sendButtons($c->wa_id, 'Please let me know:', [
-            ['id' => 'menu_back', 'title' => '👍 Yes, thank you'],
+            ['id' => 'chat_end', 'title' => '👍 Yes, thank you'],
             ['id' => 'menu_talk', 'title' => '💬 Talk to our team'],
         ], null, $ctx);
         $c->step = 'idle';
@@ -1366,7 +1372,40 @@ class WhatsAppBot
         $c->save();
         $this->wa->sendButtons($c->wa_id, 'Is there anything else I can help you with?', [
             ['id' => 'menu_back', 'title' => '🏠 Main menu'],
+            ['id' => 'chat_end',  'title' => "👍 No, that's all"],
         ], null, $ctx);
+    }
+
+    /** True when the message is a thank-you / goodbye that should end the chat. */
+    private function isClosing(string $input): bool
+    {
+        $t = trim(strtolower($input));
+        if ($t === '') {
+            return false;
+        }
+        // "thank…" covers thanks / thankyou / thank you / thank u / thanku.
+        if (str_contains($t, 'thank') || str_contains($t, 'thnx') || str_contains($t, 'thx')) {
+            return true;
+        }
+        return in_array($t, [
+            'ty', 'tysm', 'bye', 'byee', 'goodbye', 'good bye', 'tc', 'take care',
+            'ok bye', 'okay bye', 'no thanks', 'no thank you', 'nope thanks',
+            "that's all", 'thats all', 'nothing else', 'all good', 'no thats all',
+        ], true);
+    }
+
+    /** Warm sign-off that ends the conversation (no menu re-shown). */
+    private function endChat(WhatsAppConversation $c, array $ctx): void
+    {
+        $c->step = 'idle';
+        $this->clearBooking($c);
+        $c->save();
+
+        $this->wa->sendText(
+            $c->wa_id,
+            "You're most welcome! 🐾\n\nIt was lovely helping you and your little companion today. Wishing you both good health and lots of happiness. 💚\n\nWhenever you need us again, just send a *Hi* and I'll be right here.",
+            $ctx
+        );
     }
 
     /* -------------------------------------------------------------------- */
