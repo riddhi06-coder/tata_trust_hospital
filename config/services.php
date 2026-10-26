@@ -46,6 +46,9 @@ return [
         'token'           => env('WHATSAPP_TOKEN'),
         // Shared secret we echo back on the webhook verification handshake.
         'verify_token'    => env('WHATSAPP_VERIFY_TOKEN'),
+        // Public number the website "Chat with us" button opens (digits only, incl.
+        // country code, e.g. 919876543210). Keep this = the number the bot runs on.
+        'chat_number'     => env('WHATSAPP_CHAT_NUMBER'),
         // "Book Appointment" sends users to the OTP login page. When unset, the bot
         // falls back to route('frontend.user_login'), which resolves the correct
         // domain + subpath from the incoming request.

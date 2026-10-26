@@ -33,12 +33,12 @@
         $phoneDisplay = $headerContact->emergency_no ?? '';
         $phoneTel     = $phoneDisplay ? preg_replace('/[^\d+]/', '', $phoneDisplay) : '';
 
-        // "Chat with us" — points to the Meta TEST number the chatbot runs on
-        // (+1 555 971 0179) so the button reaches the working bot for testing.
-        // Pre-fills "Hi" so the user just taps SEND once and the bot replies with
-        // the welcome menu (WhatsApp forbids the business sending the first msg).
-        // Switch to the real business number once it's connected to the WABA.
-        $waChatUrl = 'https://wa.me/15559710179?text='.rawurlencode('Hi');
+        // "Chat with us" — opens the WhatsApp number the chatbot runs on. Set this
+        // in ONE place via WHATSAPP_CHAT_NUMBER in .env (digits only, with country
+        // code). Pre-fills "Hi" so the user just taps SEND once and the bot replies
+        // with the welcome menu (WhatsApp forbids the business sending the first msg).
+        $waChatNumber = preg_replace('/\D+/', '', (string) config('services.whatsapp.chat_number'));
+        $waChatUrl    = 'https://wa.me/'.$waChatNumber.'?text='.rawurlencode('Hi');
 
         // Header/menu blocks want short plain-text address (rich-text stripped).
         $addressPlain = $headerContact && $headerContact->address
