@@ -156,9 +156,7 @@ class WhatsAppBot
             ['id' => 'menu_services',  'title' => '🏥 Our services',     'description' => 'Departments & specialities'],
             ['id' => 'menu_timings',   'title' => '📍 Timings & location', 'description' => 'Hours, address & directions'],
             ['id' => 'menu_emergency', 'title' => '🚨 Emergency help',   'description' => 'Urgent care for your pet'],
-            ['id' => 'menu_faq',       'title' => '❓ Common questions',  'description' => 'Fees, reports & more'],
             ['id' => 'menu_reports',   'title' => '📄 Medical reports',  'description' => 'Request your pet\'s reports'],
-            ['id' => 'menu_blog',      'title' => '📝 Blog & articles',  'description' => 'Pet-care tips & updates'],
             ['id' => 'menu_talk',      'title' => '💬 Talk to our team', 'description' => 'Speak with a real person'],
         ]);
 
@@ -533,14 +531,12 @@ class WhatsAppBot
             ['id' => 'reason_vac', 'title' => '💉 Vaccination'],
             ['id' => 'reason_gen', 'title' => '🩺 General consultation'],
             ['id' => 'reason_sur', 'title' => '🔬 Surgery / procedure'],
-            ['id' => 'reason_den', 'title' => '🦷 Dental / other'],
         ]];
 
         // Speciality + doctor are DB-driven (admins manage the doctor list and the
         // "selectable in WhatsApp" toggle). The doctor list depends on the chosen
         // speciality, so it's resolved from the answers collected so far.
         $speciality = $this->specialityStep();
-        $doctor     = $this->doctorStep($answers['speciality'] ?? null);
 
         // Admin-created custom questions, injected just before scheduling (day/time).
         $custom = ChatbotContent::customSteps('booking');
@@ -573,8 +569,8 @@ class WhatsAppBot
                 ['key' => 'parent_name', 'type' => 'text', 'q' => "What's the *pet parent's name*?"],
                 ['key' => 'pet_name',    'type' => 'text', 'q' => "And your *pet's name*?"],
                 ['key' => 'patient_uid', 'type' => 'text', 'q' => "Your *Patient ID / UID* with us? (type 'NA' if you don't have it)"],
-                ['key' => 'mobile',      'type' => 'text', 'q' => "Best *mobile number* to reach you?"],
-                $reason, $speciality, $doctor,
+                ['key' => 'mobile',      'type' => 'text', 'q' => "*Mobile number* to reach you?"],
+                $reason, $speciality,
             ], $custom, [$day, $time]), 'book');
         }
 
@@ -583,7 +579,7 @@ class WhatsAppBot
             ['key' => 'parent_name', 'type' => 'text', 'q' => "What's the *pet parent's full name*?"],
             ['key' => 'address',     'type' => 'text', 'q' => "Your *address*?"],
             ['key' => 'email',       'type' => 'text', 'q' => "Your *email address*?"],
-            ['key' => 'mobile',      'type' => 'text', 'q' => "Best *mobile number* to reach you?"],
+            ['key' => 'mobile',      'type' => 'text', 'q' => "*Mobile number* to reach you?"],
             ['key' => 'pincode',     'type' => 'text', 'q' => "Your *PIN code*?"],
             // Pet
             ['key' => 'pet_name',    'type' => 'text', 'q' => "Now your companion 🐾 — what's your *pet's name*?"],
@@ -603,11 +599,11 @@ class WhatsAppBot
                 ['id' => 'neu_y', 'title' => 'Yes'],
                 ['id' => 'neu_n', 'title' => 'No'],
             ]],
-            ['key' => 'complaint',   'type' => 'text', 'q' => "What's the *main concern / reason* for the visit?"],
+            ['key' => 'complaint',   'type' => 'text', 'q' => "What's the *main concern* for the visit?"],
             $heard,
             ['key' => 'referred_by', 'type' => 'text', 'q' => "*Referred by*? (type 'NA' if none)"],
             // Visit scheduling
-            $reason, $speciality, $doctor,
+            $reason, $speciality,
         ], $custom, [$day, $time]), 'book');
     }
 
@@ -680,13 +676,20 @@ class WhatsAppBot
         ];
     }
 
-    /** Specialities that have at least one WhatsApp-selectable doctor. */
+    /** Specialities offered for booking on WhatsApp (curated order, max 9 rows). */
     private function bookableSpecialities()
     {
+        $order = [
+            'cardiology', 'dermatology', 'dental-care', 'diagnostic-imaging',
+            'diagnostic-pathology', 'oncology', 'ophthalmology',
+            'physiotherapy-rehabilitation', 'soft-tissue-surgery',
+        ];
+
         return Specialities::whereNull('deleted_by')
-            ->whereHas('details.doctors', fn ($q) => $q->where('bookable_on_whatsapp', true)->whereNull('our_teams.deleted_by'))
-            ->orderBy('speciality')
-            ->get();
+            ->whereIn('slug', $order)
+            ->get()
+            ->sortBy(fn ($s) => array_search($s->slug, $order))
+            ->values();
     }
 
     /** WhatsApp-selectable doctors for a speciality (matched by name). */
@@ -1009,10 +1012,21 @@ class WhatsAppBot
     /* Services                                                              */
     /* -------------------------------------------------------------------- */
 
-    /** "Our services" — live list of specialities from the database. */
+    /** "Our services" — curated list of specialities (max 9 rows for WhatsApp). */
     private function servicesList(WhatsAppConversation $c, array $ctx): void
     {
-        $items = Specialities::whereNull('deleted_by')->orderBy('id')->limit(9)->get();
+        // Explicit order so Ophthalmology sits right after Oncology; excludes
+        // Blood Transfusion and the duplicate "opthalmology" spelling.
+        $order = [
+            'cardiology', 'dermatology', 'dental-care', 'diagnostic-imaging',
+            'diagnostic-pathology', 'oncology', 'ophthalmology',
+            'physiotherapy-rehabilitation', 'soft-tissue-surgery',
+        ];
+        $items = Specialities::whereNull('deleted_by')
+            ->whereIn('slug', $order)
+            ->get()
+            ->sortBy(fn ($s) => array_search($s->slug, $order))
+            ->values();
 
         if ($items->isEmpty()) {
             $this->sendLink($c, $ctx, "*Our Services* 🏥\n\nExplore our departments and specialities on our website:", route('frontend.specialities'));
@@ -1049,7 +1063,7 @@ class WhatsAppBot
     /** Timings & location — pulled from ContactDetails, with a previewed Directions link. */
     private function timings(WhatsAppConversation $c, array $ctx): void
     {
-        $hours = ChatbotContent::text('info.hours', "🕐 *Working Hours*\nAll days (Mon–Sun): 9:30 AM – 6:30 PM\n🚑 Emergency: 24×7");
+        $hours = ChatbotContent::text('info.hours', "🚑 *IPD & Emergency:* 24×7\n🕐 *OPD & Consultations:* 9:30 AM – 7:30 PM, all days (Monday–Sunday)");
         $body = "*Timings & Location* 📍\n\n"
             .$this->address()."\n\n"
             .$hours."\n\n"
@@ -1202,7 +1216,7 @@ class WhatsAppBot
             ['key' => 'client_name',  'type' => 'text', 'q' => "*Medical Reports* 📄\n\nHappy to help you get your pet's reports. First, the *pet parent's name*?"],
             ['key' => 'patient_name', 'type' => 'text', 'q' => "Your *pet's name*?"],
             ['key' => 'patient_uid',  'type' => 'text', 'q' => "Your *Patient ID / UID* with us? (type 'NA' if you don't have it)"],
-            ['key' => 'mobile',       'type' => 'text', 'q' => "Best *mobile number* to reach you?"],
+            ['key' => 'mobile',       'type' => 'text', 'q' => "*Mobile number* to reach you?"],
             ['key' => 'report_name',  'type' => 'text', 'q' => "Which *report* do you need? (e.g. blood test, X-ray, discharge summary)"],
         ], ChatbotContent::customSteps('report')), 'report');
     }
@@ -1302,10 +1316,9 @@ class WhatsAppBot
         $name = $a['client_name'] ?? null;
         $this->wa->sendText(
             $c->wa_id,
-            "Thank you".($name ? ', '.strtok($name, ' ') : '')."! 📄\n\n"
-            ."We've noted your request".(isset($a['report_name']) ? " for *{$a['report_name']}*" : '')
-            ." and our team will contact you shortly to share it."
-            .($ref ? "\n🔖 Ref: #{$ref}" : ''),
+            "Thank you".($name ? ', '.strtok($name, ' ') : '')."!\n\n"
+            ."We've noted your request and our team will contact you shortly to share it."
+            .($ref ? "\n\n🔖 Ref: #{$ref}" : ''),
             $ctx
         );
         $this->backToMenuHint($c, $ctx);
