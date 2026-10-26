@@ -60,6 +60,11 @@ return [
 
     // MessageIndia SMS — used for appointment login OTPs and appointment confirmations.
     // All values come from .env (no hardcoded fallbacks).
+    'recaptcha' => [
+        'site_key'   => env('RECAPTCHA_SITE_KEY'),
+        'secret_key' => env('RECAPTCHA_SECRET_KEY'),
+    ],
+
     'messageindia' => [
         'username'    => env('MESSAGEINDIA_USERNAME'),
         'api_key'     => env('MESSAGEINDIA_API_KEY'),

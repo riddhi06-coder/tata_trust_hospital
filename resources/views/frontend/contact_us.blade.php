@@ -130,6 +130,9 @@
 
                             <form id="contactForm" action="{{ route('frontend.contact_enquiry.store') }}" method="POST" novalidate>
                                 @csrf
+                                @if($errors->has('captcha'))
+                                    <div class="alert alert-danger">{{ $errors->first('captcha') }}</div>
+                                @endif
                                 <div class="row g-4">
 
                                     <div class="col-md-12">
@@ -163,12 +166,12 @@
                                                   placeholder="Write a message (optional)"></textarea>
                                     </div>
 
-                                    <!-- reCAPTCHA widget (disabled for now)
-                                    <div class="col-12">
-                                        <div class="g-recaptcha" data-sitekey="6LfIdQotAAAAAL68OYHeR6YqH18h7VHTr5jRg0OV"></div>
-                                        <small class="error-msg" id="err_captcha"></small>
+                                    @if(config('services.recaptcha.site_key'))
+                                    <div class="col-12 d-flex flex-column align-items-center">
+                                        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                                        <small class="error-msg text-center" id="err_captcha"></small>
                                     </div>
-                                    -->
+                                    @endif
 
                                     <div class="col-12">
                                         <p class="form-status" id="formStatus"></p>
@@ -278,6 +281,13 @@
             var subject = v('subject');
             if (subject === '') { showError('subject', 'Please enter a subject.'); errors++; }
 
+            // reCAPTCHA — required when the widget is present.
+            if (document.querySelector('.g-recaptcha') && window.grecaptcha) {
+                if (grecaptcha.getResponse().length === 0) {
+                    showError('captcha', 'Please verify that you are not a robot.'); errors++;
+                }
+            }
+
             // Message is optional — no validation.
 
             if (errors > 0) {
@@ -303,6 +313,10 @@
         });
     })();
     </script>
+
+    @if(config('services.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 
   </body>
 </html>

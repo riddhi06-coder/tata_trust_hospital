@@ -179,6 +179,15 @@
                                     <small class="error-msg" id="err_appointment_date"></small>
                                 </div>
 
+                                @if(config('services.recaptcha.site_key'))
+                                <div class="col-12 d-flex justify-content-center mt-3">
+                                    <div>
+                                        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                                        <small class="error-msg d-block text-center" id="err_captcha"></small>
+                                    </div>
+                                </div>
+                                @endif
+
                                 <div class="col-12 mt-4 text-center">
                                     <button type="submit" id="apptSubmitBtn" class="btn">
                                         Submit <img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}" alt="" class="injectable">
@@ -237,7 +246,7 @@
             if (e) e.textContent = '';
             if (i) i.classList.remove('is-invalid');
         }
-        var fieldsWithErrors = ['name','email','address','pincode','pet_name','pet_type','pet_gender','consult_type','reason','appointment_date'];
+        var fieldsWithErrors = ['name','email','address','pincode','pet_name','pet_type','pet_gender','consult_type','reason','appointment_date','captcha'];
 
         // Live-clear on input/change.
         fieldsWithErrors.forEach(function (n) {
@@ -319,6 +328,13 @@
                 if (chosen < todayMid) { fail('appointment_date', 'Appointment date cannot be in the past.'); }
             }
 
+            // reCAPTCHA — required when the widget is present.
+            if (document.querySelector('.g-recaptcha') && window.grecaptcha) {
+                if (grecaptcha.getResponse().length === 0) {
+                    fail('captcha', 'Please verify that you are not a robot.');
+                }
+            }
+
             return messages;
         }
 
@@ -379,17 +395,23 @@
                 } else {
                     alert((res.data && res.data.message) || 'Something went wrong. Please try again.');
                 }
+                if (window.grecaptcha) grecaptcha.reset();
                 $submit.disabled = false;
                 $submit.innerHTML = submitHtml;
             })
             .catch(function () {
                 alert('Network error. Please try again.');
+                if (window.grecaptcha) grecaptcha.reset();
                 $submit.disabled = false;
                 $submit.innerHTML = submitHtml;
             });
         });
     })();
     </script>
+
+    @if(config('services.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 
   </body>
 </html>

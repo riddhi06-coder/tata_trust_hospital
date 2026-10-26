@@ -371,6 +371,12 @@ class HomeController extends Controller
 
     public function contact_enquiry_store(Request $request)
     {
+        // reCAPTCHA check (skipped automatically if no key is configured).
+        if (! \App\Support\Recaptcha::verify($request->input('g-recaptcha-response'), $request->ip())) {
+            return redirect()->back()->withInput()
+                ->withErrors(['captcha' => 'Please verify that you are not a robot and try again.']);
+        }
+
         // Server-side mirror of the JS validation.
         Validator::make($request->all(), [
             'full_name' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z\s.\'-]+$/'],
@@ -850,6 +856,15 @@ class HomeController extends Controller
                 'message' => 'Your session has expired. Please verify your mobile number again.',
                 'redirect' => route('frontend.user_login'),
             ], 401);
+        }
+
+        // reCAPTCHA check (skipped automatically if no key is configured).
+        if (! \App\Support\Recaptcha::verify($request->input('g-recaptcha-response'), $request->ip())) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please verify that you are not a robot.',
+                'errors'  => ['captcha' => ['Please verify that you are not a robot and try again.']],
+            ], 422);
         }
 
         $validator = Validator::make($request->all(), [
