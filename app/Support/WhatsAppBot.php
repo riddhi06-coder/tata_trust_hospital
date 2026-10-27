@@ -600,11 +600,13 @@ class WhatsAppBot
                 ['id' => 'neu_n', 'title' => 'No'],
             ]],
             ['key' => 'complaint',   'type' => 'text', 'q' => "What's the *main concern* for the visit?"],
-            $heard,
-            ['key' => 'referred_by', 'type' => 'text', 'q' => "*Referred by*? (type 'NA' if none)"],
-            // Visit scheduling
+            // Visit details, right after the main concern.
             $reason, $speciality,
-        ], $custom, [$day, $time]), 'book');
+        ], $custom, [$day, $time], [
+            // Asked at the end — after scheduling.
+            ['key' => 'referred_by', 'type' => 'text', 'q' => "*Referred by*? (type 'NA' if none)"],
+            $heard,
+        ]), 'book');
     }
 
     /**
