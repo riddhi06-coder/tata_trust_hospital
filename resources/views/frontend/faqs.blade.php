@@ -89,27 +89,6 @@
             </div>
         </section>
 
-        <section class="home-page-contact-us-footer-top">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <div class="why__we-are-content">
-                            <div class="section__title section_title_none mb-0">
-                                <h2 class="title" data-aos="fade-right">Appointment &amp; Emergency help is available 24<span class="title-span">x</span>7</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="home-appointment-emergency-footer-btn-sec">
-                            <a href="{{ url('contact-us') }}" class="btn">Contact Us<img src="{{ asset('frontend/assets/img/icon/right_arrow.svg') }}"
-                                    alt="" class="injectable"></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
     </main>
     <!-- main-area-end -->
 
