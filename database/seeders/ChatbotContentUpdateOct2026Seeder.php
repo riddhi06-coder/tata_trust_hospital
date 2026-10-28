@@ -40,6 +40,13 @@ class ChatbotContentUpdateOct2026Seeder extends Seeder
         // 3b-ii. UID prompt now only asked when the client confirms they have one.
         $this->setBody('book.patient_uid', 'Great — please share your *Patient ID / UID*.');
 
+        // 3b-iii. New "Do you have a UID?" question (existing-client branch) — make
+        // it editable in the panel. Yes/No options stay in code (branch anchor).
+        \App\Models\ChatbotContent::updateOrCreate(
+            ['content_key' => 'book.has_uid'],
+            ['section' => 'Booking', 'title' => 'Has Patient UID? (Yes/No)', 'body' => 'Do you have your *Patient ID / UID* with us?', 'options' => null, 'has_options' => false, 'is_active' => true, 'is_protected' => true, 'sort_order' => 5]
+        );
+
         // 3c. Visit reason — remove the "Dental / other" option.
         $this->setOptions('book.reason', [
             ['id' => 'reason_vac', 'title' => '💉 Vaccination',           'sort' => 0, 'is_active' => true],

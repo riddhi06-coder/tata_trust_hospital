@@ -64,6 +64,7 @@ class ChatbotContentSeeder extends Seeder
             ['section' => 'Booking', 'content_key' => 'book.email', 'title' => 'Email', 'body' => "Your *email address*?", 'options' => null],
             ['section' => 'Booking', 'content_key' => 'book.mobile', 'title' => 'Mobile number', 'body' => "*Mobile number* to reach you?", 'options' => null],
             ['section' => 'Booking', 'content_key' => 'book.pincode', 'title' => 'PIN code', 'body' => "Your *PIN code*?", 'options' => null],
+            ['section' => 'Booking', 'content_key' => 'book.has_uid', 'title' => 'Has Patient UID? (Yes/No)', 'body' => "Do you have your *Patient ID / UID* with us?", 'options' => null],
             ['section' => 'Booking', 'content_key' => 'book.patient_uid', 'title' => 'Patient UID', 'body' => "Great — please share your *Patient ID / UID*.", 'options' => null],
             ['section' => 'Booking', 'content_key' => 'book.pet_name', 'title' => 'Pet name', 'body' => "Now your companion 🐾 — what's your *pet's name*?", 'options' => null],
             ['section' => 'Booking', 'content_key' => 'book.species', 'title' => 'Species', 'body' => "Which pet are we seeing?", 'options' => $this->opts(['sp_dog' => '🐶 Dog', 'sp_cat' => '🐱 Cat'])],
