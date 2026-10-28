@@ -37,6 +37,9 @@ class ChatbotContentUpdateOct2026Seeder extends Seeder
         // 3b. Booking — drop "reason" from the main concern question.
         $this->setBody('book.complaint', "What's the *main concern* for the visit?");
 
+        // 3b-ii. UID prompt now only asked when the client confirms they have one.
+        $this->setBody('book.patient_uid', 'Great — please share your *Patient ID / UID*.');
+
         // 3c. Visit reason — remove the "Dental / other" option.
         $this->setOptions('book.reason', [
             ['id' => 'reason_vac', 'title' => '💉 Vaccination',           'sort' => 0, 'is_active' => true],

@@ -448,7 +448,7 @@ class WhatsAppBot
     {
         return [
             'parent_name' => 'Name', 'address' => 'Address', 'email' => 'Email', 'mobile' => 'Mobile',
-            'patient_uid' => 'Patient UID',
+            'has_uid' => 'Has Patient UID', 'patient_uid' => 'Patient UID',
             'pincode' => 'PIN code', 'pet_name' => 'Pet name', 'species' => 'Species', 'sex' => 'Sex',
             'breed' => 'Breed', 'colour' => 'Colour', 'dob_age' => 'Age / DOB', 'weight' => 'Weight',
             'neutered' => 'Neutered', 'complaint' => 'Concern', 'how_heard' => 'How heard', 'referred_by' => 'Referred by',
@@ -564,11 +564,28 @@ class WhatsAppBot
         ]];
 
         if ($clientType === 'existing') {
-            // Existing clients self-identify (Patient UID + mobile) — no registration fields.
+            // First, ask whether they have a Patient ID / UID — the flow branches on it.
+            $hasUid = ['key' => 'has_uid', 'type' => 'choice', 'q' => "Do you have your *Patient ID / UID* with us?", 'choices' => [
+                ['id' => 'uid_yes', 'title' => 'Yes'],
+                ['id' => 'uid_no',  'title' => 'No'],
+            ]];
+
+            $saysYes = str_contains(strtolower(trim($answers['has_uid'] ?? '')), 'yes');
+
+            if ($saysYes) {
+                // Has a UID → just the UID, then straight into the visit questions.
+                return $this->overlaySteps(array_merge([
+                    $hasUid,
+                    ['key' => 'patient_uid', 'type' => 'text', 'q' => "Great — please share your *Patient ID / UID*."],
+                    $reason, $speciality,
+                ], $custom, [$day, $time]), 'book');
+            }
+
+            // No UID (or not answered yet) → collect identity details first.
             return $this->overlaySteps(array_merge([
-                ['key' => 'parent_name', 'type' => 'text', 'q' => "What's the *pet parent's name*?"],
+                $hasUid,
+                ['key' => 'parent_name', 'type' => 'text', 'q' => "What's the *pet parent's full name*?"],
                 ['key' => 'pet_name',    'type' => 'text', 'q' => "And your *pet's name*?"],
-                ['key' => 'patient_uid', 'type' => 'text', 'q' => "Your *Patient ID / UID* with us? (type 'NA' if you don't have it)"],
                 ['key' => 'mobile',      'type' => 'text', 'q' => "*Mobile number* to reach you?"],
                 $reason, $speciality,
             ], $custom, [$day, $time]), 'book');
@@ -599,9 +616,9 @@ class WhatsAppBot
                 ['id' => 'neu_y', 'title' => 'Yes'],
                 ['id' => 'neu_n', 'title' => 'No'],
             ]],
-            ['key' => 'complaint',   'type' => 'text', 'q' => "What's the *main concern* for the visit?"],
-            // Visit details, right after the main concern.
+            // Visit details: visit-for → speciality → main concern.
             $reason, $speciality,
+            ['key' => 'complaint',   'type' => 'text', 'q' => "What's the *main concern* for the visit?"],
         ], $custom, [$day, $time], [
             // Asked at the end — after scheduling.
             ['key' => 'referred_by', 'type' => 'text', 'q' => "*Referred by*? (type 'NA' if none)"],
@@ -1035,7 +1052,18 @@ class WhatsAppBot
             return;
         }
 
-        $rows = $items->map(fn ($s) => ['id' => 'svc_'.$s->id, 'title' => $s->speciality])->values()->all();
+        // Three headline services pinned to the top, then specialities. WhatsApp
+        // lists allow max 10 rows, so the speciality list is trimmed to fit (the
+        // rest are reachable via "View all on website").
+        $rows = [
+            ['id' => 'svc_emergency', 'title' => '🚑 Emergency & IPD 24/7'],
+            ['id' => 'svc_opd',       'title' => '🩺 OPD Consultation'],
+            ['id' => 'svc_dialysis',  'title' => '💧 Dialysis'],
+        ];
+        $room = 6 - count($rows); // show 6 services total (3 pinned + 3 specialities)
+        foreach ($items->take($room) as $s) {
+            $rows[] = ['id' => 'svc_'.$s->id, 'title' => mb_substr($s->speciality, 0, 24)];
+        }
         $rows[] = ['id' => 'menu_services_all', 'title' => '🔎 View all on website'];
 
         $this->wa->sendList($c->wa_id, "*Our Services* 🏥\n\nHere's what we care for at SAHM. Tap any to learn more:", 'View Services', $rows, null, $ctx);
@@ -1046,6 +1074,22 @@ class WhatsAppBot
     /** One speciality → short intro + previewed link to its website page. */
     private function serviceDetail(WhatsAppConversation $c, string $input, array $ctx): void
     {
+        // The three pinned headline services.
+        if ($input === 'svc_emergency') {
+            $this->emergency($c, $ctx);
+            return;
+        }
+        if ($input === 'svc_opd') {
+            $this->sendLink($c, $ctx, "*OPD Consultation* 🩺\n\nOur OPD runs 9:30 AM – 7:30 PM, all days. Explore our specialities or book a visit here:", route('frontend.specialities'));
+            return;
+        }
+        if ($input === 'svc_dialysis') {
+            $d   = Specialities::whereNull('deleted_by')->where('slug', 'dialysis')->first();
+            $url = $d ? route('frontend.specialities_details', $d->slug) : route('frontend.specialities');
+            $this->sendLink($c, $ctx, "*Dialysis* 💧\n\nLearn about our Dialysis care here:", $url);
+            return;
+        }
+
         $id = (int) str_replace('svc_', '', $input);
         $s  = Specialities::whereNull('deleted_by')->find($id);
 
