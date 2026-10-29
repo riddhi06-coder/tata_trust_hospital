@@ -85,14 +85,14 @@
         </button>
         <div class="social-icons">
             @forelse($headerSocials as $link)
-                <a target="_blank" href="{{ $link->url }}" class="social-icon {{ $link->platform }}" title="{{ $link->platform_label }}">
+                <a target="_blank" href="{{ $link->platform === 'whatsapp' ? $waChatUrl : $link->url }}" class="social-icon {{ $link->platform }}" title="{{ $link->platform_label }}">
                     <i class="{{ $link->icon_class }}"></i>
                 </a>
             @empty
                 <a target="_blank" href="https://www.instagram.com/sahmumbai/" class="social-icon instagram">
                     <i class="fab fa-instagram"></i>
                 </a>
-                <a target="_blank" href="https://wa.me/917021850400" class="social-icon whatsapp">
+                <a target="_blank" href="{{ $waChatUrl }}" class="social-icon whatsapp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
                 <a target="_blank" href="#" class="social-icon linkedin">
@@ -250,10 +250,10 @@
                                 <div class="social-links">
                                     <ul class="list-wrap">
                                         @forelse($headerSocials as $link)
-                                            <li><a href="{{ $link->url }}" target="_blank" title="{{ $link->platform_label }}"><i class="{{ $link->icon_class }}"></i></a></li>
+                                            <li><a href="{{ $link->platform === 'whatsapp' ? $waChatUrl : $link->url }}" target="_blank" title="{{ $link->platform_label }}"><i class="{{ $link->icon_class }}"></i></a></li>
                                         @empty
                                             <li><a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a></li>
-                                            <li><a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+                                            <li><a href="{{ $waChatUrl }}" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
                                             <li><a href="#" target="_blank"><i class="fab fa-instagram"></i></a></li>
                                         @endforelse
                                     </ul>
