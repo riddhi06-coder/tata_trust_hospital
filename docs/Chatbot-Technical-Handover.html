@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Chatbot — Technical Handover</title>
+<style>
+  :root { --ink:#1f2933; --muted:#5b6b7b; --line:#e3e8ee; --brand:#0f766e; --brandbg:#e6f4f1; --code:#f5f7fa; --warn:#b45309; --warnbg:#fff7ed; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); line-height: 1.6; max-width: 980px; margin: 0 auto; padding: 36px 28px 80px; }
+  h1 { font-size: 1.9rem; margin: 0 0 .2em; }
+  h2 { font-size: 1.35rem; margin: 2.2em 0 .5em; padding-bottom: .25em; border-bottom: 2px solid var(--brand); color: var(--brand); }
+  h3 { font-size: 1.08rem; margin: 1.5em 0 .3em; color: var(--ink); }
+  h4 { font-size: .98rem; margin: 1.1em 0 .2em; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  p, li { font-size: .95rem; }
+  code { background: var(--code); padding: .1em .4em; border-radius: 4px; font-family: "SF Mono", Consolas, monospace; font-size: .86em; }
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: .82rem; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: .8em 0; font-size: .88rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--brandbg); color: var(--brand); font-weight: 600; }
+  .lead { color: var(--muted); font-size: 1.02rem; }
+  .tag { display: inline-block; background: var(--brandbg); color: var(--brand); border-radius: 20px; padding: 2px 12px; font-size: .78rem; font-weight: 600; }
+  .note { background: var(--warnbg); border-left: 4px solid var(--warn); border-radius: 0 6px 6px 0; padding: 10px 16px; margin: 1em 0; font-size: .9rem; }
+  .meta { color: var(--muted); font-size: .85rem; margin-top: .3em; }
+  .flow { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; font-family: "SF Mono", Consolas, monospace; font-size: .82rem; white-space: pre; overflow-x: auto; }
+   hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+  .toc { background: #fafbfc; border: 1px solid var(--line); border-radius: 8px; padding: 14px 22px; }
+  .toc ol { margin: .4em 0; }
+  @media print { body { padding: 0 8px; } h2 { page-break-after: avoid; } pre, table, .flow { page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+
+<h1>WhatsApp Chatbot — Technical Handover</h1>
+<p class="lead">Tata Trusts Small Animal Hospital Mumbai (SAHM) — Laravel website &amp; admin panel.</p>
+<p class="meta">Document scope: the WhatsApp chatbot — architecture, conversation flows, data, admin management, configuration, testing and deployment. For developers taking over the project.</p>
+
+<div class="toc">
+<strong>Contents</strong>
+<ol>
+  <li>Overview</li>
+  <li>Architecture &amp; key components</li>
+  <li>Message lifecycle (inbound &amp; outbound)</li>
+  <li>Conversation flows</li>
+  <li>Direct appointment creation</li>
+  <li>Chatbot Management (admin-editable content)</li>
+  <li>Database schema</li>
+  <li>Routes &amp; admin modules</li>
+  <li>Configuration / environment</li>
+  <li>Notifications</li>
+  <li>Local testing (simulator)</li>
+  <li>Deployment</li>
+  <li>Known limitations &amp; design decisions</li>
+</ol>
+</div>
+
+<h2>1. Overview</h2>
+<p>The chatbot is a <strong>reactive WhatsApp assistant</strong> for pet parents. It is served through <strong>Fortius</strong> (<code>waba.fortius.in.net</code>), a Business Solution Provider that proxies the <strong>Meta WhatsApp Cloud API</strong>. All send/receive payloads follow Meta's Cloud API format exactly.</p>
+<ul>
+  <li><strong>Reactive only:</strong> the user must message first (e.g. "Hi"); the bot then replies within WhatsApp's 24-hour customer-service window. Business-initiated messages would require Meta-approved templates (not currently used).</li>
+  <li><strong>Stateful:</strong> each conversation's current step + collected answers are stored per phone number.</li>
+  <li><strong>Content-driven:</strong> wording, options and menus are editable from the admin panel; the <em>flow structure</em> (step sequence + branching) lives in code.</li>
+</ul>
+
+<h2>2. Architecture &amp; key components</h2>
+<table>
+<tr><th>Component</th><th>File</th><th>Responsibility</th></tr>
+<tr><td>Receive webhook</td><td><code>app/Http/Controllers/WhatsAppWebhookController.php</code></td><td>GET verify handshake; POST parses inbound Meta payload → calls the bot engine.</td></tr>
+<tr><td>Bot engine</td><td><code>app/Support/WhatsAppBot.php</code></td><td>The brain. Routes by conversation step, builds questions, handles all flows, creates appointments.</td></tr>
+<tr><td>Send service</td><td><code>app/Services/WhatsAppFortius.php</code></td><td>Outbound messages: <code>sendText</code>, <code>sendButtons</code>, <code>sendList</code>, <code>sendImage</code>, <code>sendCtaUrl</code>. POSTs to <code>{base_url}/{version}/{phone_number_id}/messages</code>.</td></tr>
+<tr><td>Conversation state</td><td><code>app/Models/WhatsAppConversation.php</code></td><td>Per-<code>wa_id</code> row: <code>step</code>, <code>data</code> (JSON: booking/report answers + history), <code>last_message_at</code>.</td></tr>
+<tr><td>Editable content</td><td><code>app/Models/ChatbotContent.php</code></td><td>Admin-editable copy (questions, options, menu, FAQ, info). Static helpers the bot reads: <code>text()</code>, <code>options()</code>, <code>customSteps()</code>, <code>flowRows()</code>.</td></tr>
+<tr><td>Delayed menu</td><td><code>app/Jobs/SendWhatsAppMainMenu.php</code></td><td>Re-shows the main menu a short delay after a flow completes (needs a queue worker for the real delay).</td></tr>
+<tr><td>Appointment notifier</td><td><code>app/Support/AppointmentNotifier.php</code></td><td>Shared "new booking" SMS + emails, used by both website and WhatsApp bookings (null-safe).</td></tr>
+<tr><td>Notification hooks</td><td><code>app/Support/NotificationHooks.php</code></td><td>Model <code>created</code> listeners → raise in-panel admin notifications.</td></tr>
+</table>
+
+<h3>Captured-data models</h3>
+<ul>
+  <li><code>WhatsAppBookingRequest</code> — raw chat intake (audit record of each completed booking conversation).</li>
+  <li><code>AppointmentEnquiry</code> / <code>AppointmentUser</code> — the real appointment + client profile (shared with the website).</li>
+  <li><code>MedicalReportRequest</code> — "share my pet's reports" requests.</li>
+  <li><code>WhatsAppTeamQuery</code> — "Talk to our team" messages.</li>
+</ul>
+
+<h2>3. Message lifecycle (inbound &amp; outbound)</h2>
+<h4>Inbound (user → bot)</h4>
+<div class="flow">user → WhatsApp → Fortius → POST  https://&lt;domain&gt;/webhooks/whatsapp
+   → WhatsAppWebhookController@handle
+   → parses entry[].changes[].value.messages[]  (text or interactive id)
+   → WhatsAppBot@handle($waId, $profileName, $text, $interactiveId)</div>
+<h4>Outbound (bot → user)</h4>
+<div class="flow">WhatsAppBot → WhatsAppFortius@send*  →  POST {base_url}/{version}/{phone_number_id}/messages
+   (Authorization: Bearer &lt;WHATSAPP_TOKEN&gt;)  →  Fortius → WhatsApp → user</div>
+<p>The webhook <strong>GET</strong> endpoint (<code>verify()</code>) is only used during webhook registration — it echoes <code>hub_challenge</code> when <code>hub_verify_token</code> matches <code>WHATSAPP_VERIFY_TOKEN</code>. Normal message traffic is all <strong>POST</strong>.</p>
+
+<h3>Step router</h3>
+<p><code>WhatsAppBot@handle()</code> stores the conversation, then routes on <code>$convo->step</code>:</p>
+<pre><code>match ($convo->step) {
+    'lead_reason'      => captureReason(...),      // Talk-to-team message
+    'book_client_type' => chooseClientType(...),   // New / Existing choice
+    'book_flow'        => continueBooking(...),     // Booking questions
+    'report_flow'      => continueReport(...),      // Medical-report questions
+    'book_day_custom'  => captureCustomDay(...),    // typed "pick a date"
+    'book_heard_custom'=> captureCustomHeard(...),  // typed "how heard: Other"
+    'book_review'      => reviewRouter(...),         // review + edit before confirm
+    'book_edit'        => captureEdit(...),          // editing one field
+    default            => routeMenu(...),            // idle: menu + taps
+};</code></pre>
+<p>Reset words (<code>hi, hello, hey, menu, start, main menu, restart</code>) always return to the main menu. A thank-you / goodbye (<code>thanks, bye, that's all…</code>) ends the chat with a warm sign-off instead of re-showing the menu.</p>
+
+<h2>4. Conversation flows</h2>
+
+<h3>4.1 Main menu</h3>
+<p>Greeting text + an interactive list. Items (editable via <code>menu.items</code>):</p>
+<div class="flow">📅 Book appointment   🏥 Our services   📍 Timings &amp; location
+🚨 Emergency help     📄 Medical reports 💬 Talk to our team</div>
+<p>Custom admin-added menu options (flow = <code>menu</code>) are appended; tapping one replies with its stored message.</p>
+
+<h3>4.2 Book appointment</h3>
+<p>First asks <strong>New client</strong> or <strong>Existing client</strong> (<code>book_client_type</code>). If a "New client" picks a number already registered, the bot asks them to choose "Existing client" instead.</p>
+
+<h4>New-client sequence</h4>
+<div class="flow">Pet parent name → Address → Email → Mobile → PIN
+→ Pet name → Species → Sex → Breed → Colour → DOB/Age → Weight → Neutered?
+→ Got it. What's the visit for?        (visit type)
+→ Which speciality do you need?
+→ What's the main concern for the visit?
+→ [any custom questions]
+→ Which day works best? → Preferred time?
+→ Referred by? → How did you hear about us?
+→ Review &amp; Confirm</div>
+
+<h4>Existing-client sequence (branches on UID)</h4>
+<div class="flow">Do you have your Patient ID / UID with us?   [Yes] [No]
+├─ Yes → Patient ID/UID → Visit for → Speciality → [custom] → Day → Time → Review
+└─ No  → Pet parent full name → Pet name → Mobile
+         → Visit for → Speciality → [custom] → Day → Time → Review</div>
+<p>The branch is driven by the <code>has_uid</code> answer. <code>bookingSteps($clientType, $answers)</code> is rebuilt on every step, so the step list adapts to the Yes/No answer while the already-answered prefix stays stable (the cursor remains valid).</p>
+
+<h4>Speciality step</h4>
+<p>DB-driven: <code>bookableSpecialities()</code> returns a curated, ordered slug list (Cardiology, Dermatology, Dental Care, Diagnostic Imaging, Diagnostic Pathology, Oncology, Ophthalmology, Physiotherapy &amp; Rehabilitation, Soft Tissue Surgery). The earlier per-doctor selection step was removed per client request (<code>doctorStep()</code>/<code>bookableDoctorsFor()</code> remain as dead code, re-enableable).</p>
+
+<h4>Review, edit &amp; confirm</h4>
+<p>Before saving, a summary is shown (<code>sendReview</code>). The user can type a field name (e.g. "email", "day") to edit just that field (<code>reviewRouter</code> → <code>captureEdit</code>), or tap <strong>Confirm &amp; book</strong> → <code>finaliseBooking</code>.</p>
+
+<h3>4.3 Medical reports</h3>
+<p><code>menu_reports</code> → collects Client name, Pet name, Patient UID, Mobile, Report needed (+ any custom report-flow questions). Saved to <code>medical_report_requests</code>; custom answers go to its <code>extra</code> JSON column. Confirms with a reference (<code>#MR-0001</code>) and "our team will contact you".</p>
+
+<h3>4.4 Our services</h3>
+<p>List of 6 rows + "View all on website": 3 pinned headline services (Emergency &amp; IPD 24/7, OPD Consultation, Dialysis) + 3 specialities. Tapping a speciality (<code>svc_{id}</code>) sends a link to its page; the pinned items route to emergency info / specialities page / dialysis page. Capped at WhatsApp's 10-row list limit.</p>
+
+<h3>4.5 Timings, Emergency, FAQ, Talk to team</h3>
+<ul>
+  <li><strong>Timings</strong> — address + hours (<code>info.hours</code>: IPD &amp; Emergency 24×7; OPD 9:30 AM–7:30 PM) + emergency number + map.</li>
+  <li><strong>Emergency</strong> — phone-first help (<code>info.emergency</code>) + address + directions.</li>
+  <li><strong>FAQ</strong> — list of common questions (built-in + admin-added custom FAQs); each answers with editable text.</li>
+  <li><strong>Talk to team</strong> — captures a free-text message → <code>whatsapp_team_queries</code> + emails Customer Care.</li>
+</ul>
+
+<h2>5. Direct appointment creation</h2>
+<p>On <strong>Confirm &amp; book</strong>, <code>finaliseBooking</code> → <code>createAppointmentFromBooking</code>:</p>
+<ol>
+  <li>Saves the raw intake (<code>WhatsAppBookingRequest</code>) for audit.</li>
+  <li>Find-or-creates the <code>AppointmentUser</code> keyed by mobile (mobile falls back to the WhatsApp number when not collected — e.g. the UID branch).</li>
+  <li>Creates an <code>AppointmentEnquiry</code> with <code>source = 'whatsapp'</code>, a per-source running reference (<code>WA-0001</code>), default status, and the chosen speciality. Chat-only extras (breed, how-heard, custom answers, patient UID…) are folded into the <code>reason</code> field.</li>
+  <li>Runs <code>AppointmentNotifier::notifyNewBooking()</code> — the same tentative-booking SMS + owner email + admin email as a website booking (null-safe; sends even without a firm date).</li>
+  <li>Replies with a confirmation + <code>WA-</code> reference. <strong>No website login link.</strong></li>
+</ol>
+<p>WhatsApp appointments appear in the admin <strong>WhatsApp Appointments</strong> tab and the reports, and raise a "New WhatsApp Appointment" in-panel notification.</p>
+
+<h2>6. Chatbot Management (admin-editable content)</h2>
+<p>Admin section <strong>Chatbot Management</strong> (<code>manage-chatbot.*</code>, permission <code>chatbot-management.view/edit</code>) edits rows in <code>chatbot_contents</code>. The bot overlays them onto its code steps via <code>WhatsAppBot@overlaySteps()</code>; if a key is missing/inactive the built-in default is used, so the flow never breaks.</p>
+<h4>What admins can manage</h4>
+<ul>
+  <li><strong>Question / message wording</strong> for every step (keys like <code>book.reason</code>, <code>book.has_uid</code>, <code>report.mobile</code>).</li>
+  <li><strong>Answer options</strong> for choice steps + their order (drag to reorder), enable/disable.</li>
+  <li><strong>Menu</strong> greeting + items, <strong>Info</strong> blocks (hours, emergency), <strong>FAQ</strong> answers.</li>
+  <li><strong>Add new items</strong>: custom Booking / Medical-Report questions (text or multiple-choice), FAQ entries, Main-menu options — with a <strong>Priority</strong> field for ordering and a WhatsApp-style editor + live preview.</li>
+</ul>
+<div class="note"><strong>Protected by design:</strong> the step <em>sequence</em> and <em>branching anchors</em> stay in code. Branch-driving options (New/Existing, Yes/No UID, Pick-a-date, How-heard "Other") keep their option IDs in code so renaming them in the panel can't break the flow. Question <em>order</em> is not panel-editable (the two booking variants make a single order field unreliable) — devs change it in code.</p></div>
+
+<h2>7. Database schema</h2>
+<table>
+<tr><th>Table</th><th>Purpose</th><th>Key columns</th></tr>
+<tr><td><code>whatsapp_conversations</code></td><td>Per-user chat state</td><td>wa_id, step, data (JSON), last_message_at</td></tr>
+<tr><td><code>whatsapp_booking_requests</code></td><td>Raw booking intake (audit)</td><td>wa_id, client_type, parent_name, pet_name, patient_uid, …, converted_at</td></tr>
+<tr><td><code>appointment_enquiries</code></td><td>Real appointments (web + WhatsApp)</td><td>source, ref_no, speciality, preferred_doctor, appointment_status_id, …</td></tr>
+<tr><td><code>appointment_users</code></td><td>Client profiles</td><td>mobile, name, email, address, pincode</td></tr>
+<tr><td><code>medical_report_requests</code></td><td>Report requests</td><td>client_name, patient_name, patient_uid, mobile, report_name, extra (JSON)</td></tr>
+<tr><td><code>whatsapp_team_queries</code></td><td>Talk-to-team messages</td><td>wa_id, name, message, status</td></tr>
+<tr><td><code>chatbot_contents</code></td><td>Admin-editable copy</td><td>section, flow, content_key, field_key, body, options (JSON), is_choice, is_active, is_protected, sort_order</td></tr>
+</table>
+
+<h2>8. Routes &amp; admin modules</h2>
+<table>
+<tr><th>Route</th><th>Purpose</th><th>Permission</th></tr>
+<tr><td><code>GET/POST /webhooks/whatsapp</code></td><td>Verify handshake / inbound messages</td><td>public</td></tr>
+<tr><td><code>manage-whatsapp-appointments.*</code></td><td>WhatsApp appointments list/detail/status</td><td>whatsapp-appointments.*</td></tr>
+<tr><td><code>manage-whatsapp-queries.*</code></td><td>Talk-to-team inbox</td><td>whatsapp-queries.view</td></tr>
+<tr><td><code>manage-medical-reports.*</code></td><td>Medical-report requests inbox</td><td>medical-reports.view</td></tr>
+<tr><td><code>manage-chatbot.*</code></td><td>Chatbot Management (content)</td><td>chatbot-management.view/edit</td></tr>
+</table>
+<p>Permissions are seeded by <code>ModulePermissionsSeeder</code> and assigned to Super Admin + Admin (Front Office additionally for the inboxes).</p>
+
+<h2>9. Configuration / environment</h2>
+<pre><code># WhatsApp — Fortius (Meta Cloud API proxy)
+WHATSAPP_BASE_URL=https://waba.fortius.in.net
+WHATSAPP_API_VERSION=v18.0
+WHATSAPP_PHONE_NUMBER_ID=&lt;id of the connected number from Fortius&gt;
+WHATSAPP_TOKEN=&lt;API bearer token&gt;
+WHATSAPP_VERIFY_TOKEN=&lt;webhook-registration handshake secret&gt;
+WHATSAPP_CHAT_NUMBER=&lt;number the website "Chat with us" button opens, digits+country code&gt;</code></pre>
+<p>Config is bound in <code>config/services.php</code> under <code>services.whatsapp</code>. SMS (MessageIndia) + mail are configured separately and used by <code>AppointmentNotifier</code>.</p>
+<div class="note"><strong>Number status:</strong> verify the connected number via the Fortius API console → <em>Get Channels</em> (version <code>v18.0</code>). A <code>+1 555…</code> <code>display_phone_number</code> is Meta's <strong>test</strong> number — it only replies to a small allowlist and <strong>cannot be used for production</strong>. A real business number must be onboarded (its own <code>phone_number_id</code>) before go-live.</p></div>
+
+<h2>10. Notifications</h2>
+<p><code>NotificationHooks</code> registers model <code>created</code> listeners that call <code>AdminNotification::raise()</code>:</p>
+<ul>
+  <li><code>AppointmentEnquiry</code> → "New WhatsApp Appointment" (source-aware link) or "New Appointment Booking" (website).</li>
+  <li><code>MedicalReportRequest</code> → "New Medical Report Request".</li>
+  <li><code>WhatsAppTeamQuery</code> → "New WhatsApp Query".</li>
+</ul>
+<p>Shown via the in-panel bell (AJAX polling). Emails for bookings/queries go out via <code>AppointmentNotifier</code> / the bot's email helpers; every send is recorded in <code>communication_logs</code> (visible under Reports → Communication).</p>
+
+<h2>11. Local testing (simulator)</h2>
+<p>No WhatsApp credentials needed — <code>php artisan whatsapp:simulate</code> fakes an inbound message and prints the bot's replies:</p>
+<pre><code># Start fresh and open the menu
+php artisan whatsapp:simulate --fresh --from=919812345678 "hi"
+
+# Continue the same conversation (state persists per --from)
+php artisan whatsapp:simulate --from=919812345678 "menu_book"
+php artisan whatsapp:simulate --from=919812345678 "client_existing"
+# … tap ids (menu_book, client_new) or type free text/button titles</code></pre>
+
+<h2>12. Deployment</h2>
+<pre><code>git pull
+composer install --optimize-autoloader --no-dev
+php artisan migrate --force
+php artisan db:seed --class=ModulePermissionsSeeder --force
+php artisan db:seed --class=ChatbotContentSeeder --force              # fresh content (firstOrCreate)
+php artisan db:seed --class=ChatbotContentUpdateOct2026Seeder --force # content tweaks on already-seeded envs
+php artisan config:cache &amp;&amp; php artisan route:cache &amp;&amp; php artisan view:cache</code></pre>
+<p><strong>Content note:</strong> <code>ChatbotContentSeeder</code> uses <code>firstOrCreate</code> (never clobbers admin edits), so content changes for an <em>already-seeded</em> environment are applied via <code>ChatbotContentUpdateOct2026Seeder</code>. The bot also falls back to code defaults for any missing content row, so it works even unseeded (the admin panel would just be empty).</p>
+<p><strong>Queue:</strong> the delayed main-menu job + queued mail need a worker (<code>php artisan queue:work</code>) or set <code>QUEUE_CONNECTION=sync</code>.</p>
+
+<h2>13. Known limitations &amp; design decisions</h2>
+<ul>
+  <li><strong>Flow structure in code:</strong> step order &amp; branching live in <code>WhatsAppBot::bookingSteps()</code> / <code>reportSteps()</code>. Content (wording/options) is in the DB. This keeps branching safe while letting non-developers manage copy.</li>
+  <li><strong>WhatsApp list limit:</strong> interactive lists allow max 10 rows — the services and speciality lists are trimmed accordingly (rest via "View all on website").</li>
+  <li><strong>Test vs live number:</strong> the bot replies to the whole public only on a real connected business number; the sandbox number is allowlist-only.</li>
+  <li><strong>Reactive only:</strong> the bot cannot initiate a conversation; proactive/&gt;24h messages would need approved templates.</li>
+  <li><strong>Dead code kept intentionally:</strong> <code>doctorStep()</code> / <code>bookableDoctorsFor()</code> remain for easy re-enable of per-doctor selection.</li>
+  <li><strong>Debug log:</strong> the webhook has a temporary <code>Log::info('WhatsApp inbound payload', …)</code> — remove before production (it logs every user's number + message).</li>
+</ul>
+
+<hr>
+<p class="meta">End of document. Generated as a developer handover for the SAHM WhatsApp chatbot.</p>
+
+</body>
+</html>
