@@ -139,7 +139,12 @@
                                 </div>
                             </div>
                             <div class="enq-actions">
-                                <a href="{{ $resumeUrl }}" target="_blank" class="btn btn-primary w-100">Download Resume</a>
+                                @php
+                                    $viewUrl = in_array($resumeExt, ['doc','docx'])
+                                        ? 'https://view.officeapps.live.com/op/view.aspx?src='.urlencode($resumeUrl)
+                                        : $resumeUrl;
+                                @endphp
+                                <a href="{{ $viewUrl }}" target="_blank" rel="noopener" class="btn btn-primary w-100">View Resume</a>
                             </div>
                         </div>
                     @endif

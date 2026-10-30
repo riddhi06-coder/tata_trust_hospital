@@ -66,7 +66,14 @@
                                                 <td>{{ $app->email }}</td>
                                                 <td>
                                                     @if($app->resume_file)
-                                                        <a href="{{ asset('frontend/assets/uploads/resumes/'.$app->resume_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
+                                                        @php
+                                                            $resumeAsset = asset('frontend/assets/uploads/resumes/'.$app->resume_file);
+                                                            $resumeExtL  = strtolower(pathinfo($app->resume_file, PATHINFO_EXTENSION));
+                                                            $resumeView  = in_array($resumeExtL, ['doc','docx'])
+                                                                ? 'https://view.officeapps.live.com/op/view.aspx?src='.urlencode($resumeAsset)
+                                                                : $resumeAsset;
+                                                        @endphp
+                                                        <a href="{{ $resumeView }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">View</a>
                                                     @else
                                                         —
                                                     @endif
