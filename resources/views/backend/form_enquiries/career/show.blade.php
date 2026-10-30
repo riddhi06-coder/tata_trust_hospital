@@ -13,11 +13,11 @@
             ->map(fn ($p) => strtoupper(substr($p, 0, 1)))
             ->take(2)
             ->implode('');
-        $resumeUrl  = $application->resume_file ? asset('home/careers/resumes/'.$application->resume_file) : null;
+        $resumeUrl  = $application->resume_file ? asset('frontend/assets/uploads/resumes/'.$application->resume_file) : null;
         $resumeExt  = $application->resume_file ? strtolower(pathinfo($application->resume_file, PATHINFO_EXTENSION)) : '';
         $resumeSize = null;
         if ($application->resume_file) {
-            $abs = public_path('home/careers/resumes/'.$application->resume_file);
+            $abs = public_path('frontend/assets/uploads/resumes/'.$application->resume_file);
             if (file_exists($abs)) {
                 $bytes = filesize($abs);
                 $resumeSize = $bytes >= 1048576

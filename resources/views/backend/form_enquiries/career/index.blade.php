@@ -66,7 +66,7 @@
                                                 <td>{{ $app->email }}</td>
                                                 <td>
                                                     @if($app->resume_file)
-                                                        <a href="{{ asset('home/careers/resumes/'.$app->resume_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
+                                                        <a href="{{ asset('frontend/assets/uploads/resumes/'.$app->resume_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
                                                     @else
                                                         —
                                                     @endif

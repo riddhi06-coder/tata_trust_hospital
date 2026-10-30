@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel — User Guide</title>
+<style>
+  :root { --ink:#1f2933; --muted:#5b6b7b; --line:#e6eaef; --brand:#0f766e; --brandbg:#e6f4f1; --tip:#1d4ed8; --tipbg:#eff5ff; --soft:#f7f9fb; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); line-height:1.65; max-width:900px; margin:0 auto; padding:40px 30px 90px; }
+  h1 { font-size:2rem; margin:0 0 .15em; }
+  .sub { color:var(--muted); font-size:1.05rem; margin:0 0 .2em; }
+  .meta { color:var(--muted); font-size:.85rem; }
+  h2 { font-size:1.4rem; margin:2.4em 0 .4em; color:var(--brand); border-bottom:2px solid var(--brand); padding-bottom:.25em; }
+  h3 { font-size:1.12rem; margin:1.6em 0 .3em; }
+  p,li { font-size:.96rem; }
+  .what { background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:12px 18px; margin:.6em 0; }
+  .tip { background:var(--tipbg); border-left:4px solid var(--tip); border-radius:0 6px 6px 0; padding:10px 16px; margin:.8em 0; font-size:.92rem; }
+  .tip b { color:var(--tip); }
+  .flow { background:#fff; border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:0 6px 6px 0; padding:4px 18px; margin:.6em 0; }
+  ol.steps { margin:.4em 0; padding-left:1.3em; }
+  ol.steps li { margin:.25em 0; }
+  table { border-collapse:collapse; width:100%; margin:.8em 0; font-size:.9rem; }
+  th,td { border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--brandbg); color:var(--brand); }
+  .toc { background:var(--soft); border:1px solid var(--line); border-radius:10px; padding:16px 26px; columns:2; }
+  .toc a { color:var(--ink); text-decoration:none; font-size:.9rem; }
+  .pill { display:inline-block; background:var(--brandbg); color:var(--brand); border-radius:20px; padding:1px 11px; font-size:.78rem; font-weight:600; }
+  .shot { border:2px dashed #c3ccd6; background:repeating-linear-gradient(45deg,#fafbfc,#fafbfc 10px,#f2f5f8 10px,#f2f5f8 20px); border-radius:8px; padding:26px 16px; text-align:center; color:#8a94a6; font-size:.85rem; margin:.7em 0; }
+  .shot b { color:#5b6b7b; }
+  hr { border:none; border-top:1px solid var(--line); margin:2.4em 0; }
+  @media print { body{padding:0 10px;} h2{page-break-after:avoid;} .what,.tip,.flow,table{page-break-inside:avoid;} .toc{columns:2;} }
+</style>
+</head>
+<body>
+
+<h1>Small Animal Hospital Mumbai</h1>
+<p class="sub">Admin Panel — Simple User Guide</p>
+<p class="meta">A plain-English walkthrough of every section of your admin panel: what it does, how information flows, and how to update it yourself.</p>
+
+<div class="toc">
+<strong>What's inside</strong><br>
+1. Getting started<br>
+2. Dashboard<br>
+3. Website content (Home, Team, Specialities, etc.)<br>
+4. Appointments<br>
+5. The WhatsApp Chatbot<br>
+6. Chatbot Management<br>
+7. Form Enquiries<br>
+8. Medical Report Requests<br>
+9. Reports<br>
+10. Notifications<br>
+11. Activity &amp; Communication Logs<br>
+12. Users, Roles &amp; Permissions<br>
+13. The public website (what visitors see)<br>
+</div>
+
+<h2>1. Getting started</h2>
+<div class="what"><b>What this is:</b> the admin panel is the control room of your website. From here you manage every page, every booking, and the WhatsApp assistant — no coding needed.</div>
+<ol class="steps">
+  <li>Open your admin web address in a browser and log in with your email and password.</li>
+  <li>On the left is the <b>menu (sidebar)</b> — every section of the site is a menu item.</li>
+  <li>Click a menu item to open that section. Most sections show a <b>list</b>; click <b>Add</b> to create, or the <b>Edit</b> button to change an existing item.</li>
+  <li>After editing, always click <b>Save / Update</b>. Changes appear on the live website immediately.</li>
+</ol>
+<div class="shot">📷 <b>Screenshot:</b> the admin login screen &amp; the left-hand menu (sidebar)</div>
+<div class="tip"><b>Golden rule:</b> you can only see the menu items your account has permission for. If something is missing, an administrator can grant you access (see section 12).</div>
+
+<h2>2. Dashboard</h2>
+<div class="what"><b>What this is:</b> the first screen after login — a quick snapshot of what's happening.</div>
+<p>It shows counts and today's appointments at a glance (owner, pet, consultation type, status). It's read-only — think of it as your morning overview. Click any item to open its full details.</p>
+
+<h2>3. Website content</h2>
+<p>These sections control what visitors see on the public website. The pattern is always the same: <b>open the section → Edit → change text/images → Save</b>. Here's what each one controls:</p>
+
+<table>
+<tr><th>Menu item</th><th>Controls on the website</th></tr>
+<tr><td><b>Home → Banner Details</b></td><td>The big sliding banners at the top of the home page.</td></tr>
+<tr><td><b>Home → Short Introduction</b></td><td>The welcome paragraph on the home page.</td></tr>
+<tr><td><b>Home → Services / Facilities / Team / Testimonials</b></td><td>The sections shown on the home page (which services, facilities, doctors and reviews appear).</td></tr>
+<tr><td><b>Our Team</b></td><td>Your doctors — name, photo, qualifications, speciality, and whether they show on the website.</td></tr>
+<tr><td><b>Specialities</b></td><td>Your departments (Cardiology, Oncology, etc.) and their detail pages.</td></tr>
+<tr><td><b>Our Facilities</b></td><td>The facilities/amenities list.</td></tr>
+<tr><td><b>About Us</b></td><td>The About page content.</td></tr>
+<tr><td><b>Testimonials</b></td><td>Client reviews shown on the site.</td></tr>
+<tr><td><b>Gallery / Media</b></td><td>Photo galleries and media/press items.</td></tr>
+<tr><td><b>Events</b></td><td>Upcoming or past events.</td></tr>
+<tr><td><b>Join Us</b></td><td>The careers page and the roles people can apply for.</td></tr>
+<tr><td><b>FAQ's</b></td><td>Frequently asked questions shown on the website.</td></tr>
+<tr><td><b>Blog</b></td><td>Blog articles, categories, and comments.</td></tr>
+<tr><td><b>Contact Details</b></td><td>Address, phone, emergency number, map, and social links used across the site.</td></tr>
+<tr><td><b>Policy</b></td><td>Privacy policy / terms pages.</td></tr>
+<tr><td><b>Flyer</b></td><td>A promotional flyer/popup, if used.</td></tr>
+</table>
+
+<h3>How to update any website section (example: a doctor)</h3>
+<ol class="steps">
+  <li>Click <b>Our Team</b> in the menu.</li>
+  <li>Find the doctor and click <b>Edit</b> (or <b>Add</b> for a new one).</li>
+  <li>Change the name, photo, qualifications or speciality.</li>
+  <li>Click <b>Save</b> — the website updates instantly.</li>
+</ol>
+<div class="tip"><b>Tip:</b> images should be clear and not too large. Each section tells you the recommended format (jpg/png/webp).</div>
+
+<h2>4. Appointments</h2>
+<div class="what"><b>What this is:</b> every appointment request — whether booked on the website or through WhatsApp — lands here for your team to manage.</div>
+
+<h3>How a booking flows</h3>
+<div class="flow">
+A pet parent books (website form <b>or</b> WhatsApp) → the appointment is created automatically →
+it appears under <b>Appointments</b> → the pet parent gets a confirmation SMS/email →
+your team updates the status (e.g. Confirmed, Rescheduled, Completed).
+</div>
+
+<h3>The sub-sections</h3>
+<ul>
+  <li><b>Appointments</b> — all appointments booked on the <i>website</i>.</li>
+  <li><b>WhatsApp Appointments</b> — all appointments booked via the <i>chatbot</i> (same details, separate tab).</li>
+  <li><b>Appointment Users</b> — the pet parents' profiles (built automatically when they book/log in).</li>
+  <li><b>Manage Statuses</b> — the list of statuses you can set (Pending, Confirmed, Rescheduled, Cancelled, etc.). Some statuses can auto-send an SMS to the pet parent.</li>
+</ul>
+
+<h3>How to handle an appointment</h3>
+<ol class="steps">
+  <li>Open <b>Appointments</b> (or <b>WhatsApp Appointments</b>).</li>
+  <li>Use the filters (date, status, search) to find one.</li>
+  <li>Click <b>View</b> to see full details (pet, owner, speciality, reason).</li>
+  <li>Change the <b>Status</b> and save. If that status has an SMS set up (like "Rescheduled" or "Cancelled"), the pet parent is notified automatically.</li>
+</ol>
+<div class="shot">📷 <b>Screenshot:</b> the Appointments list with filters and the View/Status controls</div>
+
+<h2>5. The WhatsApp Chatbot</h2>
+<div class="what"><b>What this is:</b> an automatic assistant on WhatsApp. When a pet parent messages your number, the bot replies with a menu and guides them — book an appointment, see services, timings, request reports, or talk to your team.</div>
+
+<h3>What the pet parent experiences</h3>
+<div class="flow">
+Pet parent sends "Hi" → bot shows the <b>main menu</b> →
+they pick an option (e.g. Book appointment) → the bot asks a few friendly questions →
+they confirm → an appointment is created and a confirmation SMS is sent →
+when they say "thank you", the chat ends politely.
+</div>
+
+<h3>The menu options</h3>
+<ul>
+  <li><b>Book appointment</b> — asks if they're a new or existing client, collects the needed details, speciality, day &amp; time, then books it.</li>
+  <li><b>Our services</b> — a tappable list of your key services and specialities.</li>
+  <li><b>Timings &amp; location</b> — hours, address and directions.</li>
+  <li><b>Emergency help</b> — the emergency number and address.</li>
+  <li><b>Medical reports</b> — collects a few details so your team can share the pet's reports.</li>
+  <li><b>Talk to our team</b> — captures their message for your team to follow up.</li>
+</ul>
+<div class="tip"><b>Good to know:</b> the bot only replies after the pet parent messages first (a WhatsApp rule). Everything it says — the questions, options, menu and answers — can be edited by you in <b>Chatbot Mgmt</b> (next section).</div>
+
+<h2>6. Chatbot Management</h2>
+<div class="what"><b>What this is:</b> the section (menu item <b>Chatbot Mgmt</b>) where <u>you</u> control everything the chatbot says — no developer needed.</div>
+
+<h3>What you can change</h3>
+<ul>
+  <li><b>Any question or message</b> the bot sends (reword it however you like).</li>
+  <li><b>The answer options</b> shown to pet parents, and their <b>order</b> (drag to reorder).</li>
+  <li><b>The main menu</b> items and the welcome greeting.</li>
+  <li><b>Info screens</b> — timings, emergency text — and <b>FAQ answers</b>.</li>
+  <li><b>Add brand-new items</b> — your own extra questions, new FAQs, or new menu buttons.</li>
+</ul>
+
+<h3>How to edit a chatbot message</h3>
+<ol class="steps">
+  <li>Open <b>Chatbot Mgmt</b>. You'll see items grouped by section (Menu, Booking, Info, FAQ…).</li>
+  <li>Click <b>Edit</b> on the item you want to change.</li>
+  <li>Edit the message in the WhatsApp-style editor — a <b>live preview</b> shows exactly how it'll look.</li>
+  <li>For option lists, drag the ↕ handle to reorder, tick/untick to show/hide.</li>
+  <li>Click <b>Save changes</b>.</li>
+</ol>
+<div class="shot">📷 <b>Screenshot:</b> the Chatbot Mgmt edit screen with the message editor &amp; live preview</div>
+
+<h3>How to add a new item</h3>
+<ol class="steps">
+  <li>Click <b>+ Add new item</b>.</li>
+  <li>Choose where it goes (a booking question, a medical-report question, an FAQ, or a main-menu option).</li>
+  <li>Type the text (and options if it's multiple-choice), set the priority/order, and Save.</li>
+</ol>
+<div class="tip"><b>Note:</b> the <i>order</i> of the built-in questions and the conversation's branching are fixed in code (to keep the flow working safely). You can freely edit wording, options, FAQs, menu items, and add your own questions. For a change to the fixed step order, ask your developer — it's a quick change.</div>
+
+<h2>7. Form Enquiries</h2>
+<div class="what"><b>What this is:</b> everything visitors submit through website forms arrives here for your team to read and follow up.</div>
+<table>
+<tr><th>Sub-section</th><th>What it collects</th></tr>
+<tr><td><b>Contact Enquiries</b></td><td>Messages from the website Contact form.</td></tr>
+<tr><td><b>Job Applications</b></td><td>Applications from the Careers page (with resume).</td></tr>
+<tr><td><b>WhatsApp Queries</b></td><td>"Talk to our team" messages sent through the chatbot.</td></tr>
+<tr><td><b>Medical Report Requests</b></td><td>Report requests sent through the chatbot (see next section).</td></tr>
+</table>
+<div class="flow">
+Visitor submits a form → it's saved here → your team gets a notification (the bell, top-right) → open it, read the details, and follow up by phone/email/WhatsApp.
+</div>
+<p>Each list has <b>search and date filters</b>, and a <b>View</b> button to see the full submission. These are read-only records (you follow up outside the panel).</p>
+
+<h2>8. Medical Report Requests</h2>
+<div class="what"><b>What this is:</b> when a pet parent uses the chatbot's "Medical reports" option, their request (client name, pet name, patient ID, mobile, report needed) appears here.</div>
+<ol class="steps">
+  <li>Open <b>Form Enquiries → Medical Report Requests</b>.</li>
+  <li>Click <b>View</b> to see the details.</li>
+  <li>Use <b>Reply on WhatsApp</b> or <b>Call</b> to share the report with the pet parent.</li>
+</ol>
+
+<h2>9. Reports</h2>
+<div class="what"><b>What this is:</b> summaries and downloadable lists to understand your activity.</div>
+<ul>
+  <li><b>Overview</b> — the big picture (totals and trends).</li>
+  <li><b>Appointments</b> — a filterable, downloadable list of all appointments.</li>
+  <li><b>Operational</b> — day-to-day operational figures.</li>
+  <li><b>Clients</b> — your pet-parent base.</li>
+  <li><b>Communication</b> — a log of every SMS and email the system sent, with <b>sent/failed</b> status.</li>
+</ul>
+<div class="tip"><b>Handy check:</b> if someone says they didn't get a confirmation SMS, open <b>Reports → Communication</b> to see whether it was sent or failed.</div>
+
+<h2>10. Notifications</h2>
+<div class="what"><b>What this is:</b> the live bell at the top-right. It alerts your team the moment a new appointment, report request, or enquiry comes in.</div>
+<p>Click the bell to see recent notifications; click one to jump straight to that record. It updates on its own — no need to refresh.</p>
+
+<h2>11. Activity &amp; Communication Logs</h2>
+<ul>
+  <li><b>Activity Log</b> — a history of what was changed in the panel and by whom (useful for accountability).</li>
+  <li><b>Communication Logs</b> — the detailed record of every SMS/email attempt (same data the Communication report summarises).</li>
+</ul>
+
+<h2>12. Users, Roles &amp; Permissions</h2>
+<div class="what"><b>What this is:</b> who can log in and what they're allowed to see/do. (Usually managed by a Super Admin.)</div>
+<ul>
+  <li><b>Users</b> — the staff accounts that can log into the panel.</li>
+  <li><b>Roles</b> — groups like "Admin" or "Front Office" that bundle a set of permissions.</li>
+  <li><b>Permissions</b> — the fine-grained access (view/create/edit/delete) for each module.</li>
+</ul>
+<h3>To give a staff member access</h3>
+<ol class="steps">
+  <li>Create their account under <b>Users</b> and assign a <b>Role</b> (e.g. Front Office).</li>
+  <li>The role decides which menu items they'll see. Adjust the role's permissions if needed.</li>
+</ol>
+
+<h2>13. The public website (what visitors see)</h2>
+<div class="what"><b>What this is:</b> the parts your pet parents interact with on the live website. You don't manage these day-to-day, but it helps to know how they work.</div>
+
+<h3>Booking an appointment online</h3>
+<div class="flow">
+Visitor clicks <b>Book Appointment</b> → enters mobile number → gets an <b>OTP</b> (one-time code) by SMS → verifies →
+fills the booking form (pet &amp; visit details) → ticks the <b>"I'm not a robot"</b> box → submits →
+the appointment appears in your <b>Appointments</b> list and they receive a confirmation.
+</div>
+<div class="shot">📷 <b>Screenshot:</b> the online Book Appointment form</div>
+
+<h3>Contact form</h3>
+<p>The Contact page form also has the <b>"I'm not a robot"</b> check to stop spam. Genuine messages arrive under <b>Form Enquiries → Contact Enquiries</b>, and your team is alerted by the bell.</p>
+
+<h3>"Chat with us" button</h3>
+<p>The green <b>Chat with us</b> button (and the WhatsApp icon) in the website header open a WhatsApp chat with your hospital number, pre-filled with "Hi" — which starts the chatbot. All of these point to the <b>same number</b>.</p>
+<div class="shot">📷 <b>Screenshot:</b> the "Chat with us" button in the website header</div>
+
+<div class="tip"><b>Spam protection ("I'm not a robot"):</b> this is handled automatically. If you ever change the website address (domain), the robot-check needs the new address registered with Google — that's a quick one-time task for your developer.</div>
+
+<hr>
+<h2>Quick "how do I…?" cheat sheet</h2>
+<table>
+<tr><th>I want to…</th><th>Go to</th></tr>
+<tr><td>Change a doctor's details or photo</td><td>Our Team → Edit</td></tr>
+<tr><td>Change the hospital timings shown on the bot</td><td>Chatbot Mgmt → Info → Working hours</td></tr>
+<tr><td>Reword a chatbot question or option</td><td>Chatbot Mgmt → Edit the item</td></tr>
+<tr><td>Add a new FAQ to the chatbot</td><td>Chatbot Mgmt → + Add new item → FAQ</td></tr>
+<tr><td>Confirm / reschedule an appointment</td><td>Appointments → View → change Status</td></tr>
+<tr><td>See new enquiries</td><td>The bell (top-right) or Form Enquiries</td></tr>
+<tr><td>Check if an SMS/email went out</td><td>Reports → Communication</td></tr>
+<tr><td>Update address / phone / map</td><td>Contact Details</td></tr>
+<tr><td>Give a colleague panel access</td><td>Users → add account + Role</td></tr>
+</table>
+
+<div class="tip"><b>Remember:</b> almost everything follows the same rhythm — <b>open the section → Edit → change → Save</b>. When in doubt, look for the Edit button, make your change, and save. Live changes appear immediately; if you ever want something that isn't editable in the panel (like the fixed order of chatbot steps), your developer can adjust it quickly.</div>
+
+<hr>
+<p class="meta">End of guide — Small Animal Hospital Mumbai admin panel.</p>
+
+</body>
+</html>

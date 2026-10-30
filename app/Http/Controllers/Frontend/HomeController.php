@@ -440,8 +440,8 @@ class HomeController extends Controller
             'resume.max'        => 'Resume must be 5MB or smaller.',
         ])->validate();
 
-        // Store the resume under public/home/careers/resumes/ (matches project's public-uploads pattern).
-        $folder = public_path('home/careers/resumes');
+        // Store the resume under public/frontend/assets/uploads/resumes/ (matches project's public-uploads pattern).
+        $folder = public_path('frontend/assets/uploads/resumes');
         if (!file_exists($folder)) {
             mkdir($folder, 0755, true);
         }
